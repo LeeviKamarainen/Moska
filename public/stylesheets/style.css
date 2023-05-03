@@ -8,23 +8,55 @@ a {
 }
 
 .card {
-  width: 100px;
-  height: auto;
+  /*width: auto;*/
+  /*height: 80%;
+  max-height: 100px;*/
+  height: 80px;
+  width: 60px;
+  flex: 0 0 0%;
+  transition: transform 0.2s ease-in-out;
+}
+.card:hover {
+  transform: scale(1.5);
+}
+.card[selected] {
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 20px rgba(255, 255, 255, 0.5), 0 0 30px rgba(255, 255, 255, 0.5), 0 0 40px rgba(255, 136, 0, 0.5), 0 0 70px rgba(255, 136, 0, 0.5), 0 0 80px rgba(255, 136, 0, 0.5), 0 0 100px rgba(255, 136, 0, 0.5), 0 0 150px rgba(255, 136, 0, 0.5);
+  border-radius: 5px;
+}
 
+.board-player {
+  background-color: darkgreen;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.board-player[target] {
+  background-color: purple;
 }
 
 /* Set the height of the bottom div */
 #bottom {
   position: absolute;
+  width: 600px;
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
+}
+
+#play-cards {
+  position: absolute;
+  bottom: -10%;
+  left: 50%;
 }
 
 /* Set the width of the left and right divs */
 #left{
   position: absolute;
   top: 50%;
+  width: 200px;
+  height: 400px;
   left: 0;
   transform: translateY(-50%);
 }
@@ -32,18 +64,16 @@ a {
   position: absolute;
   top: 50%;
   right: 0;
+  width: 200px;
+  height: 400px;
   transform: translateY(-50%);
 }
 
-.board-player {
-  background-color: darkgreen;
-  width: 100px;
-  height: 100px;
-}
+
 /* Set the width and center the middle div */
 #middle {
   top: 50%;
-  left: 50%;
+  left: 46%;
   position: absolute;
   transform: translateX(-50%);
   transform: translateY(-50%);
@@ -53,12 +83,13 @@ a {
 #top {
   position: absolute;
   top: 0;
+  width: 600px;
   left: 50%;
   transform: translateX(-50%);
 }
 
 #board {
-  height: 400px;
+  height: 800px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;

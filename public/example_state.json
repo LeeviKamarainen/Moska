@@ -1,0 +1,74 @@
+{
+    "trump_card": "D4",
+    "deck_left": 28,
+    "cards_to_kill": [],
+    "killed_cards": [],
+    "target": "NNEV2",
+    "initiator": "Human",
+    "players": [
+        {
+            "name": "NNEV2",
+            "pid": 0,
+            "rank": null,
+            "ready": true,
+            "finished": 0,
+            "last_evaluation": 0.45,
+            "cards": [
+                "C9",
+                "D6",
+                "H8",
+                "H12",
+                "H2",
+                "H7"
+            ]
+        },
+        {
+            "name": "NNEV3",
+            "pid": 1,
+            "rank": null,
+            "ready": false,
+            "finished": 0,
+            "last_evaluation": 0.6,
+            "cards": [
+                "D14",
+                "S6",
+                "C14",
+                "H6",
+                "C13",
+                "H3"
+            ]
+        },
+        {
+            "name": "NNEV1",
+            "pid": 2,
+            "rank": null,
+            "ready": false,
+            "finished": 0,
+            "last_evaluation": 0.44,
+            "cards": [
+                "H10",
+                "S12",
+                "H4",
+                "H5",
+                "S3",
+                "S10"
+            ]
+        },
+        {
+            "name": "Human",
+            "pid": 3,
+            "rank": null,
+            "ready": true,
+            "finished": 0,
+            "last_evaluation": 0.52,
+            "cards": [
+                "H11",
+                "C3",
+                "H14",
+                "C12",
+                "D9",
+                "S13"
+            ]
+        }
+    ]
+}

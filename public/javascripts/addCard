@@ -1,3 +1,4 @@
+
 if (document.readyState !== "loading") {
     initializeCode();
     console.log('Loading!')
@@ -9,7 +10,11 @@ if (document.readyState !== "loading") {
   
   function initializeCode() {
     const form = document.getElementById("add-card-form");
+
     console.log("Code initialized!")
+    fetch("./example_state.json") 
+      .then((response) => response.json())
+      .then((json) => updateState(json));
     form.addEventListener("submit", (event) => {
       event.preventDefault();
     
@@ -19,46 +24,114 @@ if (document.readyState !== "loading") {
       console.log("Input 1:", cardType);
       console.log("Input 2:", cardNumber);
     
-      generateCard(cardType,cardNumber)
+      //generateCard(cardType,cardNumber)
     });
+
+    // Add click listener to the document:
+    document.body.onclick = function(e){
+      if(e.target.className && e.target.className.indexOf('card')!=-1) {
+        if(e.target.hasAttribute('selected')==true) {
+          e.target.removeAttribute('selected')
+        } else {
+        e.target.setAttribute('selected',1)
+        console.log(e.target.getAttribute('card-type'))
+        }
+      }
+   }
 
   }
 
 
-  function generateCard(cardType, cardNumber) {
-    //let logoutButton = document.getElementById("player-card-container");
+  function parseCard(cardString) {
+    //This string parses given card string in to valid img src:
+    const splitString = cardString.split(/(\d+)/);
+    let cardName;
+    if(splitString[0]=="H"){
+    cardName = "hearts";
+    }
+    else if(splitString[0]=="C") {
+      cardName = "clubs";
+    }
+    else if(splitString[0]=="S") {
+      cardName = "spades";
+    }
+    else if(splitString[0]=="D") {
+      cardName = "diamonds"
+    }
+
+    let cardNumber = splitString[1];
+    let parsedString = cardNumber+"_of_"+cardName;
+    let imgSrc = "/images/cards/"+parsedString+".png";
+    return imgSrc;
+  }
+
+
+  function updateState(stateJson) {
+    console.log(stateJson)
+    let botIndex = 0;
+    for (let playerIndex = 0; playerIndex < stateJson.players.length; playerIndex++) {
+    //Splitting the players name by first numeric character
+    let playerName = stateJson.players[playerIndex].name.split(/(\d+)/); 
+    let cardContainer;
+    console.log(playerName)
+    if(playerName[0]!="NNEV"){ // Player is human:
+      cardContainer = document.getElementById("bottom");
+      cardContainer.innerHTML = stateJson.players[playerIndex].name;
+    } else { // If the player is a bot:
+      switch (botIndex) {
+        case 0: {
+          cardContainer = document.getElementById("left");
+          cardContainer.innerHTML = stateJson.players[playerIndex].name;
+          break;
+        }
+        case 1: {
+          console.log("HERE")
+          cardContainer = document.getElementById("top");
+          cardContainer.innerHTML = stateJson.players[playerIndex].name;
+          break;
+        }
+        case 2: {
+          cardContainer = document.getElementById("right");
+          cardContainer.innerHTML = stateJson.players[playerIndex].name;
+          break;
+        }
+      }
+      console.log(botIndex)
+      botIndex = botIndex + 1;
+    }
+    
+    // Add target attribute to the target players div:
+    if(stateJson.players[playerIndex].name == stateJson.target) {
+      cardContainer.setAttribute("target",1);
+    }
+
     // Get the card container element
-    const cardContainer = document.getElementById("player-card-container");
 
-    //Card string:
-    let cardString = cardNumber+"_of_"+cardType;
+    // Selecting current indeces player:
+    let playerState = stateJson.players[playerIndex];
+    console.log(playerState)
 
-    // Create a new card element
-    const card = document.createElement("div");
-    card.classList.add("card");
+    for (let index = 0; index < playerState.cards.length; index++) { // Loop through the cards:
 
-    // Create an image element and set its source and alt attributes
-    const cardImage = document.createElement("img");
-    cardImage.src = "/images/cards/"+cardString+".png";
-    cardImage.className = "card";
-    //cardImage.alt = "Card Image";
+      let cardString = playerState.cards[index];
+      let parsedString = parseCard(cardString)
 
-    // Create a heading element and set its text content
-   /*
-    const cardTitle = document.createElement("h3");
-    cardTitle.textContent = "Card Title";
+      // Create new card div
+      const card = document.createElement("div");
+      card.classList.add("card");
 
-    // Create a paragraph element and set its text content
-    const cardDescription = document.createElement("p");
-    cardDescription.textContent = "Card Description";
-*/
-    // Append the image, heading, and paragraph elements to the card element
-    card.appendChild(cardImage);
-    // card.appendChild(cardTitle);
-    // card.appendChild(cardDescription);
+      // Create new image element for the card
+      const cardImage = document.createElement("img");
+      cardImage.src = parsedString;
+      cardImage.className = "card";
+      cardImage.setAttribute('card-type',cardString);
 
-    // Append the card element to the card container
-    cardContainer.appendChild(card);
+      // Append the image, heading, and paragraph elements to the card element
+      card.appendChild(cardImage);
 
-
+      // Append the card element to the card container
+      cardContainer.appendChild(card);
+    }
+    
+  }
   }
