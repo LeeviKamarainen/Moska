@@ -12,3 +12,58 @@ a {
   height: auto;
 
 }
+
+/* Set the height of the bottom div */
+#bottom {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Set the width of the left and right divs */
+#left{
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+}
+#right {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+}
+
+.board-player {
+  background-color: darkgreen;
+  width: 100px;
+  height: 100px;
+}
+/* Set the width and center the middle div */
+#middle {
+  top: 50%;
+  left: 50%;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Set the height of the top div */
+#top {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#board {
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  background-color: green;
+  position: relative;
+}
