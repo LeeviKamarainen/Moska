@@ -1,5 +1,6 @@
 if (document.readyState !== "loading") {
     initializeCode();
+    console.log('Loading!')
   } else {
     document.addEventListener("DOMContentLoaded", function () {
       initializeCode();
@@ -18,16 +19,19 @@ if (document.readyState !== "loading") {
       console.log("Input 1:", cardType);
       console.log("Input 2:", cardNumber);
     
-      // Do something with the input data...
+      generateCard(cardType,cardNumber)
     });
 
   }
 
 
-  function generateCard() {
-    let logoutButton = document.getElementById("player-card-container");
+  function generateCard(cardType, cardNumber) {
+    //let logoutButton = document.getElementById("player-card-container");
     // Get the card container element
-    const cardContainer = document.getElementById("card-container");
+    const cardContainer = document.getElementById("player-card-container");
+
+    //Card string:
+    let cardString = cardNumber+"_of_"+cardType;
 
     // Create a new card element
     const card = document.createElement("div");
@@ -35,7 +39,8 @@ if (document.readyState !== "loading") {
 
     // Create an image element and set its source and alt attributes
     const cardImage = document.createElement("img");
-    cardImage.src = "card_image.jpg";
+    cardImage.src = "/images/cards/"+cardString+".png";
+    cardImage.className = "card";
     //cardImage.alt = "Card Image";
 
     // Create a heading element and set its text content
