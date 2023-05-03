@@ -1,0 +1,59 @@
+if (document.readyState !== "loading") {
+    initializeCode();
+  } else {
+    document.addEventListener("DOMContentLoaded", function () {
+      initializeCode();
+    });
+  }
+  
+  function initializeCode() {
+    const form = document.getElementById("add-card-form");
+    console.log("Code initialized!")
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+    
+      const cardType = document.getElementById("card-type").value;
+      const cardNumber = document.getElementById("card-number").value;
+    
+      console.log("Input 1:", cardType);
+      console.log("Input 2:", cardNumber);
+    
+      // Do something with the input data...
+    });
+
+  }
+
+
+  function generateCard() {
+    let logoutButton = document.getElementById("player-card-container");
+    // Get the card container element
+    const cardContainer = document.getElementById("card-container");
+
+    // Create a new card element
+    const card = document.createElement("div");
+    card.classList.add("card");
+
+    // Create an image element and set its source and alt attributes
+    const cardImage = document.createElement("img");
+    cardImage.src = "card_image.jpg";
+    //cardImage.alt = "Card Image";
+
+    // Create a heading element and set its text content
+   /*
+    const cardTitle = document.createElement("h3");
+    cardTitle.textContent = "Card Title";
+
+    // Create a paragraph element and set its text content
+    const cardDescription = document.createElement("p");
+    cardDescription.textContent = "Card Description";
+*/
+    // Append the image, heading, and paragraph elements to the card element
+    card.appendChild(cardImage);
+    // card.appendChild(cardTitle);
+    // card.appendChild(cardDescription);
+
+    // Append the card element to the card container
+    cardContainer.appendChild(card);
+
+
+  }
