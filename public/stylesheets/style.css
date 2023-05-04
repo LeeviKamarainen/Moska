@@ -47,7 +47,8 @@ a {
 
 #play-cards {
   position: absolute;
-  bottom: -10%;
+  height: 50px;
+  bottom: -50px;
   left: 50%;
 }
 
@@ -73,10 +74,11 @@ a {
 /* Set the width and center the middle div */
 #middle {
   top: 50%;
-  left: 46%;
+  left: 50%;
+  height: 400px;
+  width: 400px;
   position: absolute;
-  transform: translateX(-50%);
-  transform: translateY(-50%);
+  transform: translate(-50%, -50%);
 }
 
 /* Set the height of the top div */

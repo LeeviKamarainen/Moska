@@ -1,7 +1,7 @@
 {
     "trump_card": "D4",
     "deck_left": 28,
-    "cards_to_kill": [],
+    "cards_to_kill": ["D3","D14"],
     "killed_cards": [],
     "target": "NNEV2",
     "initiator": "Human",

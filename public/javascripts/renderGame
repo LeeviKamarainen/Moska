@@ -10,7 +10,8 @@ if (document.readyState !== "loading") {
   
   function initializeCode() {
     const form = document.getElementById("add-card-form");
-
+    const playCardsButton = document.getElementById("play-cards");
+    const playCardsArray = Object.create(null);
     console.log("Code initialized!")
     fetch("./example_state.json") 
       .then((response) => response.json())
@@ -29,17 +30,31 @@ if (document.readyState !== "loading") {
 
     // Add click listener to the document:
     document.body.onclick = function(e){
-      if(e.target.className && e.target.className.indexOf('card')!=-1) {
+      if(e.target.className && e.target.className.indexOf('card')!=-1 && e.target.getAttribute("parentcontainer") == "bottom") {
+        console.log(e.target)
         if(e.target.hasAttribute('selected')==true) {
           e.target.removeAttribute('selected')
+          delete playCardsArray[e.target.getAttribute('card-type')];
         } else {
         e.target.setAttribute('selected',1)
         console.log(e.target.getAttribute('card-type'))
+        playCardsArray[e.target.getAttribute('card-type')] = 1;
         }
       }
    }
 
+   playCardsButton.addEventListener("click", function() {
+    console.log(playCardsArray)
+   });
+  
+
   }
+
+
+function playCards(playCardsArray) {
+
+
+}
 
 
   function parseCard(cardString) {
@@ -69,37 +84,35 @@ if (document.readyState !== "loading") {
   function updateState(stateJson) {
     console.log(stateJson)
     let botIndex = 0;
+
+    // Rendering players cards:
     for (let playerIndex = 0; playerIndex < stateJson.players.length; playerIndex++) {
     //Splitting the players name by first numeric character
     let playerName = stateJson.players[playerIndex].name.split(/(\d+)/); 
+    let containerName;
     let cardContainer;
-    console.log(playerName)
     if(playerName[0]!="NNEV"){ // Player is human:
-      cardContainer = document.getElementById("bottom");
-      cardContainer.innerHTML = stateJson.players[playerIndex].name;
+      containerName = "bottom";
     } else { // If the player is a bot:
       switch (botIndex) {
         case 0: {
-          cardContainer = document.getElementById("left");
-          cardContainer.innerHTML = stateJson.players[playerIndex].name;
+          containerName = "left";
           break;
         }
         case 1: {
-          console.log("HERE")
-          cardContainer = document.getElementById("top");
-          cardContainer.innerHTML = stateJson.players[playerIndex].name;
+          containerName = "top";
           break;
         }
         case 2: {
-          cardContainer = document.getElementById("right");
-          cardContainer.innerHTML = stateJson.players[playerIndex].name;
+          containerName = "right";
           break;
         }
       }
       console.log(botIndex)
       botIndex = botIndex + 1;
     }
-    
+    cardContainer = document.getElementById(containerName);
+    cardContainer.innerHTML = stateJson.players[playerIndex].name;
     // Add target attribute to the target players div:
     if(stateJson.players[playerIndex].name == stateJson.target) {
       cardContainer.setAttribute("target",1);
@@ -124,6 +137,8 @@ if (document.readyState !== "loading") {
       const cardImage = document.createElement("img");
       cardImage.src = parsedString;
       cardImage.className = "card";
+      
+      cardImage.setAttribute('parentContainer',containerName);
       cardImage.setAttribute('card-type',cardString);
 
       // Append the image, heading, and paragraph elements to the card element
@@ -134,4 +149,33 @@ if (document.readyState !== "loading") {
     }
     
   }
+
+  // Rendering cards to kill:
+  const boardContainer = document.getElementById("middle");
+  for (let index = 0; index < stateJson.cards_to_kill.length; index++) {
+    
+    let cardString = stateJson.cards_to_kill[index];
+    let parsedString = parseCard(cardString)
+
+    // Create new card div
+    const card = document.createElement("div");
+    card.classList.add("card");
+
+    // Create new image element for the card
+    const cardImage = document.createElement("img");
+    cardImage.src = parsedString;
+    cardImage.className = "card";
+    cardImage.setAttribute('card-type',cardString);
+
+    // Append the image, heading, and paragraph elements to the card element
+    card.appendChild(cardImage);
+
+    // Append the card element to the card container
+    boardContainer.appendChild(card);
+    
+  }
+
+
+
+
   }
