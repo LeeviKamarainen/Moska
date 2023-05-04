@@ -1,6 +1,7 @@
 body {
   padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  background-color: black;
 }
 
 a {
@@ -16,13 +17,44 @@ a {
   flex: 0 0 0%;
   transition: transform 0.2s ease-in-out;
 }
+/* Action menu settings:*/
+#action-menu {
+  position:absolute;
+  height: 10%;
+  width: 80%;
+  bottom: -10%;
+  left: 10%;
+  background-color: grey; 
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.play-cards {
+  height: 100%;
+}
+
+#deck {
+  top: 50%;
+  left: 70%;
+  height: 80px;
+  width: 120px;
+  position: absolute;
+  transform: translate(-50%, -70%);
+  text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+
 
 .amount-left {
   position: absolute;
-  bottom: -110%; 
+  bottom: -100%; 
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
 .card:hover {
   transform: scale(1.5);
 }
@@ -47,6 +79,11 @@ a {
   background-color: yellow;
 }
 
+.board-player[activated] {
+  box-shadow: 0px 0px 10px 2px rgba(224, 240, 12, 1);
+  /* Change the values as needed to adjust the glow effect */
+}
+
 /* Set the height of the bottom div */
 #bottom {
   position: absolute;
@@ -56,12 +93,9 @@ a {
   transform: translateX(-50%);
 }
 
-#play-cards {
-  position: absolute;
-  height: 50px;
-  bottom: -50px;
-  left: 50%;
-}
+
+
+
 
 /* Set the width of the left and right divs */
 #left{
@@ -90,16 +124,6 @@ a {
   width: 400px;
   position: absolute;
   transform: translate(-50%, -50%);
-}
-
-#deck {
-  top: 50%;
-  left: 70%;
-  height: 80px;
-  width: 60px;
-  position: absolute;
-  transform: translate(-50%, -70%);
-  text-align: center;
 }
 
 

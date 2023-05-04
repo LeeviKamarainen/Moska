@@ -7,14 +7,17 @@
 
 <body>
   <script type="text/javascript" src="javascripts/renderGame"></script>
-  <form id="add-card-form">
+<!--  <form id="add-card-form">
     <label for="card-type">Enter Card type:</label>
     <input type="text" id="card-type" name="card-type">
     <label for="card-number">Enter Card number:</label>
     <input type="text" id="card-number" name="card-number">
     <button type="submit">Submit</button>
   </form>
+-->
 
+
+  <header style="color:white; text-align: center; margin:auto; font-size: large;">MOSKA:</header>
   <div id="player-card-container">
     <!-- Add new HTML elements as playing cards here -->
   </div>
@@ -29,7 +32,15 @@
   <div id="bottom" class="board-player">
   </div>
   <div id="deck" class="board-player"></div>
-  <button id="play-cards">Play Cards:</button>
+  <div id="action-menu" class="action-menu">
+    <button id="play-fall-hand"class = "play-cards">Play Fall from Hand</button>
+    <button id="play-fall-deck" class = "play-cards">Play Fall from Deck</button>
+    <button id="play-to-self" class = "play-cards">Play to Self</button>
+    <button id="play-to-other" class = "play-cards">Play to Other</button>
+    <button id="draw-all" class = "play-cards">Draw All</button>
+    <button id="skip-turn" class = "play-cards">Skip turn</button>
+    <button id="end-turn" class = "play-cards">End turn</button>
+  </div>
 </div>
 </body>
 

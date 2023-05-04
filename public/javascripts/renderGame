@@ -8,25 +8,13 @@ if (document.readyState !== "loading") {
     });
   }
   
-  function initializeCode() {
-    const form = document.getElementById("add-card-form");
-    const playCardsButton = document.getElementById("play-cards");
+  async function initializeCode() {
+    const playCardsButton = document.getElementById("play-fall-hand");
     const playCardsArray = Object.create(null);
     console.log("Code initialized!")
-    fetch("./example_state.json") 
-      .then((response) => response.json())
-      .then((json) => updateState(json));
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
-    
-      const cardType = document.getElementById("card-type").value;
-      const cardNumber = document.getElementById("card-number").value;
-    
-      console.log("Input 1:", cardType);
-      console.log("Input 2:", cardNumber);
-    
-      //generateCard(cardType,cardNumber)
-    });
+    const res = await fetch("./example_state.json");
+    let stateJson = await res.json();
+    updateState(stateJson)
 
     // Add click listener to the document:
     document.body.onclick = function(e){
@@ -43,15 +31,16 @@ if (document.readyState !== "loading") {
       }
    }
 
-   playCardsButton.addEventListener("click", function() {
-    console.log(playCardsArray)
+   playCardsButton.addEventListener("click", function(){
+    stateJson.action = "PlayFallFromHand"
+    playCards(stateJson)
    });
   
 
   }
 
 
-function playCards(playCardsArray,stateJson) {
+function playCards(stateJson) {
   // Find player name:
   let humanName;
   for (let playerIndex = 0; playerIndex < stateJson.players.length; playerIndex++) {
@@ -62,9 +51,12 @@ function playCards(playCardsArray,stateJson) {
      }
   }
 
-  //Case when human is the initiator:
-  if(stateJson.initiator == humanName) {
-
+  //Case when human plays :
+  if(stateJson.action == "PlayFallFromHand") {
+    let humanDeck = document.getElementById('bottom')
+    let board = document.getElementById('middle')
+    humanDeck.setAttribute('activated',1)
+    board.setAttribute('activated',1)
   }
 
   // Case when human is the target:
@@ -197,26 +189,37 @@ function playCards(playCardsArray,stateJson) {
     
   }
 
-  // Rendering amount of cards left in the deck:
+  // Rendering amount of cards left in the deck and the trump card:
   const deckContainer = document.getElementById("deck");
   // Create new card div
   const card = document.createElement("div");
+  const card2 = document.createElement("div");
   card.classList.add("card");
+  card2.classList.add("card");
   // Create new image element for the card
   const cardImage = document.createElement("img");
+  const cardImage2 = document.createElement("img");
   cardImage.src = "/images/cards/card_back.png";
   cardImage.className = "card";
   cardImage.setAttribute('card-type',"card_back");
+
+  let cardString = stateJson.trump_card;
+  let parsedCard = parseCard(cardString);
+  cardImage2.src = parsedCard;
+  cardImage2.className = "card";
+  cardImage2.setAttribute('card-type',"card_back");
   
 
   // Append the image, heading, and paragraph elements to the card element
   card.appendChild(cardImage);
+  card2.appendChild(cardImage2);
 
-  // Append the card element to the card container
+  // Append the card elements to the card container
   const amountLeft = document.createElement("p");
   amountLeft.className = "amount-left";
   amountLeft.innerHTML = "Cards left: "+stateJson.deck_left;
   deckContainer.appendChild(card);
+  deckContainer.appendChild(card2);
   deckContainer.appendChild(amountLeft);
 
 
