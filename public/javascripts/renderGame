@@ -51,8 +51,26 @@ if (document.readyState !== "loading") {
   }
 
 
-function playCards(playCardsArray) {
+function playCards(playCardsArray,stateJson) {
+  // Find player name:
+  let humanName;
+  for (let playerIndex = 0; playerIndex < stateJson.players.length; playerIndex++) {
+    //Splitting the players name by first numeric character
+    let playerName = stateJson.players[playerIndex].name.split(/(\d+)/); 
+    if(playerName[0]!="NNEV"){ // Player is human:
+      humanName = stateJson.players[playerIndex].name;
+     }
+  }
 
+  //Case when human is the initiator:
+  if(stateJson.initiator == humanName) {
+
+  }
+
+  // Case when human is the target:
+  if(stateJson.target == humanName) {
+
+  }
 
 }
 
@@ -118,6 +136,10 @@ function playCards(playCardsArray) {
       cardContainer.setAttribute("target",1);
     }
 
+    if(stateJson.players[playerIndex].name == stateJson.initiator) {
+      cardContainer.setAttribute("initiator",1);
+    }
+
     // Get the card container element
 
     // Selecting current indeces player:
@@ -175,7 +197,27 @@ function playCards(playCardsArray) {
     
   }
 
+  // Rendering amount of cards left in the deck:
+  const deckContainer = document.getElementById("deck");
+  // Create new card div
+  const card = document.createElement("div");
+  card.classList.add("card");
+  // Create new image element for the card
+  const cardImage = document.createElement("img");
+  cardImage.src = "/images/cards/card_back.png";
+  cardImage.className = "card";
+  cardImage.setAttribute('card-type',"card_back");
+  
 
+  // Append the image, heading, and paragraph elements to the card element
+  card.appendChild(cardImage);
+
+  // Append the card element to the card container
+  const amountLeft = document.createElement("p");
+  amountLeft.className = "amount-left";
+  amountLeft.innerHTML = "Cards left: "+stateJson.deck_left;
+  deckContainer.appendChild(card);
+  deckContainer.appendChild(amountLeft);
 
 
   }

@@ -16,6 +16,13 @@ a {
   flex: 0 0 0%;
   transition: transform 0.2s ease-in-out;
 }
+
+.amount-left {
+  position: absolute;
+  bottom: -110%; 
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
 .card:hover {
   transform: scale(1.5);
 }
@@ -34,6 +41,10 @@ a {
 
 .board-player[target] {
   background-color: purple;
+}
+
+.board-player[initiator] {
+  background-color: yellow;
 }
 
 /* Set the height of the bottom div */
@@ -80,6 +91,17 @@ a {
   position: absolute;
   transform: translate(-50%, -50%);
 }
+
+#deck {
+  top: 50%;
+  left: 70%;
+  height: 80px;
+  width: 60px;
+  position: absolute;
+  transform: translate(-50%, -70%);
+  text-align: center;
+}
+
 
 /* Set the height of the top div */
 #top {
