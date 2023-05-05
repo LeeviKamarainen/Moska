@@ -57,6 +57,14 @@ function checkActionState(stateJson) {
     // Check if they initiator actions includes the buttons id and that the player is also human.
     if(stateJson.initiator_actions.includes(actionMenuButtons[index].id) && playerName[0]!="NNEV") {
       actionMenuButtons[index].disabled = false; 
+
+      //Also add event listeners for the buttons, so that each of the buttons uses playCards function, which then checks what actions should be done.
+      actionMenuButtons[index].addEventListener("click",function() {
+        console.log(actionMenuButtons[index].id);
+        //Modify the stateJson to contain the wanted action:
+        stateJson.action = actionMenuButtons[index].id;
+        playCards(stateJson)
+      })
     }
   }
 }
@@ -74,10 +82,10 @@ function playCards(stateJson) {
   }
 
   //Case when human plays :
-  if(stateJson.action == "PlayFallFromHand") {
-    let cardArray = ["PlayFallFromHand"];
-    let index = 1;
-    playFallHand(function(temp){
+  if(stateJson.action == "play-fall-hand") {
+    let cardArray = ["PlayFallFromHand",""];
+
+    playFallHand(cardArray,function(temp){
       console.log(temp)
       return temp;
     });
@@ -91,24 +99,15 @@ function playCards(stateJson) {
 
 }
 
-
-function playFallHand(callback) {
-
-  // Initialize array (Play and moves):
-  cardArray = ["PlayFallFromHand",""];
-
-  createHand(cardArray,callback);
-  function createHand(cardArray) {
-    let cardPair = "";
-    console.log(cardArray)
+function playFallHand(cardArray,callback) {
 
     // Check if the user wants to play the cards (end recursion):
     const playCardsButton = document.getElementById("play-fall-hand");
     playCardsButton.innerHTML = 'Play selected cards';
     playCardsButton.addEventListener("click", function(){
       playCardsButton.innerHTML = 'Select Fall from Hand';
-      callback(cardArray);
-      return
+      callback(cardArray)
+      return;
     });
     let humanDeck = document.getElementById('bottom')
     let board = document.getElementById('middle')
@@ -117,14 +116,12 @@ function playFallHand(callback) {
 
     humanDeck.onclick = function(e){
       if(e.target.className && e.target.className.indexOf('card')!=-1  && e.target.getAttribute('card-type') != null && humanDeck.getAttribute('activated') == 1) {
+        let cardPair = "";
         cardPair = cardPair.concat(e.target.getAttribute('card-index'));
         let cardToPlay = e.target;
         cardToPlay.setAttribute('selected',1);
-        console.log(cardPair);
-      
         board.setAttribute('activated',1)
         humanDeck.removeAttribute('activated');
-        humanDeck.removeAttribute('onclick');
         board.onclick = function(e){
         if(e.target.className && e.target.className.indexOf('card')!=-1 && e.target.getAttribute('card-type') != null && board.getAttribute('activated') == 1) {
           let cardToFall = e.target;
@@ -132,7 +129,6 @@ function playFallHand(callback) {
           
           // Concat the card pair to string:
           cardPair = cardPair.concat(","+e.target.getAttribute('card-index'));
-          console.log(cardArray[1])
           cardArray[1] = cardArray[1].concat(" "+cardPair);
           
           board.removeAttribute('activated')
@@ -143,13 +139,68 @@ function playFallHand(callback) {
           
           cardToFall.setAttribute('used',1)
           cardToPlay.setAttribute('used',1)
-          return createHand(cardArray);
+          humanDeck.setAttribute('activated',1)
           }
         }
       }
     }
   }
-}
+
+
+// function playFallHand(callback) {
+
+//   // Initialize array (Play and moves):
+//   cardArray = ["PlayFallFromHand",""];
+
+//   createHand(cardArray,callback);
+//   function createHand(cardArray) {
+//     let cardPair = "";
+
+//     // Check if the user wants to play the cards (end recursion):
+//     const playCardsButton = document.getElementById("play-fall-hand");
+//     playCardsButton.innerHTML = 'Play selected cards';
+//     playCardsButton.addEventListener("click", function(){
+//       playCardsButton.innerHTML = 'Select Fall from Hand';
+//       callback(cardArray);
+//       return
+//     });
+//     let humanDeck = document.getElementById('bottom')
+//     let board = document.getElementById('middle')
+    
+//     humanDeck.setAttribute('activated',1)
+
+//     humanDeck.onclick = function(e){
+//       if(e.target.className && e.target.className.indexOf('card')!=-1  && e.target.getAttribute('card-type') != null && humanDeck.getAttribute('activated') == 1) {
+//         cardPair = cardPair.concat(e.target.getAttribute('card-index'));
+//         let cardToPlay = e.target;
+//         cardToPlay.setAttribute('selected',1);
+//         board.setAttribute('activated',1)
+//         humanDeck.removeAttribute('activated');
+//         humanDeck.removeAttribute('onclick');
+//         board.onclick = function(e){
+//         if(e.target.className && e.target.className.indexOf('card')!=-1 && e.target.getAttribute('card-type') != null && board.getAttribute('activated') == 1) {
+//           let cardToFall = e.target;
+//           cardToFall.setAttribute('selected',1);
+          
+//           // Concat the card pair to string:
+//           cardPair = cardPair.concat(","+e.target.getAttribute('card-index'));
+//           cardArray[1] = cardArray[1].concat(" "+cardPair);
+          
+//           board.removeAttribute('activated')
+          
+//           // Set the selected cards as unactivated:
+//           cardToFall.removeAttribute('selected')
+//           cardToPlay.removeAttribute('selected')
+          
+//           cardToFall.setAttribute('used',1)
+//           cardToPlay.setAttribute('used',1)
+//           return createHand(cardArray);
+//           }
+//         }
+//       }
+//     }
+//   }
+// }
 
 
   function parseCard(cardString) {
