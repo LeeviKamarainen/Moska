@@ -31,6 +31,7 @@ if (document.readyState !== "loading") {
       }
    }
 
+   checkActionState(stateJson)
    playCardsButton.addEventListener("click", function(){
     stateJson.action = "PlayFallFromHand"
     playCards(stateJson)
@@ -38,6 +39,27 @@ if (document.readyState !== "loading") {
   
 
   }
+
+
+function checkActionState(stateJson) {
+  const actionMenuButtons = document.getElementsByClassName("play-cards");
+  console.log(actionMenuButtons)
+
+  // First make sure that all of the buttons are hidden (if they have previously been unhidden.)
+  for (let index = 0; index < actionMenuButtons.length; index++) {
+    actionMenuButtons[index].disabled = true;
+  }
+
+  // Find initiators name:
+  let playerName = stateJson.initiator.split(/(\d+)/); 
+  // Then make all of the buttons which are included in the stateJson visible:
+  for (let index = 0; index < actionMenuButtons.length; index++) {
+    // Check if they initiator actions includes the buttons id and that the player is also human.
+    if(stateJson.initiator_actions.includes(actionMenuButtons[index].id) && playerName[0]!="NNEV") {
+      actionMenuButtons[index].disabled = false; 
+    }
+  }
+}
 
 
 function playCards(stateJson) {
