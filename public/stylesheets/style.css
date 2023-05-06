@@ -40,6 +40,10 @@ a {
   pointer-events: none;
 }
 
+.play-cards[activated] {
+  box-shadow: 0px 0px 10px 2px rgba(224, 240, 12, 1);
+}
+
 #deck {
   top: 50%;
   left: 70%;
@@ -73,6 +77,10 @@ a {
   opacity: 0.5;
   cursor: not-allowed;
   pointer-events: none;
+}
+
+.card[card-type="card-back"] {
+  border-radius: 5px 5px 5px 5px;
 }
 
 
@@ -139,6 +147,35 @@ a {
   transform: translate(-50%, -50%);
 }
 
+#cards-to-kill { 
+  position: absolute;
+  top: 0;
+  height: 50%;
+  width: 100%;
+  border: 2px solid black;
+  transition: top 0.2s, height 0.2s;
+}
+
+#cards-to-kill:hover {
+  height: 120%;
+  top: -50%;
+}
+
+#killed-cards {
+  position: absolute;
+  bottom: 0;
+  height: 50%;
+  width: 100%;
+  border: 2px solid black;
+  overflow: hidden;
+  transition: height 0.2s, bottom 0.2s, z-index 0.2s;
+}
+
+
+#killed-cards:hover {
+  height: 120%;
+  bottom: -70%;
+}
 
 /* Set the height of the top div */
 #top {

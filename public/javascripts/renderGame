@@ -9,17 +9,16 @@ if (document.readyState !== "loading") {
   }
   
   async function initializeCode() {
-    const playCardsButton = document.getElementById("play-fall-hand");
+    const playCardsButton = document.getElementById("PlayFallFromHand");
     const playCardsArray = Object.create(null);
     console.log("Code initialized!")
-    const res = await fetch("./example_state.json");
+    const res = await fetch("./example_state2.json");
     let stateJson = await res.json();
     updateState(stateJson)
 
     // Add click listener to the document:
     document.body.onclick = function(e){
       if(e.target.className && e.target.className.indexOf('card')!=-1 && e.target.getAttribute("parentcontainer") == "bottom") {
-        console.log(e.target)
         if(e.target.hasAttribute('selected')==true) {
           //e.target.removeAttribute('selected')
           delete playCardsArray[e.target.getAttribute('card-type')];
@@ -43,24 +42,32 @@ if (document.readyState !== "loading") {
 
 function checkActionState(stateJson) {
   const actionMenuButtons = document.getElementsByClassName("play-cards");
-  console.log(actionMenuButtons)
 
   // First make sure that all of the buttons are hidden (if they have previously been unhidden.)
   for (let index = 0; index < actionMenuButtons.length; index++) {
     actionMenuButtons[index].disabled = true;
   }
 
-  // Find initiators name:
-  let playerName = stateJson.initiator.split(/(\d+)/); 
+  // Find the player whos turn it is now:
+  let playerName = stateJson.turn; 
+
+  let playerIndex;
+  //Find human player index:
+  for (let index = 0; index < stateJson.players.length; index++) {
+    if(stateJson.players[index].name.split(/(\d+)/)[0]!="NN") {
+      playerIndex = index;
+    }
+    
+  }
+
   // Then make all of the buttons which are included in the stateJson visible:
   for (let index = 0; index < actionMenuButtons.length; index++) {
-    // Check if they initiator actions includes the buttons id and that the player is also human.
-    if(stateJson.initiator_actions.includes(actionMenuButtons[index].id) && playerName[0]!="NNEV") {
+    // Check if they initiator actions includes the buttons id and that the player whos turn is now is the player:
+    if(stateJson.players[playerIndex].playable_moves.includes(actionMenuButtons[index].id) && playerName==stateJson.players[playerIndex].name) {
       actionMenuButtons[index].disabled = false; 
 
       //Also add event listeners for the buttons, so that each of the buttons uses playCards function, which then checks what actions should be done.
       actionMenuButtons[index].addEventListener("click",function() {
-        console.log(actionMenuButtons[index].id);
         //Modify the stateJson to contain the wanted action:
         stateJson.action = actionMenuButtons[index].id;
         playCards(stateJson)
@@ -76,41 +83,113 @@ function playCards(stateJson) {
   for (let playerIndex = 0; playerIndex < stateJson.players.length; playerIndex++) {
     //Splitting the players name by first numeric character
     let playerName = stateJson.players[playerIndex].name.split(/(\d+)/); 
-    if(playerName[0]!="NNEV"){ // Player is human:
+    if(playerName[0]!="NN"){ // Player is human:
       humanName = stateJson.players[playerIndex].name;
      }
   }
 
   //Case when human plays :
-  if(stateJson.action == "play-fall-hand") {
+  if(stateJson.action == "PlayFallFromHand") {
     let cardArray = ["PlayFallFromHand",""];
-
     playFallHand(cardArray,function(temp){
       console.log(temp)
       return temp;
     });
-
   }
+
+  if(stateJson.action == "PlayFallFromDeck") {
+    let cardArray = ["PlayFallFromDeck",""];
+    console.log(cardArray)
+  }
+
+  if(stateJson.action == "PlayToOther") {
+    let cardArray = ["PlayToOther",""];
+    playToOther(cardArray,function(temp){
+      console.log(temp)
+      return temp;
+    });
+  }
+  if(stateJson.action == "PlayToSelf") {
+      let cardArray = ["PlayToSelf",""];
+      playToSelf(cardArray,function(temp){
+        console.log(temp)
+        return temp;
+      });
+    }
+
 
   // Case when human is the target:
   if(stateJson.target == humanName) {
-
+    let cardArray = ["PlayToOther",""];
   }
 
 }
 
+function playToSelf(cardArray,callback) {
+
+  const playToSelfButton = document.getElementById("PlayToSelf");
+  playToSelfButton.innerHTML = 'Play selected cards';
+  playToSelfButton.setAttribute('activated',1)
+  playToSelfButton.addEventListener("click", function(){
+    playToSelfButton.innerHTML = 'Play To Self';
+    humanDeck.removeAttribute('activated');
+    playToSelfButton.removeAttribute('activated')
+    callback(cardArray)
+    return;
+  });
+  let humanDeck = document.getElementById('bottom')
+  humanDeck.setAttribute('activated',1)
+
+  humanDeck.onclick = function(e) {
+    if(e.target.className && e.target.className.indexOf('card')!=-1  && e.target.getAttribute('card-type') != null && humanDeck.getAttribute('activated') == 1) {
+      let cardPair = "";
+      cardPair = cardPair.concat(e.target.getAttribute('card-index'));
+      let cardToPlay = e.target;
+      cardToPlay.setAttribute('selected',1);
+      cardArray[1] = cardArray[1].concat(" "+cardPair);
+  }
+}
+}
+
+function playToOther(cardArray,callback) {
+
+  const playToOtherButton = document.getElementById("PlayToOther");
+  playToOtherButton.innerHTML = 'Play selected cards';
+  playToOtherButton.setAttribute('activated',1)
+  playToOtherButton.addEventListener("click", function(){
+    playToOtherButton.innerHTML = 'Play To Other';
+    playToOtherButton.removeAttribute('activated')
+    humanDeck.removeAttribute('activated');
+    callback(cardArray)
+    return;
+  });
+  let humanDeck = document.getElementById('bottom')
+  humanDeck.setAttribute('activated',1)
+
+  humanDeck.onclick = function(e) {
+    if(e.target.className && e.target.className.indexOf('card')!=-1  && e.target.getAttribute('card-type') != null && humanDeck.getAttribute('activated') == 1) {
+      let cardPair = "";
+      cardPair = cardPair.concat(e.target.getAttribute('card-index'));
+      let cardToPlay = e.target;
+      cardToPlay.setAttribute('selected',1);
+      cardArray[1] = cardArray[1].concat(" "+cardPair);
+  }
+}
+}
+
 function playFallHand(cardArray,callback) {
 
-    // Check if the user wants to play the cards (end recursion):
-    const playCardsButton = document.getElementById("play-fall-hand");
+    const playCardsButton = document.getElementById("PlayFallFromHand");
     playCardsButton.innerHTML = 'Play selected cards';
+    playCardsButton.setAttribute('activated',1)
     playCardsButton.addEventListener("click", function(){
       playCardsButton.innerHTML = 'Select Fall from Hand';
+      playCardsButton.removeAttribute('activated',1)
       callback(cardArray)
       return;
     });
     let humanDeck = document.getElementById('bottom')
-    let board = document.getElementById('middle')
+    let board = document.getElementById('cards-to-kill')
     
     humanDeck.setAttribute('activated',1)
 
@@ -228,17 +307,20 @@ function playFallHand(cardArray,callback) {
 
 
   function updateState(stateJson) {
-    console.log(stateJson)
     let botIndex = 0;
 
     // Rendering players cards:
+    
+    //Saving human players index:
+    let humanIndex;
     for (let playerIndex = 0; playerIndex < stateJson.players.length; playerIndex++) {
     //Splitting the players name by first numeric character
     let playerName = stateJson.players[playerIndex].name.split(/(\d+)/); 
     let containerName;
     let cardContainer;
-    if(playerName[0]!="NNEV"){ // Player is human:
+    if(playerName[0]!="NN"){ // Player is human:
       containerName = "bottom";
+      humanIndex = playerIndex;
     } else { // If the player is a bot:
       switch (botIndex) {
         case 0: {
@@ -254,7 +336,6 @@ function playFallHand(cardArray,callback) {
           break;
         }
       }
-      console.log(botIndex)
       botIndex = botIndex + 1;
     }
     cardContainer = document.getElementById(containerName);
@@ -272,12 +353,18 @@ function playFallHand(cardArray,callback) {
 
     // Selecting current indeces player:
     let playerState = stateJson.players[playerIndex];
-    console.log(playerState)
 
     for (let index = 0; index < playerState.cards.length; index++) { // Loop through the cards:
-
-      let cardString = playerState.cards[index];
-      let parsedString = parseCard(cardString)
+      let parsedString;
+      let cardString
+      if(playerIndex==humanIndex) {
+      cardString = playerState.cards[index];
+      parsedString = parseCard(cardString)
+      }
+      else {
+        cardString = "card-back";
+        parsedString = "/images/cards/card_back.png";
+      }
 
       // Create new card div
       const card = document.createElement("div");
@@ -302,7 +389,7 @@ function playFallHand(cardArray,callback) {
   }
 
   // Rendering cards to kill:
-  const boardContainer = document.getElementById("middle");
+  const cardsToKillContainer = document.getElementById("cards-to-kill");
   for (let index = 0; index < stateJson.cards_to_kill.length; index++) {
     
     let cardString = stateJson.cards_to_kill[index];
@@ -322,8 +409,31 @@ function playFallHand(cardArray,callback) {
     card.appendChild(cardImage);
 
     // Append the card element to the card container
-    boardContainer.appendChild(card);
+    cardsToKillContainer.appendChild(card);
+  }
+
+  const killedCardsContainer = document.getElementById("killed-cards");
+  for (let index = 0; index < stateJson.killed_cards.length; index++) {
     
+    let cardString = stateJson.killed_cards[index];
+    let parsedString = parseCard(cardString)
+
+    // Create new card div
+    const card = document.createElement("div");
+    card.classList.add("card");
+
+    // Create new image element for the card
+    const cardImage = document.createElement("img");
+    cardImage.src = parsedString;
+    cardImage.className = "card";
+    cardImage.setAttribute('card-type',cardString);
+    cardImage.setAttribute('card-index',index+1);
+    cardImage.setAttribute('card-killed',1);
+    // Append the image, heading, and paragraph elements to the card element
+    card.appendChild(cardImage);
+
+    // Append the card element to the card container
+    killedCardsContainer.appendChild(card);
   }
 
   // Rendering amount of cards left in the deck and the trump card:

@@ -1,0 +1,90 @@
+{
+    "trump_card": "H13",
+    "deck_left": 24,
+    "cards_to_kill": [
+        "C3",
+        "S9"
+    ],
+    "killed_cards": [
+        "D3",
+        "D9"
+    ],
+    "target": "Human",
+    "initiator": "NN2-HIF2",
+    "turn": "Human",
+    "players": [
+        {
+            "name": "Human",
+            "pid": 0,
+            "rank": null,
+            "ready": true,
+            "finished": 0,
+            "last_evaluation": 0.42,
+            "cards": [
+                "H9",
+                "C2",
+                "D13",
+                "S3",
+                "C7",
+                "D12"
+            ],
+            "playable_moves": [
+                "PlayToSelf",
+                "PlayFallFromHand",
+                "PlayFallFromDeck",
+                "Skip"
+            ]
+        },
+        {
+            "name": "NN2-HIF1",
+            "pid": 1,
+            "rank": null,
+            "ready": false,
+            "finished": 0,
+            "last_evaluation": 0.69,
+            "cards": [
+                "H8",
+                "C11",
+                "D6",
+                "S10",
+                "H10",
+                "C14"
+            ],
+            "playable_moves": []
+        },
+        {
+            "name": "NN2-HIF3",
+            "pid": 2,
+            "rank": null,
+            "ready": true,
+            "finished": 0,
+            "last_evaluation": 0.48,
+            "cards": [
+                "D4",
+                "S13",
+                "C5",
+                "C13",
+                "H11",
+                "D8"
+            ],
+            "playable_moves": []
+        },
+        {
+            "name": "NN2-HIF2",
+            "pid": 3,
+            "rank": null,
+            "ready": true,
+            "finished": 0,
+            "last_evaluation": 0.69,
+            "cards": [
+                "H7",
+                "S14",
+                "C8",
+                "D14",
+                "H6",
+                "S8"
+            ],
+            "playable_moves": []
+        }
+    ]
+}

@@ -5,7 +5,7 @@
     "killed_cards": [],
     "target": "NNEV2",
     "initiator": "Human",
-    "initiator_actions": ["play-fall-hand","play-fall-deck","play-to-self","end-turn"],
+    "initiator_actions": ["play-fall-hand","play-fall-deck","play-to-self","end-turn","play-to-other"],
     "players": [
         {
             "name": "NNEV2",
