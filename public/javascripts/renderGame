@@ -377,7 +377,7 @@ function playFallHand(cardArray,callback) {
       
       cardImage.setAttribute('parentContainer',containerName);
       cardImage.setAttribute('card-type',cardString);
-      cardImage.setAttribute('card-index',index+1);
+      cardImage.setAttribute('card-index',index);
 
       // Append the image, heading, and paragraph elements to the card element
       card.appendChild(cardImage);
@@ -404,7 +404,7 @@ function playFallHand(cardArray,callback) {
     cardImage.src = parsedString;
     cardImage.className = "card";
     cardImage.setAttribute('card-type',cardString);
-    cardImage.setAttribute('card-index',index+1);
+    cardImage.setAttribute('card-index',index);
     // Append the image, heading, and paragraph elements to the card element
     card.appendChild(cardImage);
 
@@ -427,7 +427,7 @@ function playFallHand(cardArray,callback) {
     cardImage.src = parsedString;
     cardImage.className = "card";
     cardImage.setAttribute('card-type',cardString);
-    cardImage.setAttribute('card-index',index+1);
+    cardImage.setAttribute('card-index',index);
     cardImage.setAttribute('card-killed',1);
     // Append the image, heading, and paragraph elements to the card element
     card.appendChild(cardImage);
