@@ -32,7 +32,10 @@
                 "PlayToSelf",
                 "PlayFallFromHand",
                 "PlayFallFromDeck",
-                "Skip"
+                "Skip",
+                "EndTurn",
+                "PlayToOther"
+
             ]
         },
         {

@@ -65,6 +65,15 @@ function checkActionState(stateJson) {
     // Check if they initiator actions includes the buttons id and that the player whos turn is now is the player:
     if(stateJson.players[playerIndex].playable_moves.includes(actionMenuButtons[index].id) && playerName==stateJson.players[playerIndex].name) {
       actionMenuButtons[index].disabled = false; 
+      if(actionMenuButtons[index].id == "EndTurn") { // In case of the action being end turn, we also need  to make draw all button visible and add event listener to it.
+        console.log(actionMenuButtons[index])
+        actionMenuButtons[index+1].disabled = false;
+        actionMenuButtons[index+1].addEventListener("click",function() {
+          //Modify the stateJson to contain the wanted action:
+          stateJson.action = actionMenuButtons[index+1].id;
+          playCards(stateJson)
+        })
+      }
 
       //Also add event listeners for the buttons, so that each of the buttons uses playCards function, which then checks what actions should be done.
       actionMenuButtons[index].addEventListener("click",function() {
@@ -117,11 +126,21 @@ function playCards(stateJson) {
       });
     }
 
+    if(stateJson.action == "EndTurn") {
+      let returnString = "EndTurn;n";
+      console.log(returnString)
+    }
 
-  // Case when human is the target:
-  if(stateJson.target == humanName) {
-    let cardArray = ["PlayToOther",""];
-  }
+    if(stateJson.action == "DrawAll") {
+      let returnString = "EndTurn;y";
+      console.log(returnString)
+    }
+
+    if(stateJson.action == "Skip") {
+      let returnString = "Skip;";
+      console.log(returnString)
+    }
+
 
 }
 

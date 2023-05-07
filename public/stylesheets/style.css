@@ -90,6 +90,7 @@ a {
   height: 100px;
   display: flex;
   flex-wrap: wrap;
+  border: 2px solid black;
 }
 
 .board-player[target] {
@@ -143,6 +144,7 @@ a {
   left: 50%;
   height: 400px;
   width: 400px;
+  border: 0px solid black;
   position: absolute;
   transform: translate(-50%, -50%);
 }
@@ -152,12 +154,11 @@ a {
   top: 0;
   height: 50%;
   width: 100%;
-  border: 2px solid black;
   transition: top 0.2s, height 0.2s;
 }
 
 #cards-to-kill:hover {
-  height: 120%;
+  height: 100%;
   top: -50%;
 }
 
@@ -166,7 +167,6 @@ a {
   bottom: 0;
   height: 50%;
   width: 100%;
-  border: 2px solid black;
   overflow: hidden;
   transition: height 0.2s, bottom 0.2s, z-index 0.2s;
 }
