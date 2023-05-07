@@ -113,8 +113,12 @@ a {
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
+  transition: height 0.2s;
 }
 
+#bottom:hover {
+  height: 40%;
+}
 
 
 

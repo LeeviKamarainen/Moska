@@ -10,6 +10,8 @@ if (document.readyState !== "loading") {
   
   async function initializeCode() {
     const playCardsButton = document.getElementById("PlayFallFromHand");
+    var boardDiv = document.getElementById('board').cloneNode(true); // Saving the original state:
+   
     const playCardsArray = Object.create(null);
     console.log("Code initialized!")
     const res = await fetch("./example_state2.json");
@@ -34,6 +36,14 @@ if (document.readyState !== "loading") {
    playCardsButton.addEventListener("click", function(){
     stateJson.action = "PlayFallFromHand"
     playCards(stateJson)
+  });
+
+  refreshButton = document.getElementById('Refresh');
+  refreshButton.addEventListener("click", function() {
+    let newboardDiv = document.getElementById('board');
+    console.log(boardDiv)
+    newboardDiv.replaceWith(boardDiv);
+    initializeCode()
   });
   
 
@@ -62,11 +72,19 @@ function checkActionState(stateJson) {
 
   // Then make all of the buttons which are included in the stateJson visible:
   for (let index = 0; index < actionMenuButtons.length; index++) {
+    
+    if(actionMenuButtons[index].id == "Refresh") {
+      console.log(actionMenuButtons[index])
+      actionMenuButtons[index].disabled = false;
+    }
     // Check if they initiator actions includes the buttons id and that the player whos turn is now is the player:
     if(stateJson.players[playerIndex].playable_moves.includes(actionMenuButtons[index].id) && playerName==stateJson.players[playerIndex].name) {
       actionMenuButtons[index].disabled = false; 
+
+      //Make it so refresh button is always visible:
+      console.log(actionMenuButtons[index].id)
+
       if(actionMenuButtons[index].id == "EndTurn") { // In case of the action being end turn, we also need  to make draw all button visible and add event listener to it.
-        console.log(actionMenuButtons[index])
         actionMenuButtons[index+1].disabled = false;
         actionMenuButtons[index+1].addEventListener("click",function() {
           //Modify the stateJson to contain the wanted action:
@@ -141,6 +159,12 @@ function playCards(stateJson) {
       console.log(returnString)
     }
 
+
+
+  // Case when human is the target:
+  if(stateJson.target == humanName) {
+    let cardArray = ["PlayToOther",""];
+  }
 
 }
 
