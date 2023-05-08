@@ -120,6 +120,8 @@ function playCards(stateJson) {
     let cardArray = ["PlayFallFromHand",""];
     playFallHand(cardArray,function(temp){
       console.log(temp)
+      let actionCards = cardArray[1].split(" ")
+      console.log(actionCards)
       return temp;
     });
   }
@@ -140,6 +142,13 @@ function playCards(stateJson) {
       let cardArray = ["PlayToSelf",""];
       playToSelf(cardArray,function(temp){
         console.log(temp)
+        let actionCards = cardArray[1].split(" ")
+        let actionString = "PlayToSelf; "
+        for (let index = 1; index < actionCards.length; index++) {
+          const action = actionCards[index];
+          actionString = actionString.concat(action+",");
+        }
+        console.log(actionString)
         return temp;
       });
     }

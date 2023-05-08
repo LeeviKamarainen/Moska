@@ -198,4 +198,40 @@ a {
   align-items: center;
   background-color: green;
   position: relative;
+  
+  border-radius: 5px 5px 5px 5px;
+}
+
+
+
+
+/* Navigation bar styling: */
+
+.navbar {
+  overflow: hidden;
+  background-color: #333;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+}
+
+/* Style the links inside the navigation bar */
+.navbar a {
+  float: left;
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+/* Style the login and register buttons on the right side */
+.navbar .login {
+  float: right;
+}
+
+.navbar .register {
+  float: right;
+  margin-right: 20px;
 }
