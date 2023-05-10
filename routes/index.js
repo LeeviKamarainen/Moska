@@ -14,6 +14,13 @@ router.get('/register', function(req, res, next) {
   res.sendFile(path.join(__dirname,"../views","register.html"));
 });
 
+router.get('/gamelogs', function(req, res, next) {
+  res.sendFile(path.join(__dirname,"../views","gamelogs.html"));
+});
+
+router.get('/tutorial', function(req, res, next) {
+  res.sendFile(path.join(__dirname,"../views","tutorial.html"));
+});
 
 
 module.exports = router;

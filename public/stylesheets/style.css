@@ -119,13 +119,17 @@ a {
   position: absolute;
   width: 600px;
   bottom: 0;
+  z-index: 0;
+  overflow: hidden;
   left: 50%;
   transform: translateX(-50%);
   transition: height 0.2s;
 }
 
 #bottom:hover {
-  height: 40%;
+  height: 50%;
+  overflow: visible;
+  z-index: 3;
 }
 
 
@@ -137,6 +141,7 @@ a {
   top: 50%;
   width: 200px;
   height: 400px;
+  overflow: hidden;
   left: 0;
   transform: translateY(-50%);
 }
@@ -158,6 +163,7 @@ a {
   width: 400px;
   border: 0px solid black;
   position: absolute;
+  z-index: 2  ;
   transform: translate(-50%, -50%);
 }
 
@@ -179,15 +185,15 @@ a {
   bottom: 0;
   height: 50%;
   width: 100%;
+  z-index: 2;
   overflow: hidden;
   transition: height 0.2s, bottom 0.2s, z-index 0.2s;
 }
 
 
 #killed-cards:hover {
-  height: 120%;
-  bottom: -70%;
-  z-index: 5;
+  height: 100%;
+  bottom: -50%;
 }
 
 /* Set the height of the top div */
