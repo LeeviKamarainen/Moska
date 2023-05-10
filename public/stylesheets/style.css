@@ -28,6 +28,8 @@ a {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  
+  border-radius: 5px 5px 5px 5px;
 }
 
 .play-cards {
@@ -91,6 +93,12 @@ a {
   display: flex;
   flex-wrap: wrap;
   border: 2px solid black;
+  border-radius: 5px 5px 5px 5px;
+}
+
+.board-player[name] {
+  top:10%;
+  left: 50%;
 }
 
 .board-player[target] {
@@ -179,6 +187,7 @@ a {
 #killed-cards:hover {
   height: 120%;
   bottom: -70%;
+  z-index: 5;
 }
 
 /* Set the height of the top div */
