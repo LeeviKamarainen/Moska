@@ -14,7 +14,7 @@ if (document.readyState !== "loading") {
    
     const playCardsArray = Object.create(null);
     console.log("Code initialized!")
-    const res = await fetch("./example_state2.json");
+    const res = await fetch("./example_state4.json");
     let stateJson = await res.json();
     updateState(stateJson)
 
@@ -399,6 +399,11 @@ function playFallHand(cardArray,callback) {
 
     if(stateJson.players[playerIndex].name == stateJson.initiator) {
       cardContainer.setAttribute("initiator",1);
+    }
+
+    
+    if(stateJson.players[playerIndex].name == stateJson.turn) {
+      cardContainer.setAttribute("turn",1);
     }
 
     // Get the card container element
