@@ -14,7 +14,7 @@ if (document.readyState !== "loading") {
    
     const playCardsArray = Object.create(null);
     console.log("Code initialized!")
-    const res = await fetch("./example_state2.json");
+    const res = await fetch("./example_state3.json");
     let stateJson = await res.json();
     updateState(stateJson)
 
