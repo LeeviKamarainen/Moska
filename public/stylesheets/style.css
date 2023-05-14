@@ -123,6 +123,15 @@ a {
   /* Change the values as needed to adjust the glow effect */
 }
 
+/*Game action text:*/
+#gameaction {
+  position: absolute;
+  width: 50%;
+  bottom: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
 /* Set the height of the bottom div */
 #bottom {
   position: absolute;
@@ -164,6 +173,20 @@ a {
   transform: translateY(-50%);
 }
 
+#timeslider {
+  position: absolute;
+  top: 5%;
+  right: 0;
+  overflow: hidden;
+  width: 300px;
+}
+#timeslidervalue {
+  position: absolute;
+  top: 5%;
+  right: 0;
+  width: 300px;
+  color: white;
+}
 
 /* Set the width and center the middle div */
 #middle {
