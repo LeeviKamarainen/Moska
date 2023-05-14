@@ -1,4 +1,6 @@
-
+let boardDiv;// Saving the original state:
+let turnIndex = 0;
+let turnStringIndex = 0;
 if (document.readyState !== "loading") {
     initializeCode();
     console.log('Loading!')
@@ -8,41 +10,95 @@ if (document.readyState !== "loading") {
     });
   }
   
+  function sleepFunction(millisec) {
+    return new Promise(resolve => {
+        setTimeout(() => { resolve('') }, millisec);
+    })
+}
+
   async function initializeCode() {
-    const playCardsButton = document.getElementById("PlayFallFromHand");
-    var boardDiv = document.getElementById('board').cloneNode(true); // Saving the original state:
-   
-    const playCardsArray = Object.create(null);
     console.log("Code initialized!")
-    const res = await fetch("./example_state4.json");
+    let connectionIter = 0;
+    let gameResponse;
+    let gameArray;
+    let turnTime = 1500;
+
+    let slider = document.getElementById('timeslider');
+    let sliderValue = document.getElementById('timeslidervalue');
+    sliderValue.textContent = "Seconds per turn: "+(turnTime/1000).toFixed(1);
+    slider.addEventListener('input', () => {
+      turnTime = slider.value * 100; 
+      sliderValue.textContent = "Seconds per turn: "+(turnTime/1000).toFixed(1);
+    });
+
+    do {
+      gameResponse = await fetch('http://localhost:3000/getstate/');
+      gameArray = await gameResponse.json();
+      connectionIter += 1;
+      await sleepFunction(1000);
+    }
+    while(gameArray.dataArrived == false && connectionIter < 1000) // Try again if the status is 304 (nothing has changed), and 
+    
+    stateArray = gameArray.gamestates;
+    gameProgress = gameArray.gameprogress;
+    console.log(gameProgress)
+    console.log(stateArray)
+    // Save the boardDiv:s state only if its null:
+    if(boardDiv == null) {
+      let boardElement = document.getElementById('board')
+      boardDiv = `<div id="board">
+      <div id="top" class="board-player"></div>
+      <div id="left" class="board-player"></div>
+      <div id="middle" class="board-player">BOARD
+        <div id="cards-to-kill" class="board-player">Cards to kill</div>
+        <div id="killed-cards" class="board-player">Killed cards</div>
+      </div>
+      <div id="right" class="board-player"></div>
+      <p id="gameaction">test</p>
+      <div id="bottom" class="board-player">
+      </div>
+      <div id="deck" class="board-player"></div>
+      <div id="action-menu" class="action-menu">
+        <button id="PlayFallFromHand"class = "play-cards" disabled="true">Kill from Hand</button>
+        <button id="PlayFallFromDeck" class = "play-cards" disabled="true">Kill from Deck</button>
+        <button id="PlayToSelf" class = "play-cards" disabled="true">Play to Self</button>
+        <button id="PlayToOther" class = "play-cards" disabled="true">Attack</button>
+        <button id="InitialPlay" class = "play-cards" disabled="true">Initial play</button>
+        <button id="Skip" class = "play-cards" disabled="true">Skip turn</button>
+        <div style="height:100%;width:5%;"></div> <!-- For empty space in the action menu-->
+        <button id="EndTurn" class = "play-cards" disabled="true">End bout</button>
+        <button id="DrawAll" class = "play-cards" disabled="true">End bout (draw all)</button>
+        <div style="height:100%;width:5%;"></div> <!-- For empty space in the action menu-->
+        <button id="Refresh" class = "play-cards">Refresh</button>
+      </div>
+    </div>
+    </body>`
+    }
+
+    let stateJson, gameActionString;
+    for (turnIndex; turnIndex < stateArray.length; turnIndex++) {
+      stateJson = stateArray[turnIndex];
+      turnStringIndex += 1;
+      await sleepFunction(turnTime)
+      gameActionString = gameProgress[turnStringIndex];
+      updateState(stateJson,boardDiv,gameActionString)
+    } 
+    
+    updateState(stateJson,boardDiv,"Your turn, previous turn: "+gameActionString)
+    //updateState(stateArray[stateArray.length-1],gameActionString)
+    checkActionState(stateArray[stateArray.length-1])
+    turnIndex = gameArray.gameindex-1;
+    // For fetching sample states:
+   /* const res = await fetch("./example_state4.json");
     let stateJson = await res.json();
-    updateState(stateJson)
-
-    // Add click listener to the document:
-    document.body.onclick = function(e){
-      if(e.target.className && e.target.className.indexOf('card')!=-1 && e.target.getAttribute("parentcontainer") == "bottom") {
-        if(e.target.hasAttribute('selected')==true) {
-          //e.target.removeAttribute('selected')
-          delete playCardsArray[e.target.getAttribute('card-type')];
-        } else {
-       // e.target.setAttribute('selected',1)
-        console.log(e.target.getAttribute('card-type'))
-        playCardsArray[e.target.getAttribute('card-type')] = 1;
-        }
-      }
-   }
-
-   checkActionState(stateJson)
-   playCardsButton.addEventListener("click", function(){
-    stateJson.action = "PlayFallFromHand"
-    playCards(stateJson)
-  });
+    updateState(stateJson)*/
 
   refreshButton = document.getElementById('Refresh');
   refreshButton.addEventListener("click", function() {
     let newboardDiv = document.getElementById('board');
-    console.log(boardDiv)
-    newboardDiv.replaceWith(boardDiv);
+    let tempElement = document.createElement('div');
+    tempElement.innerHTML = boardDiv;
+    newboardDiv.replaceWith(tempElement);
     initializeCode()
   });
   
@@ -77,7 +133,7 @@ function checkActionState(stateJson) {
       console.log(actionMenuButtons[index])
       actionMenuButtons[index].disabled = false;
     }
-    // Check if they initiator actions includes the buttons id and that the player whos turn is now is the player:
+    // Check if the initiator actions includes the buttons id and that the player whos turn is now is the player:
     if(stateJson.players[playerIndex].playable_moves.includes(actionMenuButtons[index].id) && playerName==stateJson.players[playerIndex].name) {
       actionMenuButtons[index].disabled = false; 
 
@@ -95,6 +151,7 @@ function checkActionState(stateJson) {
 
       //Also add event listeners for the buttons, so that each of the buttons uses playCards function, which then checks what actions should be done.
       actionMenuButtons[index].addEventListener("click",function() {
+
         //Modify the stateJson to contain the wanted action:
         stateJson.action = actionMenuButtons[index].id;
         playCards(stateJson)
@@ -103,6 +160,22 @@ function checkActionState(stateJson) {
   }
 }
 
+
+function createCardString(cardArray) {
+  let action = cardArray[0];
+  let actionCards = cardArray[1].split(" ")
+  let actionString = action+"; "
+  for (let index = 1; index < actionCards.length; index++) {
+    const action = actionCards[index];
+    if(index==actionCards.length-1) {
+      
+    actionString = actionString.concat(action);
+    } else {
+    actionString = actionString.concat(action+",");
+    }
+  }
+  return actionString;
+}
 
 function playCards(stateJson) {
   // Find player name:
@@ -119,35 +192,47 @@ function playCards(stateJson) {
   if(stateJson.action == "PlayFallFromHand") {
     let cardArray = ["PlayFallFromHand",""];
     playFallHand(cardArray,function(temp){
-      console.log(temp)
+      console.log(cardArray)
       let actionCards = cardArray[1].split(" ")
-      console.log(actionCards)
+      let actionString = "PlayFallFromHand;"+actionCards[1]
+      console.log(actionString)
+      sendGameAction(actionString);
       return temp;
     });
   }
 
   if(stateJson.action == "PlayFallFromDeck") {
-    let cardArray = ["PlayFallFromDeck",""];
-    console.log(cardArray)
+    let returnString= "PlayFallFromDeck;"
+    sendGameAction(returnString)
+    console.log(returnString)
   }
 
   if(stateJson.action == "PlayToOther") {
     let cardArray = ["PlayToOther",""];
-    playToOther(cardArray,function(temp){
+    const playToOtherButton = document.getElementById("PlayToOther");
+    playToOther(cardArray,playToOtherButton,function(temp){
+      let actionString = createCardString(cardArray)
+      sendGameAction(actionString)
       console.log(temp)
       return temp;
     });
   }
+
+  if(stateJson.action == "InitialPlay") {
+    let cardArray = ["InitialPlay",""];
+    const playToOtherButton = document.getElementById("InitialPlay");
+    playToOther(cardArray,playToOtherButton,function(temp){
+      let actionString = createCardString(cardArray);
+      sendGameAction(actionString)
+      return temp;
+    });
+  }
+  
   if(stateJson.action == "PlayToSelf") {
       let cardArray = ["PlayToSelf",""];
       playToSelf(cardArray,function(temp){
-        console.log(temp)
-        let actionCards = cardArray[1].split(" ")
-        let actionString = "PlayToSelf; "
-        for (let index = 1; index < actionCards.length; index++) {
-          const action = actionCards[index];
-          actionString = actionString.concat(action+",");
-        }
+        let actionString = createCardString(cardArray)
+        sendGameAction(actionString)
         console.log(actionString)
         return temp;
       });
@@ -155,27 +240,39 @@ function playCards(stateJson) {
 
     if(stateJson.action == "EndTurn") {
       let returnString = "EndTurn;n";
+      sendGameAction(returnString)
       console.log(returnString)
     }
 
     if(stateJson.action == "DrawAll") {
       let returnString = "EndTurn;y";
+      sendGameAction(returnString)
       console.log(returnString)
     }
 
     if(stateJson.action == "Skip") {
       let returnString = "Skip;";
-      console.log(returnString)
+      sendGameAction(returnString);
     }
 
-
-
-  // Case when human is the target:
-  if(stateJson.target == humanName) {
-    let cardArray = ["PlayToOther",""];
-  }
-
 }
+
+async function sendGameAction(actionString) {
+  let dataToSend = JSON.stringify({"action": actionString})
+  console.log(dataToSend)
+  await fetch('http://localhost:3000/playmove', {
+    method: 'POST',
+    headers: { "Content-Type": "application/json" },
+    body: dataToSend
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data)
+    })
+
+    initializeCode();
+}
+
 
 function playToSelf(cardArray,callback) {
 
@@ -203,9 +300,8 @@ function playToSelf(cardArray,callback) {
 }
 }
 
-function playToOther(cardArray,callback) {
+function playToOther(cardArray,playToOtherButton,callback) {
 
-  const playToOtherButton = document.getElementById("PlayToOther");
   playToOtherButton.innerHTML = 'Play selected cards';
   playToOtherButton.setAttribute('activated',1)
   playToOtherButton.addEventListener("click", function(){
@@ -278,62 +374,6 @@ function playFallHand(cardArray,callback) {
   }
 
 
-// function playFallHand(callback) {
-
-//   // Initialize array (Play and moves):
-//   cardArray = ["PlayFallFromHand",""];
-
-//   createHand(cardArray,callback);
-//   function createHand(cardArray) {
-//     let cardPair = "";
-
-//     // Check if the user wants to play the cards (end recursion):
-//     const playCardsButton = document.getElementById("play-fall-hand");
-//     playCardsButton.innerHTML = 'Play selected cards';
-//     playCardsButton.addEventListener("click", function(){
-//       playCardsButton.innerHTML = 'Select Fall from Hand';
-//       callback(cardArray);
-//       return
-//     });
-//     let humanDeck = document.getElementById('bottom')
-//     let board = document.getElementById('middle')
-    
-//     humanDeck.setAttribute('activated',1)
-
-//     humanDeck.onclick = function(e){
-//       if(e.target.className && e.target.className.indexOf('card')!=-1  && e.target.getAttribute('card-type') != null && humanDeck.getAttribute('activated') == 1) {
-//         cardPair = cardPair.concat(e.target.getAttribute('card-index'));
-//         let cardToPlay = e.target;
-//         cardToPlay.setAttribute('selected',1);
-//         board.setAttribute('activated',1)
-//         humanDeck.removeAttribute('activated');
-//         humanDeck.removeAttribute('onclick');
-//         board.onclick = function(e){
-//         if(e.target.className && e.target.className.indexOf('card')!=-1 && e.target.getAttribute('card-type') != null && board.getAttribute('activated') == 1) {
-//           let cardToFall = e.target;
-//           cardToFall.setAttribute('selected',1);
-          
-//           // Concat the card pair to string:
-//           cardPair = cardPair.concat(","+e.target.getAttribute('card-index'));
-//           cardArray[1] = cardArray[1].concat(" "+cardPair);
-          
-//           board.removeAttribute('activated')
-          
-//           // Set the selected cards as unactivated:
-//           cardToFall.removeAttribute('selected')
-//           cardToPlay.removeAttribute('selected')
-          
-//           cardToFall.setAttribute('used',1)
-//           cardToPlay.setAttribute('used',1)
-//           return createHand(cardArray);
-//           }
-//         }
-//       }
-//     }
-//   }
-// }
-
-
   function parseCard(cardString) {
     //This string parses given card string in to valid img src:
     const splitString = cardString.split(/(\d+)/);
@@ -358,9 +398,16 @@ function playFallHand(cardArray,callback) {
   }
 
 
-  function updateState(stateJson) {
+  function updateState(stateJson,emptyState,gameActionString) {
     let botIndex = 0;
-
+    let currentState = document.getElementById('board');
+    let tempElement = document.createElement('div');
+    tempElement.innerHTML = emptyState;
+    currentState.replaceWith(tempElement);
+    
+    // Showing the current action:
+    let gameActionText = document.getElementById("gameaction");
+    gameActionText.innerHTML = gameActionString;
     // Rendering players cards:
     
     //Saving human players index:
@@ -392,6 +439,11 @@ function playFallHand(cardArray,callback) {
     }
     cardContainer = document.getElementById(containerName);
     cardContainer.innerHTML = stateJson.players[playerIndex].name;
+
+    //First make sure there are no turn, target or initiator attributes on the cardContainers:
+    cardContainer.removeAttribute("target")
+    cardContainer.removeAttribute("initiator")
+    cardContainer.removeAttribute("turn")
     // Add target attribute to the target players div:
     if(stateJson.players[playerIndex].name == stateJson.target) {
       cardContainer.setAttribute("target",1);
@@ -447,6 +499,8 @@ function playFallHand(cardArray,callback) {
 
   // Rendering cards to kill:
   const cardsToKillContainer = document.getElementById("cards-to-kill");
+  cardsToKillContainer.replaceChildren();
+  cardsToKillContainer.innerHTML = "Cards to Kill";
   for (let index = 0; index < stateJson.cards_to_kill.length; index++) {
     
     let cardString = stateJson.cards_to_kill[index];
@@ -470,6 +524,8 @@ function playFallHand(cardArray,callback) {
   }
 
   const killedCardsContainer = document.getElementById("killed-cards");
+  killedCardsContainer.replaceChildren();
+  killedCardsContainer.innerHTML = "Killed Cards";
   for (let index = 0; index < stateJson.killed_cards.length; index++) {
     
     let cardString = stateJson.killed_cards[index];
@@ -495,6 +551,7 @@ function playFallHand(cardArray,callback) {
 
   // Rendering amount of cards left in the deck and the trump card:
   const deckContainer = document.getElementById("deck");
+  deckContainer.innerHTML = "";
   // Create new card div
   const card = document.createElement("div");
   const card2 = document.createElement("div");

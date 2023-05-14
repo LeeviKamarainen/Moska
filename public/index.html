@@ -27,6 +27,8 @@
 
   
 
+<input type="range" min="2" max ="40" step="1" value="20" id ="timeslider">
+<p id="timeslidervalue">Seconds per turn:</p>
 <div id="board">
   <div id="top" class="board-player"></div>
   <div id="left" class="board-player"></div>
@@ -35,6 +37,7 @@
     <div id="killed-cards" class="board-player">Killed cards</div>
   </div>
   <div id="right" class="board-player"></div>
+  <p id="gameaction"></p>
   <div id="bottom" class="board-player">
   </div>
   <div id="deck" class="board-player"></div>
@@ -43,6 +46,7 @@
     <button id="PlayFallFromDeck" class = "play-cards" disabled="true">Kill from Deck</button>
     <button id="PlayToSelf" class = "play-cards" disabled="true">Play to Self</button>
     <button id="PlayToOther" class = "play-cards" disabled="true">Attack</button>
+    <button id="InitialPlay" class = "play-cards" disabled="true">Initial play</button>
     <button id="Skip" class = "play-cards" disabled="true">Skip turn</button>
     <div style="height:100%;width:5%;"></div> <!-- For empty space in the action menu-->
     <button id="EndTurn" class = "play-cards" disabled="true">End bout</button>
