@@ -5,14 +5,14 @@ const socketapi = {
 };
 
 let pythonProg = spawn('python',[
-    '../Python/browserMoska.py']);
+    './Python/browserMoska.py']);
     
         
 console.log("Python program started")
 // Add your socket.io logic here!
 
 io.on( "connection", function( socket ) {
-    console.log( "A user connected" );
+    console.log( "An user connected" );
     
     socket.on("gameaction",(data) => {
         let actionJson = JSON.parse(data);
@@ -38,12 +38,10 @@ pythonProg.stdout.on('data', function(data) {
         
     gameProgress = [];
     gameStates = [];
-    console.log(data.toString())
     let dataString = data.toString();
     let dataArray = dataString.split(/\r?\n/)
     for (let index = 0; index < dataArray.length; index++) {
       let element = dataArray[index];
-      console.log(element)
     try {
     gameStates.push(JSON.parse(element))
     }
@@ -53,7 +51,6 @@ pythonProg.stdout.on('data', function(data) {
       }
     }
   }
-  console.log(gameProgress)
   console.log("Sending data.")
   socket.emit('data',{"gamestates": gameStates,"gameprogress": gameProgress, "gameindex":gameIndex, "dataArrived":dataArrived, "gamestringindex": gameStringIndex},1000)
   gameIndex = gameStates.length;
