@@ -1,0 +1,101 @@
+INFO:Human783006:Created Player Human with pid 3 and log file Game-0-Human.log
+INFO:Human783006:Player type: <class 'Player.HumanJsonPlayer.HumanJsonPlayer'>
+INFO:Human783006:Thread started with ID 11360
+DEBUG:Human783006:Lock acquired.
+INFO:Human783006:Turn 0
+INFO:Human783006:Playable moves: ['InitialPlay']
+INFO:Human783006:Input: InitialPlay; 4
+INFO:Human783006:Selected move: InitialPlay
+INFO:Human783006:Turn 0: 'InitialPlay' [3♣] -> NN2-HIF2
+DEBUG:Human783006:Drew 1 cards from deck
+DEBUG:Human783006:Set rank to None
+DEBUG:Human783006:Lock acquired.
+DEBUG:Human783006:Target has changed from NN2-HIF2 to NN2-HIF3
+INFO:Human783006:Turn 4
+INFO:Human783006:Playable moves: ['Skip']
+INFO:Human783006:Selected move: Skip
+INFO:Human783006:Turn 4: 'Skip'
+DEBUG:Human783006:Set rank to None
+DEBUG:Human783006:Lock acquired.
+INFO:Human783006:Turn 7
+INFO:Human783006:Playable moves: ['Skip']
+INFO:Human783006:Selected move: Skip
+INFO:Human783006:Turn 7: 'Skip'
+DEBUG:Human783006:Set rank to None
+DEBUG:Human783006:Lock acquired.
+INFO:Human783006:Turn 10
+INFO:Human783006:Playable moves: ['Skip']
+INFO:Human783006:Selected move: Skip
+INFO:Human783006:Turn 10: 'Skip'
+DEBUG:Human783006:Set rank to None
+DEBUG:Human783006:Lock acquired.
+DEBUG:Human783006:Target has changed from NN2-HIF3 to NN2-HIF2
+INFO:Human783006:Turn 14
+INFO:Human783006:Playable moves: ['InitialPlay']
+INFO:Human783006:Input: InitialPlay; 2
+INFO:Human783006:Selected move: InitialPlay
+INFO:Human783006:Turn 14: 'InitialPlay' [11♦] -> NN2-HIF2
+DEBUG:Human783006:Drew 1 cards from deck
+DEBUG:Human783006:Set rank to None
+DEBUG:Human783006:Lock acquired.
+INFO:Human783006:Turn 18
+INFO:Human783006:Playable moves: ['PlayToOther', 'Skip']
+INFO:Human783006:Input: Skip;
+INFO:Human783006:Selected move: Skip
+INFO:Human783006:Turn 18: 'Skip'
+DEBUG:Human783006:Set rank to None
+DEBUG:Human783006:Lock acquired.
+DEBUG:Human783006:Target has changed from NN2-HIF2 to NN2-HIF3
+INFO:Human783006:Turn 22
+INFO:Human783006:Playable moves: ['Skip']
+INFO:Human783006:Selected move: Skip
+INFO:Human783006:Turn 22: 'Skip'
+DEBUG:Human783006:Set rank to None
+DEBUG:Human783006:Lock acquired.
+INFO:Human783006:Turn 26
+INFO:Human783006:Playable moves: ['Skip']
+INFO:Human783006:Selected move: Skip
+INFO:Human783006:Turn 26: 'Skip'
+DEBUG:Human783006:Set rank to None
+DEBUG:Human783006:Lock acquired.
+INFO:Human783006:Turn 28
+INFO:Human783006:Playable moves: ['Skip']
+INFO:Human783006:Selected move: Skip
+INFO:Human783006:Turn 28: 'Skip'
+DEBUG:Human783006:Set rank to None
+DEBUG:Human783006:Lock acquired.
+DEBUG:Human783006:Target has changed from NN2-HIF3 to Human
+INFO:Human783006:Turn 32
+INFO:Human783006:Playable moves: ['Skip']
+INFO:Human783006:Selected move: Skip
+INFO:Human783006:Turn 32: 'Skip'
+DEBUG:Human783006:Set rank to None
+DEBUG:Human783006:Lock acquired.
+INFO:Human783006:Turn 35
+INFO:Human783006:Playable moves: ['PlayFallFromHand', 'PlayFallFromDeck', 'Skip']
+INFO:Human783006:Selected move: Skip
+INFO:Human783006:Turn 35: 'Skip'
+DEBUG:Human783006:Player set to NOT ready, because cards_to_fall
+DEBUG:Human783006:Set rank to None
+DEBUG:Human783006:Lock acquired.
+INFO:Human783006:Turn 40
+INFO:Human783006:Playable moves: ['EndTurn', 'PlayFallFromHand', 'PlayFallFromDeck']
+INFO:Human783006:Input: Skip;
+INFO:Human783006:Input: PlayFallFromHand; 2,1 3,0
+INFO:Human783006:Selected move: PlayFallFromHand
+INFO:Human783006:Turn 40: 'PlayToFallFromHand' {11♣: 7♣, 10♠: 7♠}
+DEBUG:Human783006:Player set to NOT ready, because cards_to_fall
+DEBUG:Human783006:Set rank to None
+DEBUG:Human783006:Lock acquired.
+INFO:Human783006:Turn 44
+INFO:Human783006:Playable moves: ['EndTurn', 'PlayFallFromHand', 'PlayFallFromDeck']
+INFO:Human783006:Input: EndTurn;n
+INFO:Human783006:Selected move: EndTurn
+INFO:Human783006:Turn 44: 'EndTurn' [7♥]
+INFO:Human783006:Lifted cards [7♥]
+INFO:Human783006:Removing [7♣, 11♣, 7♠, 10♠] from game
+DEBUG:Human783006:Set rank to None
+DEBUG:Human783006:Lock acquired.
+DEBUG:Human783006:Target has changed from Human to NN2-HIF1
+INFO:Human783006:Turn 49
+INFO:Human783006:Playable moves: ['PlayToOther', 'Skip']

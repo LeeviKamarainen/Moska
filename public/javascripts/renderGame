@@ -1,12 +1,19 @@
 let boardDiv;// Saving the original state:
-let turnIndex = 0;
-let turnStringIndex = 0;
+//var socket = io();
+let gameTurnIndex = 0;
+let turnTime = 1500;
 if (document.readyState !== "loading") {
-    initializeCode();
+    
+  socket.on('data', (data) => {
+    initializeCode(data)
+  })
     console.log('Loading!')
   } else {
     document.addEventListener("DOMContentLoaded", function () {
-      initializeCode();
+      
+  socket.on('data', (data) => {
+    initializeCode(data)
+  })
     });
   }
   
@@ -15,13 +22,24 @@ if (document.readyState !== "loading") {
         setTimeout(() => { resolve('') }, millisec);
     })
 }
+  async function initializeCode(gameArray) {
 
-  async function initializeCode() {
-    console.log("Code initialized!")
+    //Checking to see if last gameAction is from killing from deck:
+    console.log(gameArray)
+    try{
+      console.log(gameArray.gameprogress[gameArray.gameprogress.length-1].split(":"))
+      if(gameArray.gameprogress[gameArray.gameprogress.length-1].split(":")[0] == "Lifted card from deck") {
+        console.log(gameArray.gameprogress[gameArray.gameprogress.length-1])
+        killCardFromDeck(gameArray.gameprogress[gameArray.gameprogress.length-1])
+      }}
+      catch(e){
+        console.log("Something went wrong: "+e)
+      }
+    if(gameArray.gamestates.length != 0) { 
+   // let gameArray;
+    
     let connectionIter = 0;
     let gameResponse;
-    let gameArray;
-    let turnTime = 1500;
 
     let slider = document.getElementById('timeslider');
     let sliderValue = document.getElementById('timeslidervalue');
@@ -31,21 +49,23 @@ if (document.readyState !== "loading") {
       sliderValue.textContent = "Seconds per turn: "+(turnTime/1000).toFixed(1);
     });
 
-    do {
+    /*do {
       gameResponse = await fetch('http://localhost:3000/getstate/');
+      console.log("TESTI")
       gameArray = await gameResponse.json();
       connectionIter += 1;
-      await sleepFunction(1000);
+      await sleepFunction(100);
     }
     while(gameArray.dataArrived == false && connectionIter < 1000) // Try again if the status is 304 (nothing has changed), and 
-    
+    */
     stateArray = gameArray.gamestates;
     gameProgress = gameArray.gameprogress;
+    //turnIndex = gameArray.gameindex;
+    //turnStringIndex = gameArray.gameStringIndex;
     console.log(gameProgress)
     console.log(stateArray)
     // Save the boardDiv:s state only if its null:
     if(boardDiv == null) {
-      let boardElement = document.getElementById('board')
       boardDiv = `<div id="board">
       <div id="top" class="board-player"></div>
       <div id="left" class="board-player"></div>
@@ -58,6 +78,7 @@ if (document.readyState !== "loading") {
       <div id="bottom" class="board-player">
       </div>
       <div id="deck" class="board-player"></div>
+      <div id="card-from-deck" class="board-player"></div>
       <div id="action-menu" class="action-menu">
         <button id="PlayFallFromHand"class = "play-cards" disabled="true">Kill from Hand</button>
         <button id="PlayFallFromDeck" class = "play-cards" disabled="true">Kill from Deck</button>
@@ -76,16 +97,25 @@ if (document.readyState !== "loading") {
     }
 
     let stateJson, gameActionString;
-    for (turnIndex; turnIndex < stateArray.length; turnIndex++) {
+    let turnStringIndex = 0;
+    
+  
+    for (let turnIndex=0; turnIndex < stateArray.length; turnIndex++) {
       stateJson = stateArray[turnIndex];
       turnStringIndex += 1;
+      gameTurnIndex += 1;
+      console.log(stateJson)
       await sleepFunction(turnTime)
-      gameActionString = gameProgress[turnStringIndex];
+      gameActionString = "Turn: "+gameTurnIndex;
       updateState(stateJson,boardDiv,gameActionString)
+      
     } 
     
-    updateState(stateJson,boardDiv,"Your turn, previous turn: "+gameActionString)
+    updateState(stateJson,boardDiv,"Your turn ("+gameTurnIndex+")")
     //updateState(stateArray[stateArray.length-1],gameActionString)
+
+    
+
     checkActionState(stateArray[stateArray.length-1])
     turnIndex = gameArray.gameindex-1;
     // For fetching sample states:
@@ -99,9 +129,9 @@ if (document.readyState !== "loading") {
     let tempElement = document.createElement('div');
     tempElement.innerHTML = boardDiv;
     newboardDiv.replaceWith(tempElement);
-    initializeCode()
+    socket.emit('pingSocket',"ping")
   });
-  
+}
 
   }
 
@@ -194,7 +224,13 @@ function playCards(stateJson) {
     playFallHand(cardArray,function(temp){
       console.log(cardArray)
       let actionCards = cardArray[1].split(" ")
-      let actionString = "PlayFallFromHand;"+actionCards[1]
+      console.log(actionCards)
+      let cardpairs="";
+      for (let index = 1; index < actionCards.length; index++) {
+        let cardpair = actionCards[index];
+        cardpairs = cardpairs+" "+cardpair;
+      }
+      let actionString = "PlayFallFromHand;"+cardpairs
       console.log(actionString)
       sendGameAction(actionString);
       return temp;
@@ -257,10 +293,10 @@ function playCards(stateJson) {
 
 }
 
-async function sendGameAction(actionString) {
+function sendGameAction(actionString) {
   let dataToSend = JSON.stringify({"action": actionString})
   console.log(dataToSend)
-  await fetch('http://localhost:3000/playmove', {
+  /*await fetch('http://localhost:3000/playmove', {
     method: 'POST',
     headers: { "Content-Type": "application/json" },
     body: dataToSend
@@ -268,11 +304,53 @@ async function sendGameAction(actionString) {
     .then(response => response.json())
     .then(data => {
       console.log(data)
-    })
-
-    initializeCode();
+    })*/
+    socket.emit("gameaction",dataToSend);
 }
 
+
+function killCardFromDeck(cardString) {
+
+  // Find out what the card from deck is:
+  let cardArray = cardString.split(" ");
+  let cardstr = cardArray[cardArray.length-1];
+  let cardSrc = parseCard(cardstr);
+
+  
+  const deckContainer = document.getElementById("card-from-deck");
+  deckContainer.setAttribute('style',"visibility:visible");
+  // Create new card div
+  const card = document.createElement("div");
+  card.classList.add("card");
+  // Create new image element for the card
+  const cardImage = document.createElement("img");
+  cardImage.src = cardSrc;
+  cardImage.className = "card";
+  cardImage.setAttribute('card-type',cardSrc);
+  card.appendChild(cardImage);
+  deckContainer.appendChild(card);
+
+  let board = document.getElementById('cards-to-kill')
+  board.setAttribute('activated',1);
+  board.onclick = function(e){
+    if(e.target.className && e.target.className.indexOf('card')!=-1 && e.target.getAttribute('card-type') != null && board.getAttribute('activated') == 1) {
+      let cardToFall = e.target;
+      cardToFall.setAttribute('selected',1);
+
+      console.log(e.target.getAttribute('card-index'))
+      let gameAction = JSON.stringify({"action": e.target.getAttribute('card-index')});
+
+      board.removeAttribute('activated')
+          
+      // Set the selected cards as unactivated:
+      cardToFall.removeAttribute('selected')
+      cardToFall.setAttribute('used',1)
+      
+      deckContainer.setAttribute('style',"visibility:hidden");
+      socket.emit("gameaction",gameAction)
+    }
+  }
+}
 
 function playToSelf(cardArray,callback) {
 

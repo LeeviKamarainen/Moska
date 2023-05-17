@@ -4,13 +4,13 @@ var path = require('path')
 
 const { spawn } = require('child_process');
 
-let pythonProg = spawn('python',[
-  '../Play/play_in_browser.py']);
-console.log("Python program started")
+
+//console.log("Python program started")
 let gameIndex = 0;
-let gameStringIndex = 0;
+let gameStringIndex = 2;
 let dataArrived;
-pythonProg.stdout.on('data', function(data) {
+/*pythonProg.stdout.on('data', function(data) {
+  console.log("DATA ARRIVING!")
     let dataString = data.toString();
     let dataArray = dataString.split(/\r?\n/)
     dataArrived = true;
@@ -25,23 +25,22 @@ pythonProg.stdout.on('data', function(data) {
       }
     }
   }
-})
+})*/
+
+
 let gameProgress = [];
 let gameStates = [];
 /* GET home page. */
-router.get('/test', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+router.get('/', function(req, res, next) {
 });
 
 router.get('/login', function(req, res, next) {
-  
-
   res.sendFile(path.join(__dirname,"../views","login.html"));
 });
 
 
 router.get("/getstate", async function(req,res,next){
-  
+  /*
   console.log("Sending game states!")
   console.log(gameProgress)
   gameIndex = gameStates.length;
@@ -51,6 +50,7 @@ router.get("/getstate", async function(req,res,next){
   pythonProg.stderr.on('data', function(data) {
     console.log(`stdout: ${data}`);
   })
+  */
 })
 
 router.post("/playmove",function(req,res,next) {

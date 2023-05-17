@@ -41,6 +41,7 @@
   <div id="bottom" class="board-player">
   </div>
   <div id="deck" class="board-player"></div>
+  <div id="card-from-deck" class="board-player"></div>
   <div id="action-menu" class="action-menu">
     <button id="PlayFallFromHand"class = "play-cards" disabled="true">Kill from Hand</button>
     <button id="PlayFallFromDeck" class = "play-cards" disabled="true">Kill from Deck</button>
@@ -55,6 +56,11 @@
     <button id="Refresh" class = "play-cards">Refresh</button>
   </div>
 </div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  var socket = io();
+</script>
 </body>
 
 

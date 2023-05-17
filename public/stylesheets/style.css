@@ -58,7 +58,18 @@ a {
   flex-wrap: wrap;
 }
 
-
+#card-from-deck {
+  top: 50%;
+  left: 30%;
+  height: 80px;
+  width: 60px;
+  position: absolute;
+  transform: translate(-50%, -70%);
+  text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  visibility: hidden;
+}
 
 .amount-left {
   position: absolute;

@@ -1,0 +1,362 @@
+INFO:NN2-HIF1994700:Created Player NN2-HIF1 with pid 1 and log file Game-0-NNEV1.log
+INFO:NN2-HIF1994700:Player type: <class 'Player.NNHIFEvaluatorBot.NNHIFEvaluatorBot'>
+INFO:NN2-HIF1994700:Thread started with ID 16056
+DEBUG:NN2-HIF1994700:Lock acquired.
+INFO:NN2-HIF1994700:Turn 1
+INFO:NN2-HIF1994700:Playable moves: ['Skip']
+INFO:NN2-HIF1994700:Choosing move...
+DEBUG:NN2-HIF1994700:Trump card: 12♦
+Deck left: 27
+NN2-HIF2 (TG)    : [-1X, -1X, -1X, -1X, -1X, -1X]
+NN2-HIF1         : [-1X, -1X, -1X, -1X, -1X, -1X]
+NN2-HIF3         : [-1X, -1X, -1X, -1X, -1X, -1X]
+Human            : [-1X, -1X, -1X, -1X, -1X, -1X]
+Cards to kill : [3♣]
+killed cards : []
+
+INFO:NN2-HIF1994700:Getting possible next states for move: Skip
+DEBUG:NN2-HIF1994700:Found 1 possible next states for move Skip. Time taken: 0.0029969215393066406
+DEBUG:NN2-HIF1994700:Time taken to evaluate 1 states: 0.0029976367950439453
+INFO:NN2-HIF1994700:NMOVES: 27 , 1
+INFO:NN2-HIF1994700:Move scores: {'Skip': ([], 0.5783504247665405)}
+INFO:NN2-HIF1994700:Playing best move: ('Skip', ([], 0.5783504247665405))
+INFO:NN2-HIF1994700:Selected move: Skip
+INFO:NN2-HIF1994700:Turn 1: 'Skip'
+DEBUG:NN2-HIF1994700:Set rank to None
+DEBUG:NN2-HIF1994700:Lock acquired.
+DEBUG:NN2-HIF1994700:Target has changed from NN2-HIF2 to NN2-HIF3
+INFO:NN2-HIF1994700:Turn 5
+INFO:NN2-HIF1994700:Playable moves: ['InitialPlay']
+INFO:NN2-HIF1994700:Choosing move...
+DEBUG:NN2-HIF1994700:Trump card: 12♦
+Deck left: 27
+NN2-HIF2         : [3♣, -1X, -1X, -1X, -1X, -1X, -1X]
+NN2-HIF1         : [-1X, -1X, -1X, -1X, -1X, -1X]
+NN2-HIF3 (TG)    : [-1X, -1X, -1X, -1X, -1X, -1X]
+Human            : [-1X, -1X, -1X, -1X, -1X, -1X]
+Cards to kill : []
+killed cards : []
+
+INFO:NN2-HIF1994700:Getting possible next states for move: InitialPlay
+DEBUG:NN2-HIF1994700:6 fits to table
+DEBUG:NN2-HIF1994700:Found 7 legal plays to 'InitialPlay'.
+DEBUG:NN2-HIF1994700:Full information lifted cards: [7♦]
+DEBUG:NN2-HIF1994700:Full information lifted cards: [7♦]
+DEBUG:NN2-HIF1994700:Full information lifted cards: [7♦]
+DEBUG:NN2-HIF1994700:Full information lifted cards: [7♦, 10♥]
+DEBUG:NN2-HIF1994700:Full information lifted cards: [7♦]
+DEBUG:NN2-HIF1994700:Full information lifted cards: [7♦]
+DEBUG:NN2-HIF1994700:Full information lifted cards: [7♦]
+DEBUG:NN2-HIF1994700:Found 1210 possible next states for move InitialPlay. Time taken: 0.030092477798461914
+DEBUG:NN2-HIF1994700:Time taken to evaluate 1210 states: 0.3498067855834961
+DEBUG:NN2-HIF1994700:Sampled 1210 possible states for [2♠]
+DEBUG:NN2-HIF1994700:Sampled 1210 possible states for [13♣]
+DEBUG:NN2-HIF1994700:Sampled 1210 possible states for [12♣]
+DEBUG:NN2-HIF1994700:Sampled 1210 possible states for [7♣, 7♥]
+DEBUG:NN2-HIF1994700:Sampled 1210 possible states for [7♥]
+DEBUG:NN2-HIF1994700:Sampled 1210 possible states for [7♣]
+DEBUG:NN2-HIF1994700:Sampled 1210 possible states for [14♣]
+INFO:NN2-HIF1994700:Unique plays: [[2♠], [13♣], [12♣], [7♣, 7♥], [7♥], [7♣], [14♣]]
+INFO:NN2-HIF1994700:Mean evals: [0.6026583788069811, 0.5671218877488916, 0.570496522567489, 0.6084801957294754, 0.5876977335322987, 0.5885657979683443, 0.5676180422306061]
+INFO:NN2-HIF1994700:NMOVES: 27 , 7
+INFO:NN2-HIF1994700:Move scores: {'InitialPlay': ([7♣, 7♥], 0.6084801957294754)}
+INFO:NN2-HIF1994700:Playing best move: ('InitialPlay', ([7♣, 7♥], 0.6084801957294754))
+INFO:NN2-HIF1994700:Selected move: InitialPlay
+INFO:NN2-HIF1994700:Turn 5: 'InitialPlay' [7♣, 7♥] -> NN2-HIF3
+DEBUG:NN2-HIF1994700:Drew 2 cards from deck
+DEBUG:NN2-HIF1994700:Set rank to None
+DEBUG:NN2-HIF1994700:Lock acquired.
+INFO:NN2-HIF1994700:Turn 9
+INFO:NN2-HIF1994700:Playable moves: ['PlayToOther', 'Skip']
+INFO:NN2-HIF1994700:Choosing move...
+DEBUG:NN2-HIF1994700:Trump card: 12♦
+Deck left: 25
+NN2-HIF2         : [3♣, -1X, -1X, -1X, -1X, -1X, -1X]
+NN2-HIF1         : [-1X, -1X, -1X, -1X, -1X, -1X]
+NN2-HIF3 (TG)    : [-1X, -1X, -1X, -1X, -1X, -1X]
+Human            : [-1X, -1X, -1X, -1X, -1X, -1X]
+Cards to kill : [7♣, 7♥]
+killed cards : []
+
+INFO:NN2-HIF1994700:Getting possible next states for move: PlayToOther
+DEBUG:NN2-HIF1994700:Full information lifted cards: [3♥]
+DEBUG:NN2-HIF1994700:Found 42 possible next states for move PlayToOther. Time taken: 0.002997875213623047
+DEBUG:NN2-HIF1994700:Time taken to evaluate 42 states: 0.01699066162109375
+DEBUG:NN2-HIF1994700:Sampled 42 possible states for [7♦]
+INFO:NN2-HIF1994700:Unique plays: [[7♦]]
+INFO:NN2-HIF1994700:Mean evals: [0.6078478693962097]
+INFO:NN2-HIF1994700:Getting possible next states for move: Skip
+DEBUG:NN2-HIF1994700:Found 1 possible next states for move Skip. Time taken: 0.0030176639556884766
+DEBUG:NN2-HIF1994700:Time taken to evaluate 1 states: 0.004992008209228516
+INFO:NN2-HIF1994700:NMOVES: 25 , 2
+INFO:NN2-HIF1994700:Move scores: {'PlayToOther': ([7♦], 0.6078478693962097), 'Skip': ([], 0.630958080291748)}
+INFO:NN2-HIF1994700:Playing best move: ('Skip', ([], 0.630958080291748))
+INFO:NN2-HIF1994700:Selected move: Skip
+INFO:NN2-HIF1994700:Turn 9: 'Skip'
+DEBUG:NN2-HIF1994700:Set rank to None
+DEBUG:NN2-HIF1994700:Lock acquired.
+DEBUG:NN2-HIF1994700:Target has changed from NN2-HIF3 to NN2-HIF2
+INFO:NN2-HIF1994700:Turn 13
+INFO:NN2-HIF1994700:Playable moves: ['Skip']
+INFO:NN2-HIF1994700:Choosing move...
+DEBUG:NN2-HIF1994700:Trump card: 12♦
+Deck left: 25
+NN2-HIF2 (TG)    : [3♣, -1X, -1X, -1X, -1X, -1X, -1X]
+NN2-HIF1         : [-1X, -1X, -1X, -1X, -1X, -1X]
+NN2-HIF3         : [7♣, 7♥, -1X, -1X, -1X, -1X, -1X, -1X]
+Human            : [-1X, -1X, -1X, -1X, -1X, -1X]
+Cards to kill : []
+killed cards : []
+
+INFO:NN2-HIF1994700:Getting possible next states for move: Skip
+DEBUG:NN2-HIF1994700:Found 1 possible next states for move Skip. Time taken: 0.0020089149475097656
+DEBUG:NN2-HIF1994700:Time taken to evaluate 1 states: 0.0029900074005126953
+INFO:NN2-HIF1994700:NMOVES: 25 , 1
+INFO:NN2-HIF1994700:Move scores: {'Skip': ([], 0.6251546740531921)}
+INFO:NN2-HIF1994700:Playing best move: ('Skip', ([], 0.6251546740531921))
+INFO:NN2-HIF1994700:Selected move: Skip
+INFO:NN2-HIF1994700:Turn 13: 'Skip'
+DEBUG:NN2-HIF1994700:Set rank to None
+DEBUG:NN2-HIF1994700:Lock acquired.
+INFO:NN2-HIF1994700:Turn 15
+INFO:NN2-HIF1994700:Playable moves: ['Skip']
+INFO:NN2-HIF1994700:Choosing move...
+DEBUG:NN2-HIF1994700:Trump card: 12♦
+Deck left: 24
+NN2-HIF2 (TG)    : [3♣, -1X, -1X, -1X, -1X, -1X, -1X]
+NN2-HIF1         : [-1X, -1X, -1X, -1X, -1X, -1X]
+NN2-HIF3         : [7♣, 7♥, -1X, -1X, -1X, -1X, -1X, -1X]
+Human            : [-1X, -1X, -1X, -1X, -1X, -1X]
+Cards to kill : [11♦]
+killed cards : []
+
+INFO:NN2-HIF1994700:Getting possible next states for move: Skip
+DEBUG:NN2-HIF1994700:Found 1 possible next states for move Skip. Time taken: 0.003998279571533203
+DEBUG:NN2-HIF1994700:Time taken to evaluate 1 states: 0.004008769989013672
+INFO:NN2-HIF1994700:NMOVES: 24 , 1
+INFO:NN2-HIF1994700:Move scores: {'Skip': ([], 0.6308919191360474)}
+INFO:NN2-HIF1994700:Playing best move: ('Skip', ([], 0.6308919191360474))
+INFO:NN2-HIF1994700:Selected move: Skip
+INFO:NN2-HIF1994700:Turn 15: 'Skip'
+DEBUG:NN2-HIF1994700:Set rank to None
+DEBUG:NN2-HIF1994700:Lock acquired.
+INFO:NN2-HIF1994700:Turn 19
+INFO:NN2-HIF1994700:Playable moves: ['Skip']
+INFO:NN2-HIF1994700:Choosing move...
+DEBUG:NN2-HIF1994700:Trump card: 12♦
+Deck left: 24
+NN2-HIF2 (TG)    : [3♣, -1X, -1X, -1X, -1X, -1X, -1X]
+NN2-HIF1         : [-1X, -1X, -1X, -1X, -1X, -1X]
+NN2-HIF3         : [7♣, 7♥, -1X, -1X, -1X, -1X, -1X, -1X]
+Human            : [-1X, -1X, -1X, -1X, -1X, -1X]
+Cards to kill : [11♦]
+killed cards : []
+
+INFO:NN2-HIF1994700:Getting possible next states for move: Skip
+DEBUG:NN2-HIF1994700:Found 1 possible next states for move Skip. Time taken: 0.003998279571533203
+DEBUG:NN2-HIF1994700:Time taken to evaluate 1 states: 0.003997087478637695
+INFO:NN2-HIF1994700:NMOVES: 24 , 1
+INFO:NN2-HIF1994700:Move scores: {'Skip': ([], 0.6290938854217529)}
+INFO:NN2-HIF1994700:Playing best move: ('Skip', ([], 0.6290938854217529))
+INFO:NN2-HIF1994700:Selected move: Skip
+INFO:NN2-HIF1994700:Turn 19: 'Skip'
+DEBUG:NN2-HIF1994700:Set rank to None
+DEBUG:NN2-HIF1994700:Lock acquired.
+DEBUG:NN2-HIF1994700:Target has changed from NN2-HIF2 to NN2-HIF3
+INFO:NN2-HIF1994700:Turn 23
+INFO:NN2-HIF1994700:Playable moves: ['InitialPlay']
+INFO:NN2-HIF1994700:Choosing move...
+DEBUG:NN2-HIF1994700:Trump card: 12♦
+Deck left: 24
+NN2-HIF2         : [11♦, 3♣, -1X, -1X, -1X, -1X, -1X, -1X]
+NN2-HIF1         : [-1X, -1X, -1X, -1X, -1X, -1X]
+NN2-HIF3 (TG)    : [7♣, 7♥, -1X, -1X, -1X, -1X, -1X, -1X]
+Human            : [-1X, -1X, -1X, -1X, -1X, -1X]
+Cards to kill : []
+killed cards : []
+
+INFO:NN2-HIF1994700:Getting possible next states for move: InitialPlay
+DEBUG:NN2-HIF1994700:6 fits to table
+DEBUG:NN2-HIF1994700:Found 6 legal plays to 'InitialPlay'.
+DEBUG:NN2-HIF1994700:Full information lifted cards: [6♣]
+DEBUG:NN2-HIF1994700:Full information lifted cards: [6♣]
+DEBUG:NN2-HIF1994700:Full information lifted cards: [6♣]
+DEBUG:NN2-HIF1994700:Full information lifted cards: [6♣]
+DEBUG:NN2-HIF1994700:Full information lifted cards: [6♣]
+DEBUG:NN2-HIF1994700:Full information lifted cards: [6♣]
+DEBUG:NN2-HIF1994700:Found 246 possible next states for move InitialPlay. Time taken: 0.01997971534729004
+DEBUG:NN2-HIF1994700:Time taken to evaluate 246 states: 0.07395648956298828
+DEBUG:NN2-HIF1994700:Sampled 246 possible states for [13♣]
+DEBUG:NN2-HIF1994700:Sampled 246 possible states for [14♣]
+DEBUG:NN2-HIF1994700:Sampled 246 possible states for [7♦]
+DEBUG:NN2-HIF1994700:Sampled 246 possible states for [12♣]
+DEBUG:NN2-HIF1994700:Sampled 246 possible states for [2♠]
+DEBUG:NN2-HIF1994700:Sampled 246 possible states for [10♥]
+INFO:NN2-HIF1994700:Unique plays: [[13♣], [14♣], [7♦], [12♣], [2♠], [10♥]]
+INFO:NN2-HIF1994700:Mean evals: [0.622715372864793, 0.616965626798025, 0.5794752821689699, 0.6248029223302516, 0.6487166939712152, 0.6293189249387602]
+INFO:NN2-HIF1994700:NMOVES: 24 , 6
+INFO:NN2-HIF1994700:Move scores: {'InitialPlay': ([2♠], 0.6487166939712152)}
+INFO:NN2-HIF1994700:Playing best move: ('InitialPlay', ([2♠], 0.6487166939712152))
+INFO:NN2-HIF1994700:Selected move: InitialPlay
+INFO:NN2-HIF1994700:Turn 23: 'InitialPlay' [2♠] -> NN2-HIF3
+DEBUG:NN2-HIF1994700:Drew 1 cards from deck
+DEBUG:NN2-HIF1994700:Set rank to None
+DEBUG:NN2-HIF1994700:Lock acquired.
+INFO:NN2-HIF1994700:Turn 27
+INFO:NN2-HIF1994700:Playable moves: ['Skip']
+INFO:NN2-HIF1994700:Choosing move...
+DEBUG:NN2-HIF1994700:Trump card: 12♦
+Deck left: 23
+NN2-HIF2         : [11♦, 3♣, -1X, -1X, -1X, -1X, -1X, -1X]
+NN2-HIF1         : [-1X, -1X, -1X, -1X, -1X, -1X]
+NN2-HIF3 (TG)    : [7♣, 7♥, -1X, -1X, -1X, -1X, -1X]
+Human            : [-1X, -1X, -1X, -1X, -1X, -1X]
+Cards to kill : []
+killed cards : [2♠, 5♠]
+
+INFO:NN2-HIF1994700:Getting possible next states for move: Skip
+DEBUG:NN2-HIF1994700:Found 1 possible next states for move Skip. Time taken: 0.0019888877868652344
+DEBUG:NN2-HIF1994700:Time taken to evaluate 1 states: 0.0039980411529541016
+INFO:NN2-HIF1994700:NMOVES: 23 , 1
+INFO:NN2-HIF1994700:Move scores: {'Skip': ([], 0.6320970058441162)}
+INFO:NN2-HIF1994700:Playing best move: ('Skip', ([], 0.6320970058441162))
+INFO:NN2-HIF1994700:Selected move: Skip
+INFO:NN2-HIF1994700:Turn 27: 'Skip'
+DEBUG:NN2-HIF1994700:Set rank to None
+DEBUG:NN2-HIF1994700:Lock acquired.
+DEBUG:NN2-HIF1994700:Target has changed from NN2-HIF3 to Human
+INFO:NN2-HIF1994700:Turn 31
+INFO:NN2-HIF1994700:Playable moves: ['Skip']
+INFO:NN2-HIF1994700:Choosing move...
+DEBUG:NN2-HIF1994700:Trump card: 12♦
+Deck left: 23
+NN2-HIF2         : [11♦, 3♣, -1X, -1X, -1X, -1X, -1X, -1X]
+NN2-HIF1         : [-1X, -1X, -1X, -1X, -1X, -1X]
+NN2-HIF3         : [7♣, 7♥, -1X, -1X, -1X, -1X, -1X]
+Human (TG)       : [-1X, -1X, -1X, -1X, -1X, -1X]
+Cards to kill : []
+killed cards : []
+
+INFO:NN2-HIF1994700:Getting possible next states for move: Skip
+DEBUG:NN2-HIF1994700:Found 1 possible next states for move Skip. Time taken: 0.001998424530029297
+DEBUG:NN2-HIF1994700:Time taken to evaluate 1 states: 0.0039975643157958984
+INFO:NN2-HIF1994700:NMOVES: 23 , 1
+INFO:NN2-HIF1994700:Move scores: {'Skip': ([], 0.5136324167251587)}
+INFO:NN2-HIF1994700:Playing best move: ('Skip', ([], 0.5136324167251587))
+INFO:NN2-HIF1994700:Selected move: Skip
+INFO:NN2-HIF1994700:Turn 31: 'Skip'
+DEBUG:NN2-HIF1994700:Set rank to None
+DEBUG:NN2-HIF1994700:Lock acquired.
+INFO:NN2-HIF1994700:Turn 36
+INFO:NN2-HIF1994700:Playable moves: ['PlayToOther', 'Skip']
+INFO:NN2-HIF1994700:Choosing move...
+DEBUG:NN2-HIF1994700:Trump card: 12♦
+Deck left: 21
+NN2-HIF2         : [11♦, 3♣, -1X, -1X, -1X, -1X, -1X, -1X]
+NN2-HIF1         : [-1X, -1X, -1X, -1X, -1X, -1X]
+NN2-HIF3         : [-1X, -1X, -1X, -1X, -1X, -1X]
+Human (TG)       : [-1X, -1X, -1X, -1X, -1X, -1X]
+Cards to kill : [7♠, 7♣, 7♥]
+killed cards : []
+
+INFO:NN2-HIF1994700:Getting possible next states for move: PlayToOther
+DEBUG:NN2-HIF1994700:Full information lifted cards: [8♠]
+DEBUG:NN2-HIF1994700:Found 38 possible next states for move PlayToOther. Time taken: 0.0029976367950439453
+DEBUG:NN2-HIF1994700:Time taken to evaluate 38 states: 0.014983177185058594
+DEBUG:NN2-HIF1994700:Sampled 38 possible states for [7♦]
+INFO:NN2-HIF1994700:Unique plays: [[7♦]]
+INFO:NN2-HIF1994700:Mean evals: [0.45479309637295573]
+INFO:NN2-HIF1994700:Getting possible next states for move: Skip
+DEBUG:NN2-HIF1994700:Found 1 possible next states for move Skip. Time taken: 0.0029973983764648438
+DEBUG:NN2-HIF1994700:Time taken to evaluate 1 states: 0.0029990673065185547
+INFO:NN2-HIF1994700:NMOVES: 21 , 2
+INFO:NN2-HIF1994700:Move scores: {'PlayToOther': ([7♦], 0.45479309637295573), 'Skip': ([], 0.49963927268981934)}
+INFO:NN2-HIF1994700:Playing best move: ('Skip', ([], 0.49963927268981934))
+INFO:NN2-HIF1994700:Selected move: Skip
+INFO:NN2-HIF1994700:Turn 36: 'Skip'
+DEBUG:NN2-HIF1994700:Set rank to None
+DEBUG:NN2-HIF1994700:Lock acquired.
+INFO:NN2-HIF1994700:Turn 39
+INFO:NN2-HIF1994700:Playable moves: ['PlayToOther', 'Skip']
+INFO:NN2-HIF1994700:Choosing move...
+DEBUG:NN2-HIF1994700:Trump card: 12♦
+Deck left: 21
+NN2-HIF2         : [11♦, 3♣, -1X, -1X, -1X, -1X, -1X, -1X]
+NN2-HIF1         : [-1X, -1X, -1X, -1X, -1X, -1X]
+NN2-HIF3         : [-1X, -1X, -1X, -1X, -1X, -1X]
+Human (TG)       : [-1X, -1X, -1X, -1X, -1X, -1X]
+Cards to kill : [7♠, 7♣, 7♥]
+killed cards : []
+
+INFO:NN2-HIF1994700:Getting possible next states for move: PlayToOther
+DEBUG:NN2-HIF1994700:Full information lifted cards: [8♠]
+DEBUG:NN2-HIF1994700:Found 38 possible next states for move PlayToOther. Time taken: 0.0029981136322021484
+DEBUG:NN2-HIF1994700:Time taken to evaluate 38 states: 0.014002323150634766
+DEBUG:NN2-HIF1994700:Sampled 38 possible states for [7♦]
+INFO:NN2-HIF1994700:Unique plays: [[7♦]]
+INFO:NN2-HIF1994700:Mean evals: [0.45479309637295573]
+INFO:NN2-HIF1994700:Getting possible next states for move: Skip
+DEBUG:NN2-HIF1994700:Found 1 possible next states for move Skip. Time taken: 0.0029976367950439453
+DEBUG:NN2-HIF1994700:Time taken to evaluate 1 states: 0.00299835205078125
+INFO:NN2-HIF1994700:NMOVES: 21 , 2
+INFO:NN2-HIF1994700:Move scores: {'PlayToOther': ([7♦], 0.45479309637295573), 'Skip': ([], 0.49963927268981934)}
+INFO:NN2-HIF1994700:Playing best move: ('Skip', ([], 0.49963927268981934))
+INFO:NN2-HIF1994700:Selected move: Skip
+INFO:NN2-HIF1994700:Turn 39: 'Skip'
+DEBUG:NN2-HIF1994700:Set rank to None
+DEBUG:NN2-HIF1994700:Lock acquired.
+INFO:NN2-HIF1994700:Turn 41
+INFO:NN2-HIF1994700:Playable moves: ['PlayToOther', 'Skip']
+INFO:NN2-HIF1994700:Choosing move...
+DEBUG:NN2-HIF1994700:Trump card: 12♦
+Deck left: 21
+NN2-HIF2         : [11♦, 3♣, -1X, -1X, -1X, -1X, -1X, -1X]
+NN2-HIF1         : [-1X, -1X, -1X, -1X, -1X, -1X]
+NN2-HIF3         : [-1X, -1X, -1X, -1X, -1X, -1X]
+Human (TG)       : [-1X, -1X, -1X, -1X]
+Cards to kill : [7♥]
+killed cards : [7♣, 11♣, 7♠, 10♠]
+
+INFO:NN2-HIF1994700:Getting possible next states for move: PlayToOther
+DEBUG:NN2-HIF1994700:Full information lifted cards: [8♠]
+DEBUG:NN2-HIF1994700:Full information lifted cards: [8♠]
+DEBUG:NN2-HIF1994700:Full information lifted cards: [8♠, 4♠]
+DEBUG:NN2-HIF1994700:Found 702 possible next states for move PlayToOther. Time taken: 0.02099895477294922
+DEBUG:NN2-HIF1994700:Time taken to evaluate 702 states: 0.21486425399780273
+DEBUG:NN2-HIF1994700:Sampled 702 possible states for [7♦]
+DEBUG:NN2-HIF1994700:Sampled 702 possible states for [10♥]
+DEBUG:NN2-HIF1994700:Sampled 702 possible states for [7♦, 10♥]
+INFO:NN2-HIF1994700:Unique plays: [[7♦], [10♥], [7♦, 10♥]]
+INFO:NN2-HIF1994700:Mean evals: [0.4507984237538444, 0.49108391006787616, 0.4506072054779719]
+INFO:NN2-HIF1994700:Getting possible next states for move: Skip
+DEBUG:NN2-HIF1994700:Found 1 possible next states for move Skip. Time taken: 0.0029981136322021484
+DEBUG:NN2-HIF1994700:Time taken to evaluate 1 states: 0.003997802734375
+INFO:NN2-HIF1994700:NMOVES: 21 , 4
+INFO:NN2-HIF1994700:Move scores: {'PlayToOther': ([10♥], 0.49108391006787616), 'Skip': ([], 0.4940085709095001)}
+INFO:NN2-HIF1994700:Playing best move: ('Skip', ([], 0.4940085709095001))
+INFO:NN2-HIF1994700:Selected move: Skip
+INFO:NN2-HIF1994700:Turn 41: 'Skip'
+DEBUG:NN2-HIF1994700:Set rank to None
+DEBUG:NN2-HIF1994700:Lock acquired.
+DEBUG:NN2-HIF1994700:Target has changed from Human to NN2-HIF1
+INFO:NN2-HIF1994700:Turn 45
+INFO:NN2-HIF1994700:Playable moves: ['Skip']
+INFO:NN2-HIF1994700:Choosing move...
+DEBUG:NN2-HIF1994700:Trump card: 12♦
+Deck left: 20
+NN2-HIF2         : [11♦, 3♣, -1X, -1X, -1X, -1X, -1X, -1X]
+NN2-HIF1 (TG)    : [-1X, -1X, -1X, -1X, -1X, -1X]
+NN2-HIF3         : [-1X, -1X, -1X, -1X, -1X, -1X]
+Human            : [-1X, 7♥, -1X, -1X, -1X, -1X]
+Cards to kill : []
+killed cards : []
+
+INFO:NN2-HIF1994700:Getting possible next states for move: Skip
+DEBUG:NN2-HIF1994700:Found 1 possible next states for move Skip. Time taken: 0.003009319305419922
+DEBUG:NN2-HIF1994700:Time taken to evaluate 1 states: 0.003988027572631836
+INFO:NN2-HIF1994700:NMOVES: 20 , 1
+INFO:NN2-HIF1994700:Move scores: {'Skip': ([], 0.4578739404678345)}
+INFO:NN2-HIF1994700:Playing best move: ('Skip', ([], 0.4578739404678345))
+INFO:NN2-HIF1994700:Selected move: Skip
+INFO:NN2-HIF1994700:Turn 45: 'Skip'
+DEBUG:NN2-HIF1994700:Set rank to None
