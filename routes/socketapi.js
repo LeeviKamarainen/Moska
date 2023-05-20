@@ -5,11 +5,14 @@ const socketapi = {
 };
 
 let pythonProg = spawn('python',[
-    './Python/browserMoska.py']);
-    
+  __dirname+"/../../Python/browserMoska.py"]);
         
 console.log("Python program started")
 // Add your socket.io logic here!
+
+pythonProg.stderr.on('data',function(data) {
+  console.log(data.toString())
+})
 
 io.on( "connection", function( socket ) {
     console.log( "An user connected" );

@@ -1,0 +1,25 @@
+INFO:NN2-HIF_3546264:Created Player NN2-HIF_3 with pid 1 and log file Game-0-NN2-HIF_3.log
+INFO:NN2-HIF_3546264:Player type: <class 'MoskaEngine.Player.NNHIFEvaluatorBot.NNHIFEvaluatorBot'>
+INFO:NN2-HIF_3546264:Thread started with ID 14904
+DEBUG:NN2-HIF_3546264:Lock acquired.
+INFO:NN2-HIF_3546264:Turn 1
+INFO:NN2-HIF_3546264:Playable moves: ['Skip']
+INFO:NN2-HIF_3546264:Choosing move...
+DEBUG:NN2-HIF_3546264:Trump card: 2♣
+Deck left: 28
+NN2-HIF_2 (TG)   : [-1X, -1X, -1X, -1X, -1X, -1X]
+NN2-HIF_3        : [-1X, -1X, -1X, -1X, -1X, -1X]
+NN2-HIF_1        : [-1X, -1X, -1X, -1X, -1X, 13♣]
+Human            : [-1X, -1X, -1X, -1X, -1X, -1X]
+Cards to kill : []
+killed cards : []
+
+INFO:NN2-HIF_3546264:Getting possible next states for move: Skip
+DEBUG:NN2-HIF_3546264:Found 1 possible next states for move Skip. Time taken: 0.001998424530029297
+DEBUG:NN2-HIF_3546264:Time taken to evaluate 1 states: 0.0029990673065185547
+INFO:NN2-HIF_3546264:NMOVES: 28 , 1
+INFO:NN2-HIF_3546264:Move scores: {'Skip': ([], 0.6040544509887695)}
+INFO:NN2-HIF_3546264:Playing best move: ('Skip', ([], 0.6040544509887695))
+INFO:NN2-HIF_3546264:Selected move: Skip
+INFO:NN2-HIF_3546264:Turn 1: 'Skip'
+DEBUG:NN2-HIF_3546264:Set rank to None
