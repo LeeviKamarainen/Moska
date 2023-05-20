@@ -5,7 +5,7 @@ const socketapi = {
 };
 
 let pythonProg = spawn('python',[
-  __dirname+"/../../Python/browserMoska.py"]);
+  __dirname+"/../Python/browserMoska.py"]);
         
 console.log("Python program started")
 // Add your socket.io logic here!
