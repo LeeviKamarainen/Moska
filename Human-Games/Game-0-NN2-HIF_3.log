@@ -1,47 +1,47 @@
-INFO:NN2-HIF_3597543:Created Player NN2-HIF_3 with pid 2 and log file Game-0-NN2-HIF_3.log
-INFO:NN2-HIF_3597543:Player type: <class 'MoskaEngine.Player.NNHIFEvaluatorBot.NNHIFEvaluatorBot'>
-INFO:NN2-HIF_3597543:Thread started with ID 7208
-DEBUG:NN2-HIF_3597543:Lock acquired.
-INFO:NN2-HIF_3597543:Turn 1
-INFO:NN2-HIF_3597543:Playable moves: ['Skip']
-INFO:NN2-HIF_3597543:Choosing move...
-DEBUG:NN2-HIF_3597543:Trump card: 2♣
+INFO:NN2-HIF_3129925:Created Player NN2-HIF_3 with pid 2 and log file Game-0-NN2-HIF_3.log
+INFO:NN2-HIF_3129925:Player type: <class 'MoskaEngine.Player.NNHIFEvaluatorBot.NNHIFEvaluatorBot'>
+INFO:NN2-HIF_3129925:Thread started with ID 8760
+DEBUG:NN2-HIF_3129925:Lock acquired.
+INFO:NN2-HIF_3129925:Turn 1
+INFO:NN2-HIF_3129925:Playable moves: ['Skip']
+INFO:NN2-HIF_3129925:Choosing move...
+DEBUG:NN2-HIF_3129925:Trump card: 2♥
 Deck left: 27
 Human (TG)       : [-1X, -1X, -1X, -1X, -1X, -1X]
 NN2-HIF_1        : [-1X, -1X, -1X, -1X, -1X, -1X]
 NN2-HIF_3        : [-1X, -1X, -1X, -1X, -1X, -1X]
-NN2-HIF_2        : [-1X, -1X, -1X, -1X, -1X, 14♣]
-Cards to kill : [10♦]
+NN2-HIF_2        : [-1X, -1X, -1X, -1X, -1X, -1X]
+Cards to kill : [3♠]
 killed cards : []
 
-INFO:NN2-HIF_3597543:Getting possible next states for move: Skip
-DEBUG:NN2-HIF_3597543:Found 1 possible next states for move Skip. Time taken: 0.0019893646240234375
-DEBUG:NN2-HIF_3597543:Time taken to evaluate 1 states: 0.004006385803222656
-INFO:NN2-HIF_3597543:NMOVES: 27 , 1
-INFO:NN2-HIF_3597543:Move scores: {'Skip': ([], 0.4979713559150696)}
-INFO:NN2-HIF_3597543:Playing best move: ('Skip', ([], 0.4979713559150696))
-INFO:NN2-HIF_3597543:Selected move: Skip
-INFO:NN2-HIF_3597543:Turn 1: 'Skip'
-DEBUG:NN2-HIF_3597543:Set rank to None
-DEBUG:NN2-HIF_3597543:Lock acquired.
-INFO:NN2-HIF_3597543:Turn 7
-INFO:NN2-HIF_3597543:Playable moves: ['Skip']
-INFO:NN2-HIF_3597543:Choosing move...
-DEBUG:NN2-HIF_3597543:Trump card: 2♣
+INFO:NN2-HIF_3129925:Getting possible next states for move: Skip
+DEBUG:NN2-HIF_3129925:Found 1 possible next states for move Skip. Time taken: 0.0029981136322021484
+DEBUG:NN2-HIF_3129925:Time taken to evaluate 1 states: 0.004999637603759766
+INFO:NN2-HIF_3129925:NMOVES: 27 , 1
+INFO:NN2-HIF_3129925:Move scores: {'Skip': ([], 0.44460415840148926)}
+INFO:NN2-HIF_3129925:Playing best move: ('Skip', ([], 0.44460415840148926))
+INFO:NN2-HIF_3129925:Selected move: Skip
+INFO:NN2-HIF_3129925:Turn 1: 'Skip'
+DEBUG:NN2-HIF_3129925:Set rank to None
+DEBUG:NN2-HIF_3129925:Lock acquired.
+INFO:NN2-HIF_3129925:Turn 5
+INFO:NN2-HIF_3129925:Playable moves: ['Skip']
+INFO:NN2-HIF_3129925:Choosing move...
+DEBUG:NN2-HIF_3129925:Trump card: 2♥
 Deck left: 26
 Human (TG)       : [-1X, -1X, -1X, -1X, -1X, -1X]
 NN2-HIF_1        : [-1X, -1X, -1X, -1X, -1X, -1X]
 NN2-HIF_3        : [-1X, -1X, -1X, -1X, -1X, -1X]
-NN2-HIF_2        : [-1X, -1X, -1X, -1X, -1X, 14♣]
-Cards to kill : [10♦, 10♠]
+NN2-HIF_2        : [-1X, -1X, -1X, -1X, -1X, -1X]
+Cards to kill : [3♠, 3♣]
 killed cards : []
 
-INFO:NN2-HIF_3597543:Getting possible next states for move: Skip
-DEBUG:NN2-HIF_3597543:Found 1 possible next states for move Skip. Time taken: 0.001998424530029297
-DEBUG:NN2-HIF_3597543:Time taken to evaluate 1 states: 0.003997325897216797
-INFO:NN2-HIF_3597543:NMOVES: 26 , 1
-INFO:NN2-HIF_3597543:Move scores: {'Skip': ([], 0.4957926571369171)}
-INFO:NN2-HIF_3597543:Playing best move: ('Skip', ([], 0.4957926571369171))
-INFO:NN2-HIF_3597543:Selected move: Skip
-INFO:NN2-HIF_3597543:Turn 7: 'Skip'
-DEBUG:NN2-HIF_3597543:Set rank to None
+INFO:NN2-HIF_3129925:Getting possible next states for move: Skip
+DEBUG:NN2-HIF_3129925:Found 1 possible next states for move Skip. Time taken: 0.0029981136322021484
+DEBUG:NN2-HIF_3129925:Time taken to evaluate 1 states: 0.0029993057250976562
+INFO:NN2-HIF_3129925:NMOVES: 26 , 1
+INFO:NN2-HIF_3129925:Move scores: {'Skip': ([], 0.4431980848312378)}
+INFO:NN2-HIF_3129925:Playing best move: ('Skip', ([], 0.4431980848312378))
+INFO:NN2-HIF_3129925:Selected move: Skip
+INFO:NN2-HIF_3129925:Turn 5: 'Skip'
+DEBUG:NN2-HIF_3129925:Set rank to None

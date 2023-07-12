@@ -3,87 +3,73 @@ HumanGame-0:DEBUG:Importing Tensorflow and loading models from paths: ['C:\\User
 HumanGame-0:INFO:Loaded ['C:\\Users\\janne\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python310\\site-packages\\MoskaEngine\\Models\\Model-nn1-BB\\model.tflite'] models.
 HumanGame-0:DEBUG:Input details: [[{'name': 'serving_default_input_1:0', 'index': 0, 'shape': array([  1, 442]), 'shape_signature': array([ -1, 442]), 'dtype': <class 'numpy.float32'>, 'quantization': (0.0, 0), 'quantization_parameters': {'scales': array([], dtype=float32), 'zero_points': array([], dtype=int32), 'quantized_dimension': 0}, 'sparsity_parameters': {}}]]
 HumanGame-0:DEBUG:Output details: [[{'name': 'StatefulPartitionedCall:0', 'index': 16, 'shape': array([1, 1]), 'shape_signature': array([-1,  1]), 'dtype': <class 'numpy.float32'>, 'quantization': (0.0, 0), 'quantization_parameters': {'scales': array([], dtype=float32), 'zero_points': array([], dtype=int32), 'quantized_dimension': 0}, 'sparsity_parameters': {}}]]
-HumanGame-0:INFO:Set random_seed to 8662488
-HumanGame-0:DEBUG:Set players to: [<MoskaEngine.Player.HumanJsonPlayer.HumanJsonPlayer object at 0x00000200B3CA1840>, <MoskaEngine.Player.NNHIFEvaluatorBot.NNHIFEvaluatorBot object at 0x00000200B3CA1780>, <MoskaEngine.Player.NNHIFEvaluatorBot.NNHIFEvaluatorBot object at 0x00000200B3CA1960>, <MoskaEngine.Player.NNHIFEvaluatorBot.NNHIFEvaluatorBot object at 0x00000200B3CA1990>]
+HumanGame-0:INFO:Set random_seed to 9636958
+HumanGame-0:DEBUG:Set players to: [<MoskaEngine.Player.HumanJsonPlayer.HumanJsonPlayer object at 0x0000017F2EEA1840>, <MoskaEngine.Player.NNHIFEvaluatorBot.NNHIFEvaluatorBot object at 0x0000017F2EEA1780>, <MoskaEngine.Player.NNHIFEvaluatorBot.NNHIFEvaluatorBot object at 0x0000017F2EEA1960>, <MoskaEngine.Player.NNHIFEvaluatorBot.NNHIFEvaluatorBot object at 0x0000017F2EEA1990>]
 HumanGame-0:INFO:Game initialization complete.
 HumanGame-0:INFO:Setting trump card
-HumanGame-0:INFO:Removed 2♣ from NN2-HIF_2
-HumanGame-0:INFO:Placed 2♣ to bottom of deck.
+HumanGame-0:INFO:Placed 2♥ to bottom of deck.
 HumanGame-0:DEBUG:Created RLock
-HumanGame-0:INFO:Starting the game with seed 8662488...
+HumanGame-0:INFO:Starting the game with seed 9636958...
 HumanGame-0:INFO:Starting player threads
 HumanGame-0:INFO:Started player threads
-HumanGame-0:INFO:Trump card on player: NN2-HIF_2
 HumanGame-0:INFO:Created card monitor. Player Cards:
 HumanGame-0:INFO:Human : [-1X, -1X, -1X, -1X, -1X, -1X]
 HumanGame-0:INFO:NN2-HIF_1 : [-1X, -1X, -1X, -1X, -1X, -1X]
 HumanGame-0:INFO:NN2-HIF_3 : [-1X, -1X, -1X, -1X, -1X, -1X]
-HumanGame-0:INFO:NN2-HIF_2 : [-1X, -1X, -1X, -1X, -1X, 14♣]
+HumanGame-0:INFO:NN2-HIF_2 : [-1X, -1X, -1X, -1X, -1X, -1X]
 HumanGame-0:INFO:Card monitor started
 HumanGame-0:INFO:Started card monitor.
 HumanGame-0:INFO:Started moska game with players ['Human', 'NN2-HIF_1', 'NN2-HIF_3', 'NN2-HIF_2']
 HumanGame-0:INFO:Main thread waiting for player threads
-HumanGame-0:DEBUG:Setting MoskaGame attribute lock_holder to 2376
+HumanGame-0:DEBUG:Setting MoskaGame attribute lock_holder to 20500
 HumanGame-0:DEBUG:NN2-HIF_2 has locked the game.
 HumanGame-0:DEBUG:Setting MoskaGame attribute nturns to 1
-HumanGame-0:INFO:Turn number: 1: 'NN2-HIF_2' called 'InitialPlay' with args ['NN2-HIF_2', 'Human', ['D10']]
-HumanGame-0:INFO:NN2-HIF_2 played [10♦] to Human
-HumanGame-0:DEBUG:Setting MoskaGame attribute __prev_lock_holder__ to 2376
+HumanGame-0:INFO:Turn number: 1: 'NN2-HIF_2' called 'InitialPlay' with args ['NN2-HIF_2', 'Human', ['S3']]
+HumanGame-0:INFO:NN2-HIF_2 played [3♠] to Human
+HumanGame-0:DEBUG:Setting MoskaGame attribute __prev_lock_holder__ to 20500
 HumanGame-0:DEBUG:NN2-HIF_2 has unlocked the game.
-HumanGame-0:DEBUG:Setting MoskaGame attribute lock_holder to 7208
+HumanGame-0:DEBUG:Setting MoskaGame attribute lock_holder to 8760
 HumanGame-0:DEBUG:NN2-HIF_3 has locked the game.
 HumanGame-0:DEBUG:Setting MoskaGame attribute nturns to 2
 HumanGame-0:INFO:Turn number: 2: 'NN2-HIF_3' called 'Skip' with args ['NN2-HIF_3']
-HumanGame-0:DEBUG:Setting MoskaGame attribute __prev_lock_holder__ to 7208
+HumanGame-0:DEBUG:Setting MoskaGame attribute __prev_lock_holder__ to 8760
 HumanGame-0:DEBUG:NN2-HIF_3 has unlocked the game.
-HumanGame-0:DEBUG:Setting MoskaGame attribute lock_holder to 16592
+HumanGame-0:DEBUG:Setting MoskaGame attribute lock_holder to 11872
 HumanGame-0:DEBUG:NN2-HIF_1 has locked the game.
 HumanGame-0:DEBUG:Setting MoskaGame attribute nturns to 3
-HumanGame-0:INFO:Turn number: 3: 'NN2-HIF_1' called 'PlayToOther' with args ['NN2-HIF_1', 'Human', ['S10']]
-HumanGame-0:INFO:NN2-HIF_1 played [10♠] to Human
-HumanGame-0:DEBUG:Setting MoskaGame attribute __prev_lock_holder__ to 16592
+HumanGame-0:INFO:Turn number: 3: 'NN2-HIF_1' called 'PlayToOther' with args ['NN2-HIF_1', 'Human', ['C3']]
+HumanGame-0:INFO:NN2-HIF_1 played [3♣] to Human
+HumanGame-0:DEBUG:Setting MoskaGame attribute __prev_lock_holder__ to 11872
 HumanGame-0:DEBUG:NN2-HIF_1 has unlocked the game.
-HumanGame-0:DEBUG:Setting MoskaGame attribute lock_holder to 19760
+HumanGame-0:DEBUG:Setting MoskaGame attribute lock_holder to 2544
 HumanGame-0:DEBUG:Human has locked the game.
 HumanGame-0:DEBUG:Setting MoskaGame attribute nturns to 4
 HumanGame-0:INFO:Turn number: 4: 'Human' called 'Skip' with args ['Human']
-HumanGame-0:DEBUG:Setting MoskaGame attribute __prev_lock_holder__ to 19760
+HumanGame-0:DEBUG:Setting MoskaGame attribute __prev_lock_holder__ to 2544
 HumanGame-0:DEBUG:Human has unlocked the game.
-HumanGame-0:DEBUG:Setting MoskaGame attribute lock_holder to 2376
+HumanGame-0:DEBUG:Setting MoskaGame attribute lock_holder to 20500
 HumanGame-0:DEBUG:NN2-HIF_2 has locked the game.
 HumanGame-0:DEBUG:Setting MoskaGame attribute nturns to 5
 HumanGame-0:INFO:Turn number: 5: 'NN2-HIF_2' called 'Skip' with args ['NN2-HIF_2']
-HumanGame-0:DEBUG:Setting MoskaGame attribute __prev_lock_holder__ to 2376
+HumanGame-0:DEBUG:Setting MoskaGame attribute __prev_lock_holder__ to 20500
 HumanGame-0:DEBUG:NN2-HIF_2 has unlocked the game.
-HumanGame-0:DEBUG:Setting MoskaGame attribute lock_holder to 19760
-HumanGame-0:DEBUG:Human has locked the game.
+HumanGame-0:DEBUG:Setting MoskaGame attribute lock_holder to 8760
+HumanGame-0:DEBUG:NN2-HIF_3 has locked the game.
 HumanGame-0:DEBUG:Setting MoskaGame attribute nturns to 6
-HumanGame-0:INFO:Turn number: 6: 'Human' called 'Skip' with args ['Human']
-HumanGame-0:DEBUG:Setting MoskaGame attribute __prev_lock_holder__ to 19760
-HumanGame-0:DEBUG:Human has unlocked the game.
-HumanGame-0:DEBUG:Setting MoskaGame attribute lock_holder to 16592
+HumanGame-0:INFO:Turn number: 6: 'NN2-HIF_3' called 'Skip' with args ['NN2-HIF_3']
+HumanGame-0:DEBUG:Setting MoskaGame attribute __prev_lock_holder__ to 8760
+HumanGame-0:DEBUG:NN2-HIF_3 has unlocked the game.
+HumanGame-0:DEBUG:Setting MoskaGame attribute lock_holder to 11872
 HumanGame-0:DEBUG:NN2-HIF_1 has locked the game.
 HumanGame-0:DEBUG:Setting MoskaGame attribute nturns to 7
 HumanGame-0:INFO:Turn number: 7: 'NN2-HIF_1' called 'Skip' with args ['NN2-HIF_1']
-HumanGame-0:DEBUG:Setting MoskaGame attribute __prev_lock_holder__ to 16592
+HumanGame-0:DEBUG:Setting MoskaGame attribute __prev_lock_holder__ to 11872
 HumanGame-0:DEBUG:NN2-HIF_1 has unlocked the game.
-HumanGame-0:DEBUG:Setting MoskaGame attribute lock_holder to 7208
-HumanGame-0:DEBUG:NN2-HIF_3 has locked the game.
-HumanGame-0:DEBUG:Setting MoskaGame attribute nturns to 8
-HumanGame-0:INFO:Turn number: 8: 'NN2-HIF_3' called 'Skip' with args ['NN2-HIF_3']
-HumanGame-0:DEBUG:Setting MoskaGame attribute __prev_lock_holder__ to 7208
-HumanGame-0:DEBUG:NN2-HIF_3 has unlocked the game.
-HumanGame-0:DEBUG:Setting MoskaGame attribute lock_holder to 2376
+HumanGame-0:DEBUG:Setting MoskaGame attribute lock_holder to 20500
 HumanGame-0:DEBUG:NN2-HIF_2 has locked the game.
-HumanGame-0:DEBUG:Setting MoskaGame attribute nturns to 9
-HumanGame-0:INFO:Turn number: 9: 'NN2-HIF_2' called 'Skip' with args ['NN2-HIF_2']
-HumanGame-0:DEBUG:Setting MoskaGame attribute __prev_lock_holder__ to 2376
+HumanGame-0:DEBUG:Setting MoskaGame attribute nturns to 8
+HumanGame-0:INFO:Turn number: 8: 'NN2-HIF_2' called 'Skip' with args ['NN2-HIF_2']
+HumanGame-0:DEBUG:Setting MoskaGame attribute __prev_lock_holder__ to 20500
 HumanGame-0:DEBUG:NN2-HIF_2 has unlocked the game.
-HumanGame-0:DEBUG:Setting MoskaGame attribute lock_holder to 16592
-HumanGame-0:DEBUG:NN2-HIF_1 has locked the game.
-HumanGame-0:DEBUG:Setting MoskaGame attribute nturns to 10
-HumanGame-0:INFO:Turn number: 10: 'NN2-HIF_1' called 'Skip' with args ['NN2-HIF_1']
-HumanGame-0:DEBUG:Setting MoskaGame attribute __prev_lock_holder__ to 16592
-HumanGame-0:DEBUG:NN2-HIF_1 has unlocked the game.
-HumanGame-0:DEBUG:Setting MoskaGame attribute lock_holder to 19760
+HumanGame-0:DEBUG:Setting MoskaGame attribute lock_holder to 2544
 HumanGame-0:DEBUG:Human has locked the game.

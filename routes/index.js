@@ -3,7 +3,7 @@ var router = express.Router();
 var path = require('path')
 
 const { spawn } = require('child_process');
-
+let socketapi = require('./socketapi');
 
 //console.log("Python program started")
 let gameIndex = 0;
@@ -71,6 +71,12 @@ router.get('/tutorial', function(req, res, next) {
   res.sendFile(path.join(__dirname,"../views","tutorial.html"));
 });
 
+router.get('/startgame', function(req, res, next) {
+  res.redirect('/game');
+});
 
+router.get('/game', function(req, res, next) {
+  res.sendFile(path.join(__dirname,"../public","game.html"));
+});
 
 module.exports = router;

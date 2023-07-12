@@ -19,5 +19,5 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-
+//app.listen(3000,'86.50.34.207');
 module.exports = app;

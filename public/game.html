@@ -1,0 +1,70 @@
+<html>
+
+<head>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+
+  <body>
+    <script type="text/javascript" src="javascripts/renderGame.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+    var socket = io();
+    console.log(socket)
+    </script>
+  <!--  <form id="add-card-form">
+      <label for="card-type">Enter Card type:</label>
+      <input type="text" id="card-type" name="card-type">
+      <label for="card-number">Enter Card number:</label>
+      <input type="text" id="card-number" name="card-number">
+      <button type="submit">Submit</button>
+    </form>
+  -->
+  <div class="navbar">
+    <a href="/">Home</a>
+    <a href="tutorial">Tutorial</a>
+    <a href="gamelogs">Game Logs</a>
+    <a href="login" class="login">Login</a>
+    <a href="register" class="register">Register</a>
+  </div>
+
+  <header style="color:white; text-align: center; margin:auto; font-size: large;">MOSKA:</header>
+
+
+  
+
+<input type="range" min="2" max ="40" step="1" value="20" id ="timeslider">
+<p id="timeslidervalue">Seconds per turn:</p>
+<div id="board">
+  <div id="top" class="board-player"></div>
+  <div id="left" class="board-player"></div>
+  <div id="middle" class="board-player">BOARD
+    <div id="cards-to-kill" class="board-player" onclick="activateBoard(this,event)">Cards to kill</div>
+    <div id="killed-cards" class="board-player" onclick="activateBoard(this,event)">Killed cards</div>
+  </div>
+  <div id="right" class="board-player"></div>
+  <p id="gameaction"></p>
+  <div id="bottom" onclick="activateBoard(this,event)"class="board-player">
+  </div>
+  <div id="deck" class="board-player"></div>
+  <div id="card-from-deck" class="board-player"></div>
+  <div id="action-menu" class="action-menu">
+    <button id="PlayFallFromHand"class = "play-cards" disabled="true">Kill from Hand</button>
+    <button id="PlayFallFromDeck" class = "play-cards" disabled="true">Kill from Deck</button>
+    <button id="PlayToSelf" class = "play-cards" disabled="true">Play to Self</button>
+    <button id="PlayToOther" class = "play-cards" disabled="true">Attack</button>
+    <button id="InitialPlay" class = "play-cards" disabled="true">Initial play</button>
+    <button id="Skip" class = "play-cards" disabled="true">Skip turn</button>
+    <div style="height:100%;width:5%;"></div> <!-- For empty space in the action menu-->
+    <button id="EndTurn" class = "play-cards" disabled="true">End bout</button>
+    <button id="DrawAll" class = "play-cards" disabled="true">End bout (draw all)</button>
+    <div style="height:100%;width:5%;"></div> <!-- For empty space in the action menu-->
+    <button id="Refresh" class = "play-cards">Refresh</button>
+  </div>
+</div>
+
+
+</body>
+
+
+
+</html>
