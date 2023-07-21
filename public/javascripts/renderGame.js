@@ -3,6 +3,8 @@ let boardDiv;// Saving the original state:
 let gameTurnIndex = 0;
 let turnTime = 1500;
 if (document.readyState !== "loading") {
+  
+  socket.emit('gamestart',"true")
   socket.on('data', (data) => {
     
   console.log(socket)
@@ -13,11 +15,13 @@ if (document.readyState !== "loading") {
       
   document.addEventListener("DOMContentLoaded", function () {
     console.log("DOM READY")
-    socket.emit("DOM","ready")
+    
+    socket.emit('gamestart',"true")
     socket.on('data', (data) => {
-      console.log(socket)
+      console.log(data)
       initializeCode(data)
     })
+    
   });
   }
 

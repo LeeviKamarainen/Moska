@@ -11,9 +11,10 @@ const socketapi = {
 let gameIndex = 0;
 let gameStringIndex = 2;
 let dataArrived;
-let gameProgress = [];
+let gameProgressFull = [];
+let gameStatesFull = [];
 let gameStates = [];
-
+let gameProgress = [];
 let pythonProg;
 
 
@@ -71,7 +72,11 @@ io.on( "connection", function( socket ) {
           }
         }
       }
-      console.log("Sending data.")
+      
+      gameProgressFull.push(gameProgress);
+      gameStatesFull.push(gameStates);
+      console.log("Sending data."+gameStates)
+      console.log(gameStatesFull)
       socket.emit('data',{"gamestates": gameStates,"gameprogress": gameProgress, "gameindex":gameIndex, "dataArrived":dataArrived, "gamestringindex": gameStringIndex},1000)
       gameIndex = gameStates.length;
       gameStringIndex = gameProgress.length;

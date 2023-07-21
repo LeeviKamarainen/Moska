@@ -72,11 +72,8 @@ router.get('/tutorial', function(req, res, next) {
 });
 
 router.get('/startgame', function(req, res, next) {
-  res.redirect('/game');
-});
-
-router.get('/game', function(req, res, next) {
   res.sendFile(path.join(__dirname,"../public","game.html"));
 });
+
 
 module.exports = router;

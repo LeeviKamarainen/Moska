@@ -5,6 +5,8 @@
     <link rel="stylesheet" href="../stylesheets/login.css">
   </head>
   <body>
+    
+    <script type="text/javascript" src="../javascripts/register.js"></script>
     <div class="navbar">
       <a href="/">Home</a>
       <a href="tutorial">Tutorial</a>
@@ -14,14 +16,19 @@
     </div>
 
     <div class="container">
-      <form class="register-form" action="#" method="post">
+      <form class="register-form" id="register-form" action="/users/register" method="post">
         <h2>Register</h2>
+        <label for="email">Email</label>
+        <input type="text" id="email" name="email" placeholder="Enter your Email">
         <label for="username">Username</label>
         <input type="text" id="username" name="username" placeholder="Enter your desired username">
         <label for="password">Password</label>
         <input type="password" id="password" name="password" placeholder="Enter your desired password">
         <button type="submit">Register</button>
       </form>
+      
+    <p id="error-message"></p>
     </div>
+    
   </body>
 </html>

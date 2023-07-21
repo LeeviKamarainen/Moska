@@ -18,8 +18,17 @@ async function initializeCode() {
     
     startGameButton.addEventListener("click", function() {
         console.log("TEST")
-        socket.emit('gamestart',"true")
-        window.location.href = "/game";
+        fetch('/startgame')
+          .then(response => response.text())
+          .then(updatedHTML => {
+            
+            // Replace the existing HTML with the updated HTML
+            socket.on('start',)
+            document.open();
+            document.write(updatedHTML);
+            document.close();
+            
+          });
     })
 
 

@@ -1,13 +1,18 @@
-INFO:Human922300:Created Player Human with pid 0 and log file Game-0-Human.log
-INFO:Human922300:Player type: <class 'MoskaEngine.Player.HumanJsonPlayer.HumanJsonPlayer'>
-INFO:Human922300:Thread started with ID 2544
-DEBUG:Human922300:Lock acquired.
-INFO:Human922300:Turn 3
-INFO:Human922300:Playable moves: ['PlayFallFromHand', 'PlayFallFromDeck', 'Skip']
-INFO:Human922300:Selected move: Skip
-INFO:Human922300:Turn 3: 'Skip'
-DEBUG:Human922300:Player set to NOT ready, because cards_to_fall
-DEBUG:Human922300:Set rank to None
-DEBUG:Human922300:Lock acquired.
-INFO:Human922300:Turn 8
-INFO:Human922300:Playable moves: ['EndTurn', 'PlayFallFromHand', 'PlayFallFromDeck']
+INFO:Human62478:Created Player Human with pid 3 and log file Game-0-Human.log
+INFO:Human62478:Player type: <class 'MoskaEngine.Player.HumanJsonPlayer.HumanJsonPlayer'>
+INFO:Human62478:Thread started with ID 4712
+DEBUDEBUG:Human871202:Lock acquired.
+INFO:Human871202:Turn 3
+INFO:Human871202:Playable moves: ['Skip']
+INFO:Human871202:Selected move: Skip
+INFO:Human871202:Turn 3: 'Skip'
+DEBUG:Human871202:Set rank to None
+DEBUG:Human871202:Lock acquired.
+INFO:Human871202:Turn 6
+INFO:Human871202:Playable moves: ['Skip']
+INFO:Human871202:Selected move: Skip
+INFO:Human871202:Turn 6: 'Skip'
+DEBUG:Human871202:Set rank to None
+DEBUG:Human871202:Lock acquired.
+INFO:Human871202:Turn 10
+INFO:Human871202:Playable moves: ['PlayToOther', 'Skip']
