@@ -84,14 +84,11 @@ body("email").isLength({min: 3}),
 
 router.post('/login',upload.none(),
 async (req,res,next) => {
-  
-  console.log(req.body)
   const refdb = req.refdb;
   const snapshot = await refdb.once('value');
   const listOfUsers = snapshot.val();
   let user = getUser(listOfUsers,req.body.email);
     if(!user) {
-      console.log(user)
       return res.status(403).json({message: "Login failed"});
     } else {
       bcrypt.compare(req.body.password, user.password, (err, isMatch) => {

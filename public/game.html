@@ -9,7 +9,7 @@
     <script src="/socket.io/socket.io.js"></script>
     
     <script>
-    var socket = io();
+    var socket = io({query: {"token": localStorage.getItem('auth_token')}});
     console.log(socket)
     </script>
   

@@ -8,9 +8,11 @@
     <script src="/socket.io/socket.io.js"></script>
     
     <script>
-    var socket = io({ autoConnect: false });
+    var socket = io({ autoConnect: false,
+    query: {"token": localStorage.getItem('auth_token')}});
     console.log(socket)
     </script>
+    
     <script type="text/javascript" src="../javascripts/login.js"></script>
     <div class="navbar">
       <a href="/">Home</a>

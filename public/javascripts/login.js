@@ -25,10 +25,11 @@ function loginUser(event) {
       console.log(data)
     if(data.token) {
         storeToken(data.token);
-        window.location.href="/";
+        console.log(data.token)
         socket.connect('http://localhost:3000', {
-          query: {"token": data.token}
-        });
+          query: {"token": localStorage.getItem('auth_token')}
+        }); 
+       // window.location.href="/";
     }
     else{
         if(data.message) {

@@ -3,6 +3,7 @@ var router = express.Router();
 var path = require('path')
 const io = require( "socket.io" )();
 const { spawn } = require('child_process');
+const  jwt = require('jsonwebtoken');
 const socketapi = {
     io: io
 };
@@ -23,15 +24,17 @@ let pythonProg;
 io.use(function(socket, next){
   if (socket.handshake.query && socket.handshake.query.token){
     jwt.verify(socket.handshake.query.token, process.env.SECRET, (err, user) => {
-      if(err) return res.sendStatus(401);
-      
+      if(err) {
+         console.log(err)
+         return err;
+        }
       console.log("Authentication success!")
       socket.decoded = user;
       next();
     })
   }
   else {
-    console.log(JSON.stringify(socket.handshake.query))
+    console.log(socket.handshake.query)
     console.log("Authentication error!")
     next(new Error('Authentication error'));
   }    
