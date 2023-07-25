@@ -26,6 +26,9 @@ function loginUser(event) {
     if(data.token) {
         storeToken(data.token);
         window.location.href="/";
+        socket.connect('http://localhost:3000', {
+          query: {"token": data.token}
+        });
     }
     else{
         if(data.message) {
@@ -39,8 +42,6 @@ function loginUser(event) {
       }
     })
 }
-
-
 
 function storeToken(token) {
   localStorage.setItem('auth_token', token);

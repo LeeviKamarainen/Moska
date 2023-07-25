@@ -105,7 +105,7 @@ async (req,res,next) => {
             jwtPayload,
             process.env.SECRET,
             {
-              expiresIn: 120
+              expiresIn: 60*60
             },
             (err, token) => {
               console.log("Login success!")

@@ -23,7 +23,7 @@ async function initializeCode() {
           .then(updatedHTML => {
             
             // Replace the existing HTML with the updated HTML
-            socket.on('start',)
+            //socket.on('start',)
             document.open();
             document.write(updatedHTML);
             document.close();

@@ -20,7 +20,22 @@ let pythonProg;
 
 
   
-
+io.use(function(socket, next){
+  if (socket.handshake.query && socket.handshake.query.token){
+    jwt.verify(socket.handshake.query.token, process.env.SECRET, (err, user) => {
+      if(err) return res.sendStatus(401);
+      
+      console.log("Authentication success!")
+      socket.decoded = user;
+      next();
+    })
+  }
+  else {
+    console.log(JSON.stringify(socket.handshake.query))
+    console.log("Authentication error!")
+    next(new Error('Authentication error'));
+  }    
+})
         
 // Add your socket.io logic here!
 
@@ -42,10 +57,6 @@ io.on( "connection", function( socket ) {
       socket.emit('data',{"gamestates": gameStates,"gameprogress": gameProgress, "gameindex":gameIndex, "dataArrived":dataArrived, "gamestringindex": gameStringIndex},1000)
     })
 
-
-    socket.on("DOM",(data) => {
-      socket.emit('data',{"gamestates": gameStates,"gameprogress": gameProgress, "gameindex":gameIndex, "dataArrived":dataArrived, "gamestringindex": gameStringIndex},1000)
-    })
     socket.on("gamestart",(data) => {
       console.log(data)
       pythonProg = spawn('python',[

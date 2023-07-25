@@ -1,18 +1,24 @@
-INFO:Human62478:Created Player Human with pid 3 and log file Game-0-Human.log
-INFO:Human62478:Player type: <class 'MoskaEngine.Player.HumanJsonPlayer.HumanJsonPlayer'>
-INFO:Human62478:Thread started with ID 4712
-DEBUDEBUG:Human871202:Lock acquired.
-INFO:Human871202:Turn 3
-INFO:Human871202:Playable moves: ['Skip']
-INFO:Human871202:Selected move: Skip
-INFO:Human871202:Turn 3: 'Skip'
-DEBUG:Human871202:Set rank to None
-DEBUG:Human871202:Lock acquired.
-INFO:Human871202:Turn 6
-INFO:Human871202:Playable moves: ['Skip']
-INFO:Human871202:Selected move: Skip
-INFO:Human871202:Turn 6: 'Skip'
-DEBUG:Human871202:Set rank to None
-DEBUG:Human871202:Lock acquired.
-INFO:Human871202:Turn 10
-INFO:Human871202:Playable moves: ['PlayToOther', 'Skip']
+INFO:Human42077:Created Player Human with pid 1 and log file Game-0-Human.log
+INFO:Human42077:Player type: <class 'MoskaEngine.Player.HumanJsonPlayer.HumanJsonPlayer'>
+INFO:Human42077:Thread started with ID 6120
+DEBUG:Human42077:Lock acquired.
+INFO:Human42077:Turn 0
+INFO:Human42077:Playable moves: ['Skip']
+INFO:Human42077:Selected move: Skip
+INFO:Human42077:Turn 0: 'Skip'
+DEBUG:Human42077:Set rank to None
+DEBUG:Human42077:Lock acquired.
+INFO:Human42077:Turn 4
+INFO:Human42077:Playable moves: ['Skip']
+INFO:Human42077:Selected move: Skip
+INFO:Human42077:Turn 4: 'Skip'
+DEBUG:Human42077:Set rank to None
+DEBUG:Human42077:Lock acquired.
+INFO:Human42077:Turn 8
+INFO:Human42077:Playable moves: ['Skip']
+INFO:Human42077:Selected move: Skip
+INFO:Human42077:Turn 8: 'Skip'
+DEBUG:Human42077:Set rank to None
+DEBUG:Human42077:Lock acquired.
+INFO:Human42077:Turn 10
+INFO:Human42077:Playable moves: ['PlayToOther', 'Skip']

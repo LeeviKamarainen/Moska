@@ -1,8 +1,12 @@
+
 let boardDiv;// Saving the original state:
 //var socket = io();
 let gameTurnIndex = 0;
 let turnTime = 1500;
 if (document.readyState !== "loading") {
+  
+  const token = localStorage.getItem('auth_token');
+  console.log(token)
   
   socket.emit('gamestart',"true")
   socket.on('data', (data) => {
