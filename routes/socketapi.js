@@ -64,7 +64,7 @@ io.on( "connection", function( socket ) {
       console.log(data)
       console.log(socket.decoded)
       // Split email at @ to get username
-      let username = socket.decoded ? socket.decoded.email.split("@")[0] : null;
+      let username = socket.decoded ? socket.decoded.email.split("@")[0] : "Human";
       let args = [__dirname+"/../Python/browserMoska.py"];
       if (username) {
         args.push("--name");
