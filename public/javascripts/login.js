@@ -29,7 +29,7 @@ function loginUser(event) {
         socket.connect('http://localhost:3000', {
           query: {"token": localStorage.getItem('auth_token')}
         }); 
-       // window.location.href="/";
+        window.location.href="/";
     }
     else{
         if(data.message) {
