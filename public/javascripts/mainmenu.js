@@ -1,17 +1,16 @@
 if (document.readyState !== "loading") {
     console.log("Loading!")
-      initializeCode()
+      initializeCodeMenu()
     } else {
         console.log("Loading!")
         
     document.addEventListener("DOMContentLoaded", function () {
-    
-        initializeCode()
+      initializeCodeMenu()
     });
     }
 
-async function initializeCode() {
-
+async function initializeCodeMenu() {
+  
     let startGameButton = document.getElementById('start-game');
     let reconnectButton = document.getElementById('reconnect');
     startGameButton.addEventListener("click", function() {

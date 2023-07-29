@@ -17,12 +17,10 @@ if (document.readyState !== "loading") {
    // Check for authToken:
    let authToken = localStorage.getItem('auth_token');
    if(authToken) {
-    console.log(authToken)
     loginHref.style.display = 'none'
     logoutHref.style.display = 'block'
    }
    else {
-    console.log(authToken)
     loginHref.style.display = 'block'
     logoutHref.style.display = 'none'
    }
