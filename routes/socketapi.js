@@ -84,8 +84,16 @@ io.on( "connection", function( socket ) {
       // Check if the usersAndGames map already has a child process running for that specific user. If not then start the process, and otherwise.  
       let gameProgressFull = [];
       let gameStatesFull = [];
-      pythonProg = spawn('python',[
-        __dirname+"/../Python/browserMoska.py"]);
+      console.log(socket.decoded)
+      // Split email at @ to get username
+      let username = socket.decoded ? socket.decoded.email.split("@")[0] : "Human";
+      let args = [__dirname+"/../Python/browserMoska.py"];
+      if (username) {
+        args.push("--name");
+        args.push(username);
+      }
+      console.log(args)
+      pythonProg = spawn('python', args);
       usersAndGames.set(socket.decoded.email, pythonProg);
         console.log(usersAndGames)
         pythonProg.stderr.on('data',function(data) {
