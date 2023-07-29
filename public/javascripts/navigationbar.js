@@ -1,12 +1,12 @@
 if (document.readyState !== "loading") {
-    initializeCode();
+    initializeCodeNav();
   } else {
     document.addEventListener("DOMContentLoaded", function () {
-      initializeCode();
+      initializeCodeNav();
     });
   }
 
-  function initializeCode() {
+  function initializeCodeNav() {
    
    let loginHref =  document.getElementById("login");
    let logoutHref = document.getElementById("logout");
