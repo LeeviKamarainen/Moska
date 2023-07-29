@@ -86,7 +86,7 @@ io.on( "connection", function( socket ) {
       let gameStatesFull = [];
       console.log(socket.decoded)
       // Split email at @ to get username
-      let username = socket.decoded ? socket.decoded.email.split("@")[0] : "Human";
+      let username = socket.decoded ? socket.decoded.username : "Human" //socket.decoded ? socket.decoded.email.split("@")[0] : "Human";
       let args = [__dirname+"/../Python/browserMoska.py"];
       if (username) {
         args.push("--name");
@@ -123,8 +123,14 @@ io.on( "connection", function( socket ) {
     console.log("User did not have a game to reconnect to. Creating a game...")
     let gameProgressFull = [];
     let gameStatesFull = [];
-    pythonProg = spawn('python',[
-      __dirname+"/../Python/browserMoska.py"]);
+    let username = socket.decoded ? socket.decoded.username: "Human"//socket.decoded ? socket.decoded.email.split("@")[0] : "Human";
+      let args = [__dirname+"/../Python/browserMoska.py"];
+    if (username) {
+        args.push("--name");
+        args.push(username);
+    }
+    console.log(args)
+    pythonProg = spawn('python', args);
     usersAndGames.set(socket.decoded.email, pythonProg);
       console.log(usersAndGames)
       pythonProg.stderr.on('data',function(data) {
