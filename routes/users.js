@@ -97,6 +97,7 @@ async (req,res,next) => {
           const jwtPayload = {
             id: user._id,
             email: user.email,
+            name: user.username
           }
           jwt.sign(
             jwtPayload,

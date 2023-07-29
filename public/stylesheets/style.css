@@ -187,15 +187,15 @@ a {
 
 #timeslider {
   position: absolute;
-  top: 5%;
-  right: 0;
+  top: 50%;
+  right: 40%;
   overflow: hidden;
   width: 20%;
 }
 #timeslidervalue {
   position: absolute;
-  top: 5%;
-  right: 0;
+  top: 0%;
+  right: 40%;
   width: 20%;
   color: white;
 }
@@ -286,6 +286,8 @@ a {
   padding: 14px 16px;
   text-decoration: none;
 }
+
+
 
 /* Style the login and register buttons on the right side */
 .navbar .login {

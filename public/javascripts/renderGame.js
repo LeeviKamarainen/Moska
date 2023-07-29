@@ -5,14 +5,16 @@ let gameTurnIndex = 0;
 let turnTime = 1500;
 if (document.readyState !== "loading") {
   
-  const token = localStorage.getItem('auth_token');
-  console.log(token)
-  
-  socket.emit('gamestart',"true")
+  console.log(document.gameStart)
+  socket.emit(document.gameStart,"true")
   socket.on('data', (data) => {
-    
-  console.log(socket)
+    console.log("GETTING DATA")
     initializeCode(data)
+  })
+
+  
+  socket.on('exit',(data) => {
+    renderGameOver(data)
   })
   } else {
       console.log("Loading!")
@@ -20,10 +22,14 @@ if (document.readyState !== "loading") {
   document.addEventListener("DOMContentLoaded", function () {
     console.log("DOM READY")
     
-    socket.emit('gamestart',"true")
+    socket.emit(document.gameStart,"true")
     socket.on('data', (data) => {
-      console.log(data)
+      console.log("GETTING DATA")
       initializeCode(data)
+    })
+
+    socket.on('exit',(data) => {
+      renderGameOver(data)
     })
     
   });
@@ -39,6 +45,16 @@ function activateBoard(button,event) {
   if(event.target.className!="card") {
     button.classList.toggle('active');
   }
+}
+
+function renderGameOver(data) {
+  let currentState = document.getElementById('board');
+
+  let endState = `<div id="board"> 
+    <p id = "game_over"> GAME OVER! </p>
+  </div>
+  `
+  currentState.replaceWith(endState);
 }
 
   async function initializeCode(gameArray) {
