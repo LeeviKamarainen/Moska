@@ -5,15 +5,24 @@
     <link rel="stylesheet" href="../stylesheets/login.css">
   </head>
   <body>
+    <script type="text/javascript" src="../javascripts/navigationbar.js"></script>
+    <script type="text/javascript" src="../javascripts/gamelogs.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+    var socket = io({query: {"token": localStorage.getItem('auth_token')},
+  reconnection: true});
+    console.log(socket)
+    </script>
     <div class="navbar">
       <a href="/">Home</a>
       <a href="tutorial">Tutorial</a>
       <a href="gamelogs">Game Logs</a>
-      <a href="login" class="login">Login</a>
+      <a href="login" class="login" id="login">Login</a>
+      <a href="/" class="login" id="logout">Logout</a>
       <a href="register" class="register">Register</a>
     </div>
     <div class="container">
-        <h2>Game logs will come here soon!</h2>
+        <ol id="gamelogs"></ol>
     </div>
   </body>
 </html>

@@ -117,14 +117,11 @@ a {
   background-color: purple;
 }
 
-.board-player[initiator] {
-  background-color: yellow;
-}
-
 .board-player[turn] {
   border-width: 10px;
   border-color: inherit;
   border-style:double;
+  background-color: yellow;
 }
 
 
@@ -187,15 +184,15 @@ a {
 
 #timeslider {
   position: absolute;
-  top: 5%;
-  right: 0;
+  top: 50%;
+  right: 40%;
   overflow: hidden;
   width: 20%;
 }
 #timeslidervalue {
   position: absolute;
-  top: 5%;
-  right: 0;
+  top: 0%;
+  right: 40%;
   width: 20%;
   color: white;
 }
@@ -263,8 +260,12 @@ a {
   border-radius: 5px 5px 5px 5px;
 }
 
-
-
+#game_over {
+  font-size: 4rem; /* Adjust the font size to your liking */
+  color: #ffffff; /* White text color */
+  background-color: #333333; /* Set your desired header background color here */
+  padding: 20px;
+}
 
 /* Navigation bar styling: */
 
@@ -286,6 +287,8 @@ a {
   padding: 14px 16px;
   text-decoration: none;
 }
+
+
 
 /* Style the login and register buttons on the right side */
 .navbar .login {
