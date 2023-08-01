@@ -70,12 +70,20 @@ io.on( "connection", function( socket ) {
       */
     })
 
-    socket.on("gamestart",(data) => {
-      // Check if the user has already a key value in states/progresses map, and if not the initialize it:
-      if(!usersAndStateAndProgress.has(socket.decoded.email)) {
-        let stateAndProgress = [[],[]];
-        usersAndStateAndProgress.set(socket.decoded.email,stateAndProgress);
+    // Send existing game progress to client:
+    socket.on("gamelogs", (data) => {
+      let stateAndProgress = usersAndStateAndProgress.get(socket.decoded.email);
+      if(stateAndProgress != undefined) {
+        socket.emit('rendergamelogs',{"gamelogs": stateAndProgress[1]});
+      } else {
+        socket.emit('rendergamelogs',{"gamelogs": "No game in progress!"});
       }
+    })
+
+    socket.on("gamestart",(data) => {
+      // Initialize a key and value map to store users states and progresst:
+      let stateAndProgress = [[],[]];
+      usersAndStateAndProgress.set(socket.decoded.email,stateAndProgress);
       // If the user already has a child process running, terminate it to reduce the risk of unreferenced child processes running and causing memory loss.
       if(usersAndGames.has(socket.decoded.email)) { 
         console.log("Terminated existing game, and starting new one!");
@@ -104,8 +112,13 @@ io.on( "connection", function( socket ) {
 
         // When the python program sends data, parse it and send it to the client.
         pythonProg.stdout.on('data',childProcessDataListener)
-
+        pythonProg.stdout.on('end', () => {
+          // Process the complete output from the Python program
+          console.log("END OF THE STREAM!");
+        });
       pythonProg.on('exit', function(data) {
+        console.log("EXITING!");
+        console.log(data);
         socket.emit('exit',true);
       })
   })
@@ -143,6 +156,8 @@ io.on( "connection", function( socket ) {
       pythonProg.stdout.on('data',childProcessDataListener)
 
     pythonProg.on('exit', function(data) {
+      console.log("EXITING!");
+      console.log(data);
       socket.emit('exit',true);
     })
   }
@@ -174,7 +189,9 @@ function parseChildProcessData(data,socket) {
   gameStates.push(JSON.parse(element))
   }
   catch {
-    if(element!="" && gameIndex != 0) {
+    console.log(element)
+    //if(element!="" && gameIndex != 0) {
+    if(element!="") {
     gameProgress.push(element)
     }
   }
@@ -186,6 +203,8 @@ stateAndProgress[0].push(...gameStates); // Appending to the existing list
 stateAndProgress[1].push(...gameProgress);
 
 console.log("Sending data."+gameStates)
+console.log(gameProgress)
+
 
 return {"gameStates": gameStates,"gameProgress": gameProgress}
 }

@@ -260,8 +260,12 @@ a {
   border-radius: 5px 5px 5px 5px;
 }
 
-
-
+#game_over {
+  font-size: 4rem; /* Adjust the font size to your liking */
+  color: #ffffff; /* White text color */
+  background-color: #333333; /* Set your desired header background color here */
+  padding: 20px;
+}
 
 /* Navigation bar styling: */
 

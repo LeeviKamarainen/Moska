@@ -49,9 +49,9 @@ function activateBoard(button,event) {
 
 function renderGameOver(data) {
   let currentState = document.getElementById('board');
-
+  console.log("Rendering game over!")
   let endState = `<div id="board"> 
-    <p id = "game_over"> GAME OVER! </p>
+    <h id = "game_over"> GAME OVER! </h>
   </div>
   `
   currentState.replaceWith(endState);
@@ -516,6 +516,9 @@ function playFallHand(cardArray,callback) {
     let currentState = document.getElementById('board');
     let tempElement = document.createElement('div');
     tempElement.innerHTML = emptyState;
+    if(currentState == null || tempElement == null) {
+      return null;
+    }
     currentState.replaceWith(tempElement);
     
     // Showing the current action:

@@ -103,3 +103,25 @@ body {
     color: white;
     padding: 20px;
   }
+
+  #gamelogs {
+    background-color: #00cc00; /* Set your desired green background color for the ordered list */
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 80%;
+    border-radius: 10px;
+    list-style-type: none; /* Remove the list numbers */
+    overflow-y: auto; /* Enable vertical scroll */
+    max-height: calc(1.2rem * 10)
+}
+/* Scrollbar modification for certain browsers */
+
+::-webkit-scrollbar {
+  width: 0.5em;
+  height: 0.5em;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.605);
+  border-radius: 3px;
+}
