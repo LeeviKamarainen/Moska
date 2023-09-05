@@ -685,6 +685,16 @@ function playFallHand(cardArray,callback) {
   cardImage2.src = parsedCard;
   cardImage2.className = "card";
   cardImage2.setAttribute('card-type',"card_back");
+
+  // If no cards in deck, make trump 50% opaque
+  if (stateJson.deck_left == 0) {
+    cardImage2.style.opacity = "0.5";
+  }
+  // If <= 1 card in deck, do not render the card-back representing deck
+  if (stateJson.deck_left <= 1){
+    cardImage.style.opacity = "0.0";
+  }
+  
   
 
   // Append the image, heading, and paragraph elements to the card element
