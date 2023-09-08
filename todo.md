@@ -7,16 +7,16 @@ This lists features and bugs that are not yet implemented or fixed.
 unavailable for the rest of the turn. And the text changes to 'Play To Other'.
 - TokenExpiredError even though user is logged in (maybe just extend the token validity time?)
 - Kill Python process if a user leaves the page
+- Indicate that the game is loading, when starting the game
 
 #### **Features**
 - Tutorial page introducing the GUI to players
 - Add a 'face' next to each player. The face can be human, or squirrel or AI or anything.
 - Change players names to something more fun
-
 - Tickbox whether to show own player evaluation or not
 - Clearer card highlighting
 - Error message to user if the game crashes
-- Allow going some moves back
+- Allow going back moves
 - Multihuman games
 - Playing without logging in
 
