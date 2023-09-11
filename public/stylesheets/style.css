@@ -8,6 +8,16 @@ a {
   color: #00B7FF;
 }
 
+
+
+/* Add a tickbox to the top of the page */
+#show_evaluation_tickbox {
+  position: absolute;
+  top: 0;
+  left: 20%;
+  margin: 10px;
+}
+
 .card {
   /*width: auto;*/
   /*height: 80%;
