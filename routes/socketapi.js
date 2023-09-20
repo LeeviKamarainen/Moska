@@ -96,13 +96,13 @@ io.on( "connection", function( socket ) {
       console.log(socket.decoded)
       // Split email at @ to get username
       let username = socket.decoded ? socket.decoded.username : "Human" //socket.decoded ? socket.decoded.email.split("@")[0] : "Human";
-      let args = [__dirname+"/../Python/browserMoska.py"];
+      let args = ["C:/home/site/wwwroot/Python/browserMoska.py"];
       if (username) {
         args.push("--name");
         args.push(username);
       }
       console.log(args)
-      pythonProg = spawn('python', args);
+      pythonProg = spawn('C:/home/python3111x64/python', args);
       usersAndGames.set(socket.decoded.email, pythonProg);
         console.log(usersAndGames)
         pythonProg.stderr.on('data',function(data) {
