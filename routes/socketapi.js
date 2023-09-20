@@ -26,7 +26,12 @@ io.use(function(socket, next){
       if(err) {
          console.log(err)
          console.log("Token verification failed. Using default credentials.")
-         user = {username: 'esimerkki@email.com', password: 'salasana'};
+         user = {
+          // username is 'Anonymous' + <random number between 1 and 1000>
+        username: 'Anonymous' + Math.floor(Math.random() * 1000),
+        email : 'Anonymous' + Math.floor(Math.random() * 1000) + '@example.com',
+        password: 'salasana'
+      };
       }
       console.log("Authentication success!")
       socket.decoded = user;
@@ -64,11 +69,15 @@ io.on( "connection", function( socket ) {
     })
 
     socket.on("disconnect", (data) => {
-      console.log("Disconnecting...")
-      /*
-      usersAndGames.delete(socket.decoded.email);
-      pythonProg = null;
-      */
+      let pythonProg = usersAndGames.get(socket.decoded.email);
+      if(pythonProg!=null){
+        console.log("User disconnected. Terminating game.")
+        pythonProg.kill();
+        usersAndGames.delete(socket.decoded.email);
+      }
+      else {
+        console.log("Attempted disconnect. No game in progress.")
+      }
     })
 
     // Send existing game progress to client:
@@ -89,6 +98,7 @@ io.on( "connection", function( socket ) {
       if(usersAndGames.has(socket.decoded.email)) { 
         console.log("Terminated existing game, and starting new one!");
         usersAndGames.get(socket.decoded.email).kill();
+        usersAndGames.delete(socket.decoded.email);
       }
       // Check if the usersAndGames map already has a child process running for that specific user. If not then start the process, and otherwise.  
       let gameProgressFull = [];
