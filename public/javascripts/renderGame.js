@@ -198,7 +198,7 @@ function checkActionState(stateJson) {
   let playerIndex;
   //Find human player index:
   for (let index = 0; index < stateJson.players.length; index++) {
-    if(stateJson.players[index].name.split(/(\d+)/)[0]!="NN") {
+    if(!stateJson.players[index].is_bot) {
       playerIndex = index;
     }
     
@@ -259,9 +259,7 @@ function playCards(stateJson) {
   // Find player name:
   let humanName;
   for (let playerIndex = 0; playerIndex < stateJson.players.length; playerIndex++) {
-    //Splitting the players name by first numeric character
-    let playerName = stateJson.players[playerIndex].name.split(/(\d+)/); 
-    if(playerName[0]!="NN"){ // Player is human:
+    if(!stateJson.players[playerIndex].is_bot){ // Player is human:
       humanName = stateJson.players[playerIndex].name;
      }
   }
@@ -546,8 +544,8 @@ function playFallHand(cardArray,callback) {
     let humanIndex = 0;
     for (let playerIndex = 0; playerIndex < stateJson.players.length; playerIndex++) {
       //Splitting the players name by first numeric character
-      let playerName = stateJson.players[playerIndex].name.split(/(\d+)/); 
-      if(playerName[0]!="NN"){ // Player is human:
+      let isBot = stateJson.players[playerIndex].is_bot;
+      if(!isBot){ // Player is human:
         humanIndex = playerIndex;
       }
     }
@@ -555,8 +553,6 @@ function playFallHand(cardArray,callback) {
     // Position the Bots
     // The positions are like this {bottom: humanidx, left: (humanidx+1)%4, top: (humanidx+2)%4, right: (humanidx+3)%4)}
     for (let playerIndex = 0; playerIndex < stateJson.players.length; playerIndex++) {
-    //Splitting the players name by first numeric character
-    let playerName = stateJson.players[playerIndex].name.split(/(\d+)/); 
     let containerName;
     let cardContainer;
     // Player is human:
@@ -599,7 +595,7 @@ function playFallHand(cardArray,callback) {
 
     // If show_eval_tickbox is checked, show the evaluation of the player next to its name
     console.log(document.getElementById("show-evaluation-tickbox"));
-    if(document.getElementById("show-evaluation-tickbox").checked && playerName[0]!="NN") {
+    if(document.getElementById("show-evaluation-tickbox").checked && !playerState.is_bot) {
       let evalTextString = stateJson.players[playerIndex].last_evaluation;
       cardContainer.innerHTML = cardContainer.innerHTML + " ("+evalTextString+")";
     }
