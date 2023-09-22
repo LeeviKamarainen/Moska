@@ -596,8 +596,8 @@ function playFallHand(cardArray,callback) {
     let playerState = stateJson.players[playerIndex];
 
     // If show_eval_tickbox is checked, show the evaluation of the player next to its name
-    console.log(document.getElementById("show_evaluation_tickbox"));
-    if(document.getElementById("show_evaluation_tickbox").checked && playerName[0]!="NN") {
+    console.log(document.getElementById("show-evaluation-tickbox"));
+    if(document.getElementById("show-evaluation-tickbox").checked && playerName[0]!="NN") {
       let evalTextString = stateJson.players[playerIndex].last_evaluation;
       cardContainer.innerHTML = cardContainer.innerHTML + " ("+evalTextString+")";
     }
