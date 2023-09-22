@@ -59,11 +59,14 @@ function activateBoard(button,event) {
 function renderGameOver(data) {
   let currentState = document.getElementById('board');
   console.log("Rendering game over!")
-  let endState = `<div id="board"> 
-    <h id = "game_over"> GAME OVER! </h>
+  
+  let endElement = document.createElement('div');
+  let endState = `<div id="gameover"> GAME OVER!
   </div>
   `
-  currentState.replaceWith(endState);
+  endElement.innerHTML = endState;
+  currentState.replaceWith(endElement);
+  return;
 }
 
   async function initializeCode(gameArray) {

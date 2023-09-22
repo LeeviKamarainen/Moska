@@ -74,6 +74,7 @@ io.on( "connection", function( socket ) {
         console.log("User disconnected. Terminating game.")
         pythonProg.kill();
         usersAndGames.delete(socket.decoded.email);
+        socket.emit('exit');
       }
       else {
         console.log("Attempted disconnect. No game in progress.")
