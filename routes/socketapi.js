@@ -113,7 +113,11 @@ io.on( "connection", function( socket ) {
         args.push(username);
       }
       // pythonProg = spawn('C:/home/python3111x64/python', args, {timeout: 1000000});
-      pythonProg = spawn('py', args, {timeout: 1000000});
+      pyexe = process.platform === "win32" ? 'py' : 'python3';
+      pythonProg = spawn(pyexe, args, {timeout: 1000000});
+      pythonProg.on('error', (err) => {
+        console.error(`Failed to start Python process: ${err}`);
+      });
       usersAndGames.set(socket.decoded.email, pythonProg);
         pythonProg.stderr.on('data',function(data) {
           console.log(data.toString())
