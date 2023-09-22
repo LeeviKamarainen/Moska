@@ -74,6 +74,7 @@ io.on( "connection", function( socket ) {
         console.log("User disconnected. Terminating game.")
         pythonProg.kill();
         usersAndGames.delete(socket.decoded.email);
+        socket.emit('exit');
       }
       else {
         console.log("Attempted disconnect. No game in progress.")
@@ -103,18 +104,17 @@ io.on( "connection", function( socket ) {
       // Check if the usersAndGames map already has a child process running for that specific user. If not then start the process, and otherwise.  
       let gameProgressFull = [];
       let gameStatesFull = [];
-      console.log(socket.decoded)
       // Split email at @ to get username
       let username = socket.decoded ? socket.decoded.username : "Human" //socket.decoded ? socket.decoded.email.split("@")[0] : "Human";
       let args = [__dirname+"/../Python/browserMoska.py"];
+      // let args = ["C:/home/site/wwwroot/Python/browserMoska.py"];
       if (username) {
         args.push("--name");
         args.push(username);
       }
-      console.log(args)
-      pythonProg = spawn('python', args);
+      // pythonProg = spawn('C:/home/python3111x64/python', args, {timeout: 1000000});
+      pythonProg = spawn('py', args, {timeout: 1000000});
       usersAndGames.set(socket.decoded.email, pythonProg);
-        console.log(usersAndGames)
         pythonProg.stderr.on('data',function(data) {
           console.log(data.toString())
         })
@@ -148,15 +148,16 @@ io.on( "connection", function( socket ) {
     let gameProgressFull = [];
     let gameStatesFull = [];
     let username = socket.decoded ? socket.decoded.username: "Human"//socket.decoded ? socket.decoded.email.split("@")[0] : "Human";
-      let args = [__dirname+"/../Python/browserMoska.py"];
+    // let args = ["C:/home/site/wwwroot/Python/browserMoska.py"];
+     let args = [__dirname+"/../Python/browserMoska.py"];
     if (username) {
         args.push("--name");
         args.push(username);
     }
-    console.log(args)
-    pythonProg = spawn('python', args);
+    
+    // pythonProg = spawn('C:/home/python3111x64/python', args, {timeout: 1000000});
+   pythonProg = spawn('python', args, {timeout: 1000000});
     usersAndGames.set(socket.decoded.email, pythonProg);
-      console.log(usersAndGames)
       pythonProg.stderr.on('data',function(data) {
         console.log(data.toString())
       })
@@ -178,7 +179,6 @@ io.on( "connection", function( socket ) {
     pythonProg.stdout.off('data',childProcessDataListener); // Remove previous data listener and add new one with reference to the new socket.
     pythonProg.stdout.on('data',childProcessDataListener)
     lastValues = returnLastStateAndProgress(socket);
-    console.log(lastValues);
     socket.emit('data',{"gamestates": lastValues.lastState,"gameprogress": lastValues.lastProgress, "gameindex":gameIndex, "dataArrived":dataArrived, "gamestringindex": gameStringIndex},1000)
   }
 })
@@ -200,7 +200,6 @@ function parseChildProcessData(data,socket) {
   gameStates.push(JSON.parse(element))
   }
   catch {
-    console.log(element)
     //if(element!="" && gameIndex != 0) {
     if(element!="") {
     gameProgress.push(element)

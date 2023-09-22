@@ -5,9 +5,14 @@ let gameTurnIndex = 0;
 let turnTime = 1500;
 if (document.readyState !== "loading") {
   
+  let hourglass = document.getElementById("hourglass")
   console.log(document.gameStart)
+  
+  hourglass.style.display = "block";
   socket.emit(document.gameStart,"true")
   socket.on('data', (data) => {
+      
+    hourglass.style.display = "none";
     console.log("GETTING DATA")
     initializeCode(data)
   })
@@ -17,13 +22,16 @@ if (document.readyState !== "loading") {
     renderGameOver(data)
   })
   } else {
-      console.log("Loading!")
+    console.log("Loading!")
       
   document.addEventListener("DOMContentLoaded", function () {
     console.log("DOM READY")
     
+    let hourglass = document.getElementById("hourglass")
+    hourglass.style.display = "block";
     socket.emit(document.gameStart,"true")
-    socket.on('data', (data) => {
+    socket.on('data', (data) => {    
+      hourglass.style.display = "none";
       console.log("GETTING DATA")
       initializeCode(data)
     })
@@ -47,14 +55,18 @@ function activateBoard(button,event) {
   }
 }
 
+
 function renderGameOver(data) {
   let currentState = document.getElementById('board');
   console.log("Rendering game over!")
-  let endState = `<div id="board"> 
-    <h id = "game_over"> GAME OVER! </h>
+  
+  let endElement = document.createElement('div');
+  let endState = `<div id="gameover"> GAME OVER!
   </div>
   `
-  currentState.replaceWith(endState);
+  endElement.innerHTML = endState;
+  currentState.replaceWith(endElement);
+  return;
 }
 
   async function initializeCode(gameArray) {
@@ -102,6 +114,7 @@ function renderGameOver(data) {
     // Save the boardDiv:s state only if its null:
     if(boardDiv == null) {
       boardDiv = `<div id="board">
+      <div class="hourglass" id="hourglass" style="display: none"></div>
       <div id="top" class="board-player"></div>
       <div id="left" class="board-player"></div>
       <div id="middle" class="board-player">BOARD
@@ -340,6 +353,9 @@ function sendGameAction(actionString) {
     .then(data => {
       console.log(data)
     })*/
+    
+    let hourglass = document.getElementById("hourglass")
+    hourglass.style.display = "block";
     socket.emit("gameaction",dataToSend);
 }
 

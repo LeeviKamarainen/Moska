@@ -157,7 +157,7 @@ a {
   width: 50%;
   bottom: 0;
   z-index: 0;
-  overflow: hidden;
+  overflow:visible;
   left: 50%;
   transform: translateX(-50%);
   transition: height 0.2s, z-index 0.2s;
@@ -168,8 +168,6 @@ a {
   overflow: visible;
   z-index: 3;
 }
-
-
 
 
 /* Set the width of the left and right divs */
@@ -270,11 +268,17 @@ a {
   border-radius: 5px 5px 5px 5px;
 }
 
-#game_over {
-  font-size: 4rem; /* Adjust the font size to your liking */
-  color: #ffffff; /* White text color */
-  background-color: #333333; /* Set your desired header background color here */
+#gameover {
+  background-color: #32CD32;
   padding: 20px;
+  width: 20%;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  bottom: 50%;
+  left: 40%;
+  position: absolute;
+  font-size: x-large;
+  text-align: center;
 }
 
 /* Navigation bar styling: */
