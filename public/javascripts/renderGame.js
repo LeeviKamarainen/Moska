@@ -528,7 +528,6 @@ function playFallHand(cardArray,callback) {
 
 
   function updateState(stateJson,emptyState,gameActionString) {
-    let botIndex = 0;
     let currentState = document.getElementById('board');
     let tempElement = document.createElement('div');
     tempElement.innerHTML = emptyState;
@@ -542,32 +541,35 @@ function playFallHand(cardArray,callback) {
     gameActionText.innerHTML = gameActionString;
     // Rendering players cards:
     
-    //Saving human players index:
-    let humanIndex;
+    // Find which index is the human player FIRST,
+    // so that we can position other players to a round table: next player is left, next is top and last is right.
+    let humanIndex = 0;
+    for (let playerIndex = 0; playerIndex < stateJson.players.length; playerIndex++) {
+      //Splitting the players name by first numeric character
+      let playerName = stateJson.players[playerIndex].name.split(/(\d+)/); 
+      if(playerName[0]!="NN"){ // Player is human:
+        humanIndex = playerIndex;
+      }
+    }
+
+    // Position the Bots
+    // The positions are like this {bottom: humanidx, left: (humanidx+1)%4, top: (humanidx+2)%4, right: (humanidx+3)%4)}
     for (let playerIndex = 0; playerIndex < stateJson.players.length; playerIndex++) {
     //Splitting the players name by first numeric character
     let playerName = stateJson.players[playerIndex].name.split(/(\d+)/); 
     let containerName;
     let cardContainer;
-    if(playerName[0]!="NN"){ // Player is human:
+    // Player is human:
+    if(playerIndex == humanIndex){
       containerName = "bottom";
-      humanIndex = playerIndex;
-    } else { // If the player is a bot:
-      switch (botIndex) {
-        case 0: {
-          containerName = "left";
-          break;
-        }
-        case 1: {
-          containerName = "top";
-          break;
-        }
-        case 2: {
-          containerName = "right";
-          break;
-        }
-      }
-      botIndex = botIndex + 1;
+    }
+    else if (playerIndex == (humanIndex+1)%4) {
+      containerName = "left";
+    }else if (playerIndex == (humanIndex+2)%4) {
+      containerName = "top";
+    }
+    else if (playerIndex == (humanIndex+3)%4) {
+      containerName = "right";
     }
     cardContainer = document.getElementById(containerName);
     cardContainer.innerHTML = stateJson.players[playerIndex].name;
