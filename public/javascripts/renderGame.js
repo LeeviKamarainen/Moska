@@ -1,6 +1,41 @@
 
 let boardDiv;// Saving the original state:
-//var socket = io();
+let DEFAULT_BOARD_DIV = `<div id="board">
+<div class="hourglass" id="hourglass" style="display: none"></div>
+<div id="top" class="board-player"></div>
+<div id="left" class="board-player"></div>
+<div id="middle" class="board-player">BOARD
+  <div id="cards-to-kill" class="board-player" onclick="activateBoard(this,event)">Cards to kill</div>
+  <div id="killed-cards" class="board-player" onclick="activateBoard(this,event)">Killed cards</div>
+</div>
+<div id="right" class="board-player"></div>
+<p id="gameaction">test</p>
+<div id="bottom" class="board-player" onclick="activateBoard(this,event)">
+</div>
+<div id="deck" class="board-player"></div>
+<div id="card-from-deck" class="board-player"></div>
+<div id="action-menu" class="action-menu">
+  <button id="PlayFallFromHand"class = "play-cards" disabled="true">Kill from Hand</button>
+  <button id="PlayFallFromDeck" class = "play-cards" disabled="true">Kill from Deck</button>
+  <button id="PlayToSelf" class = "play-cards" disabled="true">Play to Self</button>
+  <button id="PlayToOther" class = "play-cards" disabled="true">Attack</button>
+  <button id="InitialPlay" class = "play-cards" disabled="true">Initial play</button>
+  <button id="Skip" class = "play-cards" disabled="true">Skip turn</button>
+  <div style="height:100%;width:5%;"></div> <!-- For empty space in the action menu-->
+  <button id="EndTurn" class = "play-cards" disabled="true">End bout</button>
+  <button id="DrawAll" class = "play-cards" disabled="true">End bout (draw all)</button>
+  <div style="height:100%;width:5%;"></div> <!-- For empty space in the action menu-->
+  <button id="Refresh" class = "play-cards">Refresh</button>
+  <!-- See moves backward or forward -->
+  <button id="reverse-move-button" class = "play-cards" onclick="goOneMoveBack()">Backward</button>
+  <button id="next-move-button" class = "play-cards" onclick="goOneMoveForward()">Forward</button>
+</div>
+</div>
+</body>`
+// Global array of game states
+let STATE_ARRAY = [];
+let DISPLAY_STATE_INDEX = 0;
+
 let gameTurnIndex = 0;
 let turnTime = 1500;
 if (document.readyState !== "loading") {
@@ -55,6 +90,30 @@ function activateBoard(button,event) {
   }
 }
 
+function goOneMoveBack() {
+  console.log("There are "+STATE_ARRAY.length+" states in the STATE_ARRAY")
+  DISPLAY_STATE_INDEX -= 1;
+  if(DISPLAY_STATE_INDEX < 0) {
+    console.log("No more moves to reverse!")
+    DISPLAY_STATE_INDEX = 0;
+  }
+  console.log("Display state index is: "+DISPLAY_STATE_INDEX)
+  updateState(STATE_ARRAY[DISPLAY_STATE_INDEX],DEFAULT_BOARD_DIV,"")
+  checkActionState(STATE_ARRAY[DISPLAY_STATE_INDEX])
+}
+
+function goOneMoveForward() {
+  console.log("There are "+STATE_ARRAY.length+" states in the stateArray")
+  DISPLAY_STATE_INDEX += 1;
+  // Render game to the next state using updateState function
+  if(DISPLAY_STATE_INDEX >= STATE_ARRAY.length) {
+    DISPLAY_STATE_INDEX = STATE_ARRAY.length-1;
+  }
+  console.log("Display state index is: "+DISPLAY_STATE_INDEX)
+  updateState(STATE_ARRAY[DISPLAY_STATE_INDEX],DEFAULT_BOARD_DIV,"")
+  checkActionState(STATE_ARRAY[DISPLAY_STATE_INDEX])
+}
+
 
 function renderGameOver(data) {
   let currentState = document.getElementById('board');
@@ -69,21 +128,19 @@ function renderGameOver(data) {
   return;
 }
 
-  async function initializeCode(gameArray) {
-
-    //Checking to see if last gameAction is from killing from deck:
-    console.log(gameArray)
-    try{
-      console.log(gameArray.gameprogress[gameArray.gameprogress.length-1].split(":"))
-      if(gameArray.gameprogress[gameArray.gameprogress.length-1].split(":")[0] == "Lifted card from deck") {
-        console.log(gameArray.gameprogress[gameArray.gameprogress.length-1])
-        killCardFromDeck(gameArray.gameprogress[gameArray.gameprogress.length-1])
-      }}
-      catch(e){
-        console.log("Something went wrong: "+e)
-      }
-    if(gameArray.gamestates.length != 0) { 
-   // let gameArray;
+async function initializeCode(gameArray) {
+  //Checking to see if last gameAction is from killing from deck:
+  console.log(gameArray)
+  try{
+    console.log(gameArray.gameprogress[gameArray.gameprogress.length-1].split(":"))
+    if(gameArray.gameprogress[gameArray.gameprogress.length-1].split(":")[0] == "Lifted card from deck") {
+      console.log(gameArray.gameprogress[gameArray.gameprogress.length-1])
+      killCardFromDeck(gameArray.gameprogress[gameArray.gameprogress.length-1])
+    }}
+    catch(e){
+      console.log("Something went wrong: "+e)
+    }
+  if(gameArray.gamestates.length != 0) { 
     
     let connectionIter = 0;
     let gameResponse;
@@ -96,68 +153,32 @@ function renderGameOver(data) {
       sliderValue.textContent = "Seconds per turn: "+(turnTime/1000).toFixed(1);
     });
 
-    /*do {
-      gameResponse = await fetch('http://localhost:3000/getstate/');
-      console.log("TESTI")
-      gameArray = await gameResponse.json();
-      connectionIter += 1;
-      await sleepFunction(100);
-    }
-    while(gameArray.dataArrived == false && connectionIter < 1000) // Try again if the status is 304 (nothing has changed), and 
-    */
     stateArray = gameArray.gamestates;
     gameProgress = gameArray.gameprogress;
-    //turnIndex = gameArray.gameindex;
-    //turnStringIndex = gameArray.gameStringIndex;
+
     console.log(gameProgress)
     console.log(stateArray)
+    
     // Save the boardDiv:s state only if its null:
     if(boardDiv == null) {
-      boardDiv = `<div id="board">
-      <div class="hourglass" id="hourglass" style="display: none"></div>
-      <div id="top" class="board-player"></div>
-      <div id="left" class="board-player"></div>
-      <div id="middle" class="board-player">BOARD
-        <div id="cards-to-kill" class="board-player" onclick="activateBoard(this,event)">Cards to kill</div>
-        <div id="killed-cards" class="board-player" onclick="activateBoard(this,event)">Killed cards</div>
-      </div>
-      <div id="right" class="board-player"></div>
-      <p id="gameaction">test</p>
-      <div id="bottom" class="board-player" onclick="activateBoard(this,event)">
-      </div>
-      <div id="deck" class="board-player"></div>
-      <div id="card-from-deck" class="board-player"></div>
-      <div id="action-menu" class="action-menu">
-        <button id="PlayFallFromHand"class = "play-cards" disabled="true">Kill from Hand</button>
-        <button id="PlayFallFromDeck" class = "play-cards" disabled="true">Kill from Deck</button>
-        <button id="PlayToSelf" class = "play-cards" disabled="true">Play to Self</button>
-        <button id="PlayToOther" class = "play-cards" disabled="true">Attack</button>
-        <button id="InitialPlay" class = "play-cards" disabled="true">Initial play</button>
-        <button id="Skip" class = "play-cards" disabled="true">Skip turn</button>
-        <div style="height:100%;width:5%;"></div> <!-- For empty space in the action menu-->
-        <button id="EndTurn" class = "play-cards" disabled="true">End bout</button>
-        <button id="DrawAll" class = "play-cards" disabled="true">End bout (draw all)</button>
-        <div style="height:100%;width:5%;"></div> <!-- For empty space in the action menu-->
-        <button id="Refresh" class = "play-cards">Refresh</button>
-      </div>
-    </div>
-    </body>`
+      boardDiv = DEFAULT_BOARD_DIV;
     }
 
     let stateJson, gameActionString;
     let turnStringIndex = 0;
     
-  
+
     for (let turnIndex=0; turnIndex < stateArray.length; turnIndex++) {
       stateJson = stateArray[turnIndex];
+      STATE_ARRAY.push(stateJson);
       turnStringIndex += 1;
       gameTurnIndex += 1;
       console.log(stateJson)
       await sleepFunction(turnTime)
       gameActionString = "Turn: "+gameTurnIndex;
       updateState(stateJson,boardDiv,gameActionString)
-      
     } 
+    DISPLAY_STATE_INDEX = STATE_ARRAY.length-1;
     
     updateState(stateJson,boardDiv,"Your turn ("+gameTurnIndex+")")
     //updateState(stateArray[stateArray.length-1],gameActionString)
@@ -166,22 +187,26 @@ function renderGameOver(data) {
 
     checkActionState(stateArray[stateArray.length-1])
     turnIndex = gameArray.gameindex-1;
-    // For fetching sample states:
-   /* const res = await fetch("./example_state4.json");
-    let stateJson = await res.json();
-    updateState(stateJson)*/
 
-  refreshButton = document.getElementById('Refresh');
-  refreshButton.addEventListener("click", function() {
-    let newboardDiv = document.getElementById('board');
-    let tempElement = document.createElement('div');
-    tempElement.innerHTML = boardDiv;
-    newboardDiv.replaceWith(tempElement);
-    socket.emit('pingSocket',"ping")
-  });
-}
+    refreshButton = document.getElementById('Refresh');
+    refreshButton.addEventListener("click", function() {
+      let newboardDiv = document.getElementById('board');
+      let tempElement = document.createElement('div');
+      tempElement.innerHTML = boardDiv;
+      newboardDiv.replaceWith(tempElement);
+      socket.emit('pingSocket',"ping")
+    });
 
+    // Add event listener for 'reverse-move-button', which renders the previous state of the game
+    reverseMoveButton = document.getElementById('reverse-move-button');
+    reverseMoveButton.addEventListener("click", goOneMoveBack);
+
+    // Add event listener for 'next-move-button'
+    nextMoveButton = document.getElementById('next-move-button');
+    nextMoveButton.addEventListener("click",goOneMoveForward);
   }
+
+}
 
 
 function checkActionState(stateJson) {
@@ -207,10 +232,11 @@ function checkActionState(stateJson) {
   // Then make all of the buttons which are included in the stateJson visible:
   for (let index = 0; index < actionMenuButtons.length; index++) {
     
-    if(actionMenuButtons[index].id == "Refresh") {
-      console.log(actionMenuButtons[index])
+    if (["Refresh", "reverse-move-button", "next-move-button"].includes(actionMenuButtons[index].id)) {
       actionMenuButtons[index].disabled = false;
+      continue;
     }
+    
     // Check if the initiator actions includes the buttons id and that the player whos turn is now is the player:
     if(stateJson.players[playerIndex].playable_moves.includes(actionMenuButtons[index].id) && playerName==stateJson.players[playerIndex].name) {
       actionMenuButtons[index].disabled = false; 
@@ -594,7 +620,6 @@ function playFallHand(cardArray,callback) {
     let playerState = stateJson.players[playerIndex];
 
     // If show_eval_tickbox is checked, show the evaluation of the player next to its name
-    console.log(document.getElementById("show-evaluation-tickbox"));
     if(document.getElementById("show-evaluation-tickbox").checked && !playerState.is_bot) {
       let evalTextString = stateJson.players[playerIndex].last_evaluation;
       cardContainer.innerHTML = cardContainer.innerHTML + " ("+evalTextString+")";
