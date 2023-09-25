@@ -1,4 +1,3 @@
-
 let boardDiv;// Saving the original state:
 let DEFAULT_BOARD_DIV = `<div id="board">
 <div class="hourglass" id="hourglass" style="display: none"></div>
@@ -100,6 +99,17 @@ function goOneMoveBack() {
   console.log("Display state index is: "+DISPLAY_STATE_INDEX)
   updateState(STATE_ARRAY[DISPLAY_STATE_INDEX],DEFAULT_BOARD_DIV,"")
   checkActionState(STATE_ARRAY[DISPLAY_STATE_INDEX])
+  let username;
+  let gameid = 0;
+  // Loop through the last state json, and find the human players name
+  for (let index = 0; index < STATE_ARRAY[0].players.length; index++) {
+    if(!STATE_ARRAY[0].players[index].is_bot) {
+      username = STATE_ARRAY[0].players[index].name;
+    }
+  }
+  let evaluations_image_path = "C:\\Users\\ilmari\\Desktop\\Python\\LeeviMoska\\" + username+"-Games\\HumanGame-"+gameid+".png";
+  console.log("Game over, image path: "+evaluations_image_path)
+
 }
 
 function goOneMoveForward() {
@@ -120,10 +130,23 @@ function renderGameOver(data) {
   console.log("Rendering game over!")
   
   let endElement = document.createElement('div');
-  let endState = `<div id="gameover"> GAME OVER!
-  </div>
-  `
-  endElement.innerHTML = endState;
+  // Display image of the evaluations, so file '<username>-Games/HumanGame-<gameid>.png'
+  let username;
+  let gameid = 0;
+  // Loop through the last state json, and find the human players name
+  for (let index = 0; index < STATE_ARRAY[0].players.length; index++) {
+    if(!STATE_ARRAY[0].players[index].is_bot) {
+      username = STATE_ARRAY[0].players[index].name;
+    }
+  }
+
+
+  let evaluations_image_path = "C:\\Users\\ilmari\\Desktop\\Python\\LeeviMoska\\" + username+"-Games\\HumanGame-"+gameid+".png";
+
+  console.log("Game over, image path: "+evaluations_image_path)
+
+  // Show the image
+  endElement.innerHTML = `<img src="${evaluations_image_path}" alt="Game over" style="width:100%;height:100%;">`
   currentState.replaceWith(endElement);
   return;
 }
