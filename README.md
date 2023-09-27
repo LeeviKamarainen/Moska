@@ -9,6 +9,10 @@ The game engine is [MoskaEngine](https://github.com/ilmari99/MoskaEngine) writte
 ## Usage
 To run the web application, you need: Node.js, npm, Git, Python (>=3.6 but <3.11), and MoskaEngine (0.1.10).
 In addition, you need a highly confidential `.env` file, which contains information about the database connection.
+To obtain this file you need to create a Firebase project and Realtime Database, and then create a `.env` file in the root directory of the project.
+
+As to what the `.env` file should contain, see the `.env_example` file.
+
 
 ### Install node and npm
 See https://nodejs.org/en/download/
