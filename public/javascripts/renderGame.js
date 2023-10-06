@@ -120,12 +120,34 @@ function renderGameOver(data) {
   let currentState = document.getElementById('board');
   console.log("Rendering game over!")
   
+  
+
   let endElement = document.createElement('div');
   let endState = `<div id="gameover"> GAME OVER!
   </div>
   `
-  endElement.innerHTML = endState;
+  if (data && data.image && data.buffer) {
+
+  
+    const img = document.createElement('img');
+    
+    // Create a Blob from the binary data
+    const blob = new Blob([new Uint8Array(data.buffer)], { type: 'image/png' });
+
+    // Use a FileReader to read the Blob as a Base64 data URL
+    const reader = new FileReader();
+    reader.onload = () => {
+       const base64String = reader.result.split(',')[1];
+       // Set the image source
+       img.src = `data:image/png;base64,${base64String}`;
+    };
+    reader.readAsDataURL(blob);
+    endElement.appendChild(img);
+  } else {
+    endElement.innerHTML = endState;
+  }
   currentState.replaceWith(endElement);
+  
   return;
 }
 

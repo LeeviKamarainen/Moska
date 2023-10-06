@@ -8,6 +8,7 @@ const { use } = require('./users');
 const socketapi = {
     io: io
 };
+const fs = require('fs');
 
 
 let gameIndex = 0;
@@ -131,9 +132,18 @@ io.on( "connection", function( socket ) {
           console.log("END OF THE STREAM!");
         });
       pythonProg.on('exit', function(data) {
+
         console.log("EXITING!");
         console.log(data);
-        socket.emit('exit',true);
+        fs.readFile('__dirname+"/../'+socket.decoded.username+"-Games//HumanGame-"+0+".png", (err, data) => {
+          if (err) {
+            console.error('Error reading the image file:', err);
+            socket.emit('exit',true);
+          }
+      
+          // Send the image data to the connected client
+          socket.emit('exit', { image: true, buffer: data });
+        });
       })
   })
   
