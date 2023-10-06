@@ -35,6 +35,7 @@ let DEFAULT_BOARD_DIV = `<div id="board">
 // Global array of game states
 let STATE_ARRAY = [];
 let DISPLAY_STATE_INDEX = 0;
+let CURRENT_USER;
 
 let gameTurnIndex = 0;
 let turnTime = 1500;
@@ -119,12 +120,34 @@ function renderGameOver(data) {
   let currentState = document.getElementById('board');
   console.log("Rendering game over!")
   
+  
+
   let endElement = document.createElement('div');
   let endState = `<div id="gameover"> GAME OVER!
   </div>
   `
-  endElement.innerHTML = endState;
+  if (data && data.image && data.buffer) {
+
+  
+    const img = document.createElement('img');
+    
+    // Create a Blob from the binary data
+    const blob = new Blob([new Uint8Array(data.buffer)], { type: 'image/png' });
+
+    // Use a FileReader to read the Blob as a Base64 data URL
+    const reader = new FileReader();
+    reader.onload = () => {
+       const base64String = reader.result.split(',')[1];
+       // Set the image source
+       img.src = `data:image/png;base64,${base64String}`;
+    };
+    reader.readAsDataURL(blob);
+    endElement.appendChild(img);
+  } else {
+    endElement.innerHTML = endState;
+  }
   currentState.replaceWith(endElement);
+  
   return;
 }
 
@@ -155,10 +178,10 @@ async function initializeCode(gameArray) {
 
     stateArray = gameArray.gamestates;
     gameProgress = gameArray.gameprogress;
-
+    CURRENT_USER = gameArray.currentUser.username;
+    
     console.log(gameProgress)
     console.log(stateArray)
-    
     // Save the boardDiv:s state only if its null:
     if(boardDiv == null) {
       boardDiv = DEFAULT_BOARD_DIV;
@@ -571,7 +594,11 @@ function playFallHand(cardArray,callback) {
     for (let playerIndex = 0; playerIndex < stateJson.players.length; playerIndex++) {
       //Splitting the players name by first numeric character
       let isBot = stateJson.players[playerIndex].is_bot;
-      if(!isBot){ // Player is human:
+      let currentName = stateJson.players[playerIndex].name;
+      console.log("Current User: "+CURRENT_USER)
+      console.log("Looped User: "+currentName)
+      if(!isBot && currentName == CURRENT_USER){ // Player is human and the current user:
+        console.log("Current User: "+CURRENT_USER)
         humanIndex = playerIndex;
       }
     }

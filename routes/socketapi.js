@@ -8,6 +8,7 @@ const { use } = require('./users');
 const socketapi = {
     io: io
 };
+const fs = require('fs');
 
 
 let gameIndex = 0;
@@ -29,8 +30,7 @@ io.use(function(socket, next){
          user = {
           // username is 'Anonymous' + <random number between 1 and 1000>
         username: 'Anonymous' + Math.floor(Math.random() * 1000),
-        email : 'Anonymous' + Math.floor(Math.random() * 1000) + '@example.com',
-        password: 'salasana'
+        email : 'Anonymous' + Math.floor(Math.random() * 1000) + '@example.com'
       };
       }
       console.log("Authentication success!")
@@ -65,7 +65,7 @@ io.on( "connection", function( socket ) {
     socket.on("pingSocket",(data) => {
       console.log("Pinging back with current data:")
       let lastValues = returnLastStateAndProgress(socket);
-      socket.emit('data',{"gamestates": lastValues.lastState,"gameprogress": lastValues.lastProgress, "gameindex":gameIndex, "dataArrived":dataArrived, "gamestringindex": gameStringIndex},1000)
+      socket.emit('data',{"gamestates": lastValues.lastState,"gameprogress": lastValues.lastProgress, "gameindex":gameIndex, "dataArrived":dataArrived, "gamestringindex": gameStringIndex,"currentUser": socket.decoded},1000)
     })
 
     socket.on("disconnect", (data) => {
@@ -132,9 +132,18 @@ io.on( "connection", function( socket ) {
           console.log("END OF THE STREAM!");
         });
       pythonProg.on('exit', function(data) {
+
         console.log("EXITING!");
         console.log(data);
-        socket.emit('exit',true);
+        fs.readFile('__dirname+"/../'+socket.decoded.username+"-Games//HumanGame-"+0+".png", (err, data) => {
+          if (err) {
+            console.error('Error reading the image file:', err);
+            socket.emit('exit',true);
+          }
+      
+          // Send the image data to the connected client
+          socket.emit('exit', { image: true, buffer: data });
+        });
       })
   })
   
@@ -183,13 +192,13 @@ io.on( "connection", function( socket ) {
     pythonProg.stdout.off('data',childProcessDataListener); // Remove previous data listener and add new one with reference to the new socket.
     pythonProg.stdout.on('data',childProcessDataListener)
     lastValues = returnLastStateAndProgress(socket);
-    socket.emit('data',{"gamestates": lastValues.lastState,"gameprogress": lastValues.lastProgress, "gameindex":gameIndex, "dataArrived":dataArrived, "gamestringindex": gameStringIndex},1000)
+    socket.emit('data',{"gamestates": lastValues.lastState,"gameprogress": lastValues.lastProgress, "gameindex":gameIndex, "dataArrived":dataArrived, "gamestringindex": gameStringIndex,"currentUser": socket.decoded},1000)
   }
 })
 
 const childProcessDataListener = (data) => {
   let parsedData = parseChildProcessData(data,socket);
-  socket.emit('data',{"gamestates": parsedData.gameStates,"gameprogress": parsedData.gameProgress, "gameindex":gameIndex, "dataArrived":dataArrived, "gamestringindex": gameStringIndex},1000)
+  socket.emit('data',{"gamestates": parsedData.gameStates,"gameprogress": parsedData.gameProgress, "gameindex":gameIndex, "dataArrived":dataArrived, "gamestringindex": gameStringIndex,"currentUser": socket.decoded},1000)
 }
 
 function parseChildProcessData(data,socket) {
