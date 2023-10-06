@@ -146,7 +146,7 @@ function renderGameOver(data) {
 
     let stateJson, gameActionString;
     let turnStringIndex = 0;
-    
+    let currentUser =gameArray.currentUser.username;
   
     for (let turnIndex=0; turnIndex < stateArray.length; turnIndex++) {
       stateJson = stateArray[turnIndex];
@@ -155,16 +155,16 @@ function renderGameOver(data) {
       console.log(stateJson)
       await sleepFunction(turnTime)
       gameActionString = "Turn: "+gameTurnIndex;
-      updateState(stateJson,boardDiv,gameActionString)
+      updateState(stateJson,boardDiv,gameActionString,currentUser)
       
     } 
     
-    updateState(stateJson,boardDiv,"Your turn ("+gameTurnIndex+")")
+    updateState(stateJson,boardDiv,"Your turn ("+gameTurnIndex+")",currentUser)
     //updateState(stateArray[stateArray.length-1],gameActionString)
 
     
 
-    checkActionState(stateArray[stateArray.length-1])
+    checkActionState(stateArray[stateArray.length-1],currentUser)
     turnIndex = gameArray.gameindex-1;
     // For fetching sample states:
    /* const res = await fetch("./example_state4.json");
@@ -184,7 +184,7 @@ function renderGameOver(data) {
   }
 
 
-function checkActionState(stateJson) {
+function checkActionState(stateJson,currentUser) {
   const actionMenuButtons = document.getElementsByClassName("play-cards");
 
   // First make sure that all of the buttons are hidden (if they have previously been unhidden.)
@@ -198,7 +198,7 @@ function checkActionState(stateJson) {
   let playerIndex;
   //Find human player index:
   for (let index = 0; index < stateJson.players.length; index++) {
-    if(stateJson.players[index].name.split(/(\d+)/)[0]!="NN") {
+    if(stateJson.players[index].name==currentUser) {
       playerIndex = index;
     }
     
@@ -223,7 +223,7 @@ function checkActionState(stateJson) {
         actionMenuButtons[index+1].addEventListener("click",function() {
           //Modify the stateJson to contain the wanted action:
           stateJson.action = actionMenuButtons[index+1].id;
-          playCards(stateJson)
+          playCards(stateJson,currentUser)
         })
       }
 
@@ -255,13 +255,13 @@ function createCardString(cardArray) {
   return actionString;
 }
 
-function playCards(stateJson) {
+function playCards(stateJson,currentUser) {
   // Find player name:
   let humanName;
   for (let playerIndex = 0; playerIndex < stateJson.players.length; playerIndex++) {
     //Splitting the players name by first numeric character
-    let playerName = stateJson.players[playerIndex].name.split(/(\d+)/); 
-    if(playerName[0]!="NN"){ // Player is human:
+    let playerName = stateJson.players[playerIndex].name; 
+    if(playerName==currentUser){ // Player is human:
       humanName = stateJson.players[playerIndex].name;
      }
   }
@@ -527,7 +527,7 @@ function playFallHand(cardArray,callback) {
   }
 
 
-  function updateState(stateJson,emptyState,gameActionString) {
+  function updateState(stateJson,emptyState,gameActionString,currentUser) {
     let botIndex = 0;
     let currentState = document.getElementById('board');
     let tempElement = document.createElement('div');
@@ -546,10 +546,13 @@ function playFallHand(cardArray,callback) {
     let humanIndex;
     for (let playerIndex = 0; playerIndex < stateJson.players.length; playerIndex++) {
     //Splitting the players name by first numeric character
-    let playerName = stateJson.players[playerIndex].name.split(/(\d+)/); 
+    let playerName = stateJson.players[playerIndex].name; 
     let containerName;
     let cardContainer;
-    if(playerName[0]!="NN"){ // Player is human:
+    console.log(playerName)
+    console.log(currentUser)
+    console.log(playerName==currentUser)
+    if(playerName==currentUser){ // Player is human:
       containerName = "bottom";
       humanIndex = playerIndex;
     } else { // If the player is a bot:
@@ -597,7 +600,7 @@ function playFallHand(cardArray,callback) {
 
     // If show_eval_tickbox is checked, show the evaluation of the player next to its name
     console.log(document.getElementById("show_evaluation_tickbox"));
-    if(document.getElementById("show_evaluation_tickbox").checked && playerName[0]!="NN") {
+    if(document.getElementById("show_evaluation_tickbox").checked && playerName==currentUser) {
       let evalTextString = stateJson.players[playerIndex].last_evaluation;
       cardContainer.innerHTML = cardContainer.innerHTML + " ("+evalTextString+")";
     }

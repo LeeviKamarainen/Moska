@@ -29,8 +29,7 @@ io.use(function(socket, next){
          user = {
           // username is 'Anonymous' + <random number between 1 and 1000>
         username: 'Anonymous' + Math.floor(Math.random() * 1000),
-        email : 'Anonymous' + Math.floor(Math.random() * 1000) + '@example.com',
-        password: 'salasana'
+        email : 'Anonymous' + Math.floor(Math.random() * 1000) + '@example.com'
       };
       }
       console.log("Authentication success!")
@@ -185,7 +184,7 @@ io.on( "connection", function( socket ) {
 
 const childProcessDataListener = (data) => {
   let parsedData = parseChildProcessData(data,socket);
-  socket.emit('data',{"gamestates": parsedData.gameStates,"gameprogress": parsedData.gameProgress, "gameindex":gameIndex, "dataArrived":dataArrived, "gamestringindex": gameStringIndex},1000)
+  socket.emit('data',{"gamestates": parsedData.gameStates,"gameprogress": parsedData.gameProgress, "gameindex":gameIndex, "dataArrived":dataArrived, "gamestringindex": gameStringIndex,"currentUser": socket.decoded},1000)
 }
 
 function parseChildProcessData(data,socket) {
