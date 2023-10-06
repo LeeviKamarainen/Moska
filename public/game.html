@@ -29,20 +29,19 @@
     <a href="/">Home</a>
     <a href="tutorial">Tutorial</a>
     <a href="gamelogs">Game Logs</a>
+    
     <input type="range" min="2" max ="40" step="1" value="20" id ="timeslider">
     <p id="timeslidervalue">Seconds per turn:</p>
-    <input type="checkbox" id="show_evaluation_tickbox" name="show_evaluation_tickbox">
-    <label for="show_evaluation_tickbox">Show evaluation</label>
+
+    <p id="show-evaluation-tickbox-text">Show evaluation</p>
+    <input type="checkbox" id="show-evaluation-tickbox">
+
     <a href="login" class="login" id="login">Login</a>
     <a href="/" class="login" id="logout">Logout</a>
     <a href="register" class="register">Register</a>
   </div>
 
   <header style="color:white; text-align: center; margin:auto; font-size: large;">MOSKA:</header>
-
-
-  
-
 
 <div id="board">
   <div class="hourglass" id="hourglass"></div>
@@ -70,6 +69,9 @@
     <button id="DrawAll" class = "play-cards" disabled="true">End bout (draw all)</button>
     <div style="height:100%;width:5%;"></div> <!-- For empty space in the action menu-->
     <button id="Refresh" class = "play-cards">Refresh</button>
+    <!-- See moves backward or forward -->
+    <button id="reverse-move-button" class = "play-cards">Reverse</button>
+    <button id="next-move-button" class = "play-cards">Forward</button>
   </div>
 </div>
 

@@ -64,7 +64,7 @@ io.on( "connection", function( socket ) {
     socket.on("pingSocket",(data) => {
       console.log("Pinging back with current data:")
       let lastValues = returnLastStateAndProgress(socket);
-      socket.emit('data',{"gamestates": lastValues.lastState,"gameprogress": lastValues.lastProgress, "gameindex":gameIndex, "dataArrived":dataArrived, "gamestringindex": gameStringIndex},1000)
+      socket.emit('data',{"gamestates": lastValues.lastState,"gameprogress": lastValues.lastProgress, "gameindex":gameIndex, "dataArrived":dataArrived, "gamestringindex": gameStringIndex,"currentUser": socket.decoded},1000)
     })
 
     socket.on("disconnect", (data) => {
@@ -112,7 +112,11 @@ io.on( "connection", function( socket ) {
         args.push(username);
       }
       // pythonProg = spawn('C:/home/python3111x64/python', args, {timeout: 1000000});
-      pythonProg = spawn('py', args, {timeout: 1000000});
+      pyexe = process.platform === "win32" ? 'py' : 'python3';
+      pythonProg = spawn(pyexe, args, {timeout: 1000000});
+      pythonProg.on('error', (err) => {
+        console.error(`Failed to start Python process: ${err}`);
+      });
       usersAndGames.set(socket.decoded.email, pythonProg);
         pythonProg.stderr.on('data',function(data) {
           console.log(data.toString())
@@ -178,7 +182,7 @@ io.on( "connection", function( socket ) {
     pythonProg.stdout.off('data',childProcessDataListener); // Remove previous data listener and add new one with reference to the new socket.
     pythonProg.stdout.on('data',childProcessDataListener)
     lastValues = returnLastStateAndProgress(socket);
-    socket.emit('data',{"gamestates": lastValues.lastState,"gameprogress": lastValues.lastProgress, "gameindex":gameIndex, "dataArrived":dataArrived, "gamestringindex": gameStringIndex},1000)
+    socket.emit('data',{"gamestates": lastValues.lastState,"gameprogress": lastValues.lastProgress, "gameindex":gameIndex, "dataArrived":dataArrived, "gamestringindex": gameStringIndex,"currentUser": socket.decoded},1000)
   }
 })
 
