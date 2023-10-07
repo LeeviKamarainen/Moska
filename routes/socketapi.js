@@ -134,6 +134,7 @@ io.on( "connection", function( socket ) {
       pythonProg.on('exit', function(data) {
 
         console.log("EXITING!");
+
         console.log(data);
         let folder_name = socket.decoded.username + "-Games";
         let file_name = "HumanGame-"+0+".png";
@@ -184,7 +185,6 @@ io.on( "connection", function( socket ) {
 
     pythonProg.on('exit', function(data) {
       console.log("EXITING!");
-      console.log(data);
       socket.emit('exit',true);
     })
   }
@@ -201,7 +201,8 @@ io.on( "connection", function( socket ) {
 const childProcessDataListener = (data) => {
   let parsedData = parseChildProcessData(data,socket);
   socket.emit('data',{"gamestates": parsedData.gameStates,"gameprogress": parsedData.gameProgress, "gameindex":gameIndex, "dataArrived":dataArrived, "gamestringindex": gameStringIndex,"currentUser": socket.decoded},1000)
-}
+
+ }
 
 function parseChildProcessData(data,socket) {
    
@@ -227,7 +228,7 @@ let stateAndProgress = usersAndStateAndProgress.get(socket.decoded.email);
 stateAndProgress[0].push(...gameStates); // Appending to the existing list
 stateAndProgress[1].push(...gameProgress);
 
-console.log("Sending data."+gameStates)
+console.log("Sending data."+gameStates.toString())
 console.log(gameProgress)
 
 
