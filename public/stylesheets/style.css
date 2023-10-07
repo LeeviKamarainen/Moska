@@ -185,6 +185,18 @@ By clicking the button, the user can choose to show or hide the evaluation of th
   z-index: 3;
 }
 
+#errormessage {
+  position: absolute;
+  width: 25%;
+  height: 5%;
+  bottom: 17.5%;
+  z-index: 0;
+  overflow:visible;
+  left: 37.5%;
+  background-color: red;
+  border-radius: 5px 5px 5px 5px;
+  border: 2px solid black;
+}
 
 /* Set the width of the left and right divs */
 #left{

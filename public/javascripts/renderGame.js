@@ -8,6 +8,7 @@ let DEFAULT_BOARD_DIV = `<div id="board">
   <div id="cards-to-kill" class="board-player" onclick="activateBoard(this,event)">Cards to kill</div>
   <div id="killed-cards" class="board-player" onclick="activateBoard(this,event)">Killed cards</div>
 </div>
+<div id="errormessage" hidden="true">Incorrect action:</div>
 <div id="right" class="board-player"></div>
 <p id="gameaction">test</p>
 <div id="bottom" class="board-player" onclick="activateBoard(this,event)">
@@ -36,6 +37,7 @@ let DEFAULT_BOARD_DIV = `<div id="board">
 let STATE_ARRAY = [];
 let DISPLAY_STATE_INDEX = 0;
 let CURRENT_USER;
+let ERROR_STATE = 0;
 
 let gameTurnIndex = 0;
 let turnTime = 1500;
@@ -115,6 +117,11 @@ function goOneMoveForward() {
   checkActionState(STATE_ARRAY[DISPLAY_STATE_INDEX])
 }
 
+function goToNewestState() {
+  console.log(STATE_ARRAY[STATE_ARRAY.length-1])
+  updateState(STATE_ARRAY[STATE_ARRAY.length-1],DEFAULT_BOARD_DIV,"")
+  checkActionState(STATE_ARRAY[STATE_ARRAY.length-1])
+}
 
 function renderGameOver(data) {
   let currentState = document.getElementById('board');
@@ -151,7 +158,38 @@ function renderGameOver(data) {
   return;
 }
 
+
+
+function checkError(gameArray) {
+  
+  try{
+    console.log(gameArray)
+    let errorJson = gameArray.gamestates[0];
+    if(errorJson.error != null) {
+      return errorJson;
+    } else {
+      return false;
+    }
+  } catch(e) {
+    console.log(e)
+    return false;
+  }
+
+}
+
 async function initializeCode(gameArray) {
+
+  // Checking for error messages:
+  let errorJson = checkError(gameArray);
+  if(errorJson!=false) {
+    goToNewestState();
+    let errorDiv = document.getElementById('errormessage');
+    errorDiv.removeAttribute('hidden');
+    errorDiv.innerHTML = errorJson.error;
+    ERROR_STATE = errorJson.error;
+    return;
+  }
+
   //Checking to see if last gameAction is from killing from deck:
   console.log(gameArray)
   try{
@@ -175,7 +213,7 @@ async function initializeCode(gameArray) {
       turnTime = slider.value * 100; 
       sliderValue.textContent = "Seconds per turn: "+(turnTime/1000).toFixed(1);
     });
-
+    
     stateArray = gameArray.gamestates;
     gameProgress = gameArray.gameprogress;
     CURRENT_USER = gameArray.currentUser.username;
@@ -227,6 +265,14 @@ async function initializeCode(gameArray) {
     // Add event listener for 'next-move-button'
     nextMoveButton = document.getElementById('next-move-button');
     nextMoveButton.addEventListener("click",goOneMoveForward);
+
+     // Rendering error message if previous move was not valid:
+     if(ERROR_STATE != 0) {
+      console.log(ERROR_STATE)
+      let errorDiv = document.getElementById('errormessage');
+      errorDiv.removeAttribute('hidden');
+      errorDiv.innerHTML = ERROR_STATE;
+    }
   }
 
 }
@@ -265,8 +311,6 @@ function checkActionState(stateJson) {
       actionMenuButtons[index].disabled = false; 
 
       //Make it so refresh button is always visible:
-      console.log(actionMenuButtons[index].id)
-
       if(actionMenuButtons[index].id == "EndTurn") { // In case of the action being end turn, we also need  to make draw all button visible and add event listener to it.
         actionMenuButtons[index+1].disabled = false;
         actionMenuButtons[index+1].addEventListener("click",function() {
@@ -389,6 +433,7 @@ function playCards(stateJson) {
 }
 
 function sendGameAction(actionString) {
+  ERROR_STATE = 0;
   let dataToSend = JSON.stringify({"action": actionString})
   console.log(dataToSend)
   /*await fetch('http://localhost:3000/playmove', {
@@ -452,6 +497,7 @@ function killCardFromDeck(cardString) {
 
 function playToSelf(cardArray,callback) {
 
+  let cardsSelected = [];
   const playToSelfButton = document.getElementById("PlayToSelf");
   playToSelfButton.innerHTML = 'Play selected cards';
   playToSelfButton.setAttribute('activated',1)
@@ -459,6 +505,9 @@ function playToSelf(cardArray,callback) {
     playToSelfButton.innerHTML = 'Play To Self';
     humanDeck.removeAttribute('activated');
     playToSelfButton.removeAttribute('activated')
+    cardsSelected.forEach((key,value) => {
+      cardArray[1] = cardArray[1].concat(" "+value);
+    })
     callback(cardArray)
     return;
   });
@@ -467,23 +516,38 @@ function playToSelf(cardArray,callback) {
 
   humanDeck.onclick = function(e) {
     if(e.target.className && e.target.className.indexOf('card')!=-1  && e.target.getAttribute('card-type') != null && humanDeck.getAttribute('activated') == 1) {
-      let cardPair = "";
-      cardPair = cardPair.concat(e.target.getAttribute('card-index'));
       let cardToPlay = e.target;
-      cardToPlay.setAttribute('selected',1);
-      cardArray[1] = cardArray[1].concat(" "+cardPair);
+      if(cardToPlay.getAttribute('selected')==1){
+        cardToPlay.removeAttribute('selected')
+        delete cardsSelected[e.target.getAttribute('card-index')];
+        
+        console.log(cardsSelected)
+      }
+      else {
+        let cardPair = "";
+        cardPair = cardPair.concat(e.target.getAttribute('card-index'));
+        
+        cardToPlay.setAttribute('selected',1);
+        cardsSelected[e.target.getAttribute('card-index')] = cardPair;
+        
+        console.log(cardsSelected)
+      }
   }
 }
 }
 
 function playToOther(cardArray,playToOtherButton,callback) {
 
+  let cardsSelected = [];
   playToOtherButton.innerHTML = 'Play selected cards';
   playToOtherButton.setAttribute('activated',1)
   playToOtherButton.addEventListener("click", function(){
-    playToOtherButton.innerHTML = 'Play To Other';
+    playToOtherButton.innerHTML = 'Attack';
     playToOtherButton.removeAttribute('activated')
     humanDeck.removeAttribute('activated');
+    cardsSelected.forEach((key,value) => {
+      cardArray[1] = cardArray[1].concat(" "+value);
+    })
     callback(cardArray)
     return;
   });
@@ -492,22 +556,34 @@ function playToOther(cardArray,playToOtherButton,callback) {
 
   humanDeck.onclick = function(e) {
     if(e.target.className && e.target.className.indexOf('card')!=-1  && e.target.getAttribute('card-type') != null && humanDeck.getAttribute('activated') == 1) {
-      let cardPair = "";
-      cardPair = cardPair.concat(e.target.getAttribute('card-index'));
       let cardToPlay = e.target;
-      cardToPlay.setAttribute('selected',1);
-      cardArray[1] = cardArray[1].concat(" "+cardPair);
+      if(cardToPlay.getAttribute('selected')==1){
+        cardToPlay.removeAttribute('selected')
+        delete cardsSelected[e.target.getAttribute('card-index')];
+        
+        console.log(cardsSelected)
+      }
+      else {
+        let cardPair = "";
+        cardPair = cardPair.concat(e.target.getAttribute('card-index'));
+        
+        cardToPlay.setAttribute('selected',1);
+        cardsSelected[e.target.getAttribute('card-index')] = cardPair;
+        
+        console.log(cardsSelected)
+      }
   }
 }
 }
 
 function playFallHand(cardArray,callback) {
 
+    let cardsSelected = [];
     const playCardsButton = document.getElementById("PlayFallFromHand");
     playCardsButton.innerHTML = 'Play selected cards';
     playCardsButton.setAttribute('activated',1)
     playCardsButton.addEventListener("click", function(){
-      playCardsButton.innerHTML = 'Select Fall from Hand';
+      playCardsButton.innerHTML = 'Kill from Hand';
       playCardsButton.removeAttribute('activated',1)
       callback(cardArray)
       return;
@@ -595,10 +671,7 @@ function playFallHand(cardArray,callback) {
       //Splitting the players name by first numeric character
       let isBot = stateJson.players[playerIndex].is_bot;
       let currentName = stateJson.players[playerIndex].name;
-      console.log("Current User: "+CURRENT_USER)
-      console.log("Looped User: "+currentName)
       if(!isBot && currentName == CURRENT_USER){ // Player is human and the current user:
-        console.log("Current User: "+CURRENT_USER)
         humanIndex = playerIndex;
       }
     }
