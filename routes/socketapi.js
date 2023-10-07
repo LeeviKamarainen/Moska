@@ -134,7 +134,11 @@ io.on( "connection", function( socket ) {
       pythonProg.on('exit', function(data) {
 
         console.log("EXITING!");
-        fs.readFile('__dirname+"/../'+socket.decoded.username+"-Games//HumanGame-"+0+".png", (err, data) => {
+
+        console.log(data);
+        let folder_name = socket.decoded.username + "-Games";
+        let file_name = "HumanGame-"+0+".png";
+        fs.readFile(__dirname+"/../"+folder_name+"/"+file_name, function (err, data) {
           if (err) {
             console.error('Error reading the image file:', err);
             socket.emit('exit',true);
