@@ -132,6 +132,9 @@ io.on( "connection", function( socket ) {
         args.push(username);
         args.push("--gameid");
         args.push(gameIndex);
+        if (username == "Test") {
+          args.push("--test");
+        }
       }
       // pythonProg = spawn('C:/home/python3111x64/python', args, {timeout: 1000000});
       pyexe = process.platform === "win32" ? 'py' : 'python3';
