@@ -124,38 +124,50 @@ function goToNewestState() {
 }
 
 function renderGameOver(data) {
-  let currentState = document.getElementById('board');
-  console.log("Rendering game over!")
-  
-  
-
-  let endElement = document.createElement('div');
-  let endState = `<div id="gameover"> GAME OVER!
-  </div>
-  `
-  if (data && data.image && data.buffer) {
-
-  
-    const img = document.createElement('img');
+  // Check first if the rendering has been stopped, and after that render game over state.
+  document.addEventListener('renderingStopped', () => {
+    let currentState = document.getElementById('board');
+    console.log("Rendering game over!")
+    alert("GAME OVER.")
     
-    // Create a Blob from the binary data
-    const blob = new Blob([new Uint8Array(data.buffer)], { type: 'image/png' });
 
-    // Use a FileReader to read the Blob as a Base64 data URL
-    const reader = new FileReader();
-    reader.onload = () => {
-       const base64String = reader.result.split(',')[1];
-       // Set the image source
-       img.src = `data:image/png;base64,${base64String}`;
-    };
-    reader.readAsDataURL(blob);
-    endElement.appendChild(img);
-  } else {
-    endElement.innerHTML = endState;
-  }
-  currentState.replaceWith(endElement);
-  
-  return;
+    let endElement = document.createElement('div');
+    endElement.id = "gameover";
+    
+    if (data && data.image && data.buffer) {
+
+    
+      const img = document.createElement('img');
+      
+      // Create a Blob from the binary data
+      const blob = new Blob([new Uint8Array(data.buffer)], { type: 'image/png' });
+
+      // Use a FileReader to read the Blob as a Base64 data URL
+      const reader = new FileReader();
+      let base64String;
+      reader.onload = () => {
+        base64String = reader.result.split(',')[1];
+        // Set the image source
+        let endState = `<div>
+        GAME OVER!
+        <br>
+        <a href=`+`data:image/png;base64,${base64String}`+`  target="_blank">Evaluation image:</>
+        </div>
+        `
+        endElement.innerHTML = endState;
+      };
+      reader.readAsDataURL(blob);
+      
+    } else {
+      let endState = `<div id="gameover"> GAME OVER!
+    </div>
+    `
+      endElement.innerHTML = endState;
+    }
+    currentState.appendChild(endElement);
+    
+    return;
+  })
 }
 
 
@@ -178,7 +190,6 @@ function checkError(gameArray) {
 }
 
 async function initializeCode(gameArray) {
-
   // Checking for error messages:
   let errorJson = checkError(gameArray);
   if(errorJson!=false) {
@@ -273,6 +284,10 @@ async function initializeCode(gameArray) {
       errorDiv.removeAttribute('hidden');
       errorDiv.innerHTML = ERROR_STATE;
     }
+
+    // Emit an event to notify that the rendering of the current data has stopped.
+    const rendering_ended = new Event('renderingStopped');
+    document.dispatchEvent(rendering_ended);
   }
 
 }

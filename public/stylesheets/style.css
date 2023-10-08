@@ -303,6 +303,7 @@ By clicking the button, the user can choose to show or hide the evaluation of th
   border-radius: 10px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
   bottom: 50%;
+  z-index: 10;
   left: 40%;
   position: absolute;
   font-size: x-large;
