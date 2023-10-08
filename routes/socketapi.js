@@ -20,7 +20,25 @@ let gameProgress = [];
 const usersAndGames = new Map();
 const usersAndStateAndProgress = new Map();
 
-  
+function getNextGameIndex(username) {
+  // Find the next available game index for the user name.
+  // The next available game index is the first game index that does not have a corresponding file in the user's folder.
+  let user_folder = __dirname+"/../"+username+"-Games";
+  let game_index = 0;
+  for (let index = 0; index < 1000; index++) {
+    let file_name = "HumanGame-"+game_index+".log";
+    // If the file does not exist, then return the game index.
+    if(!fs.existsSync(user_folder+"/"+file_name)) {
+      return game_index;
+    }
+    game_index++;
+  }
+  console.log("No available game index found!")
+  return game_index;
+}
+
+
+
 io.use(function(socket, next){
   if (socket.handshake.query && socket.handshake.query.token){
     jwt.verify(socket.handshake.query.token, process.env.SECRET, (err, user) => { 
@@ -35,6 +53,7 @@ io.use(function(socket, next){
       }
       console.log("Authentication success!")
       socket.decoded = user;
+      gameIndex = getNextGameIndex(socket.decoded.username);
       next();
     })
   }
@@ -111,6 +130,8 @@ io.on( "connection", function( socket ) {
       if (username) {
         args.push("--name");
         args.push(username);
+        args.push("--gameid");
+        args.push(gameIndex);
       }
       // pythonProg = spawn('C:/home/python3111x64/python', args, {timeout: 1000000});
       pyexe = process.platform === "win32" ? 'py' : 'python3';
@@ -137,7 +158,7 @@ io.on( "connection", function( socket ) {
 
         console.log(data);
         let folder_name = socket.decoded.username + "-Games";
-        let file_name = "HumanGame-"+0+".png";
+        let file_name = "HumanGame-"+gameIndex+".png";
         fs.readFile(__dirname+"/../"+folder_name+"/"+file_name, function (err, data) {
           if (err) {
             console.error('Error reading the image file:', err);
