@@ -75,7 +75,7 @@ py -m venv .venv
 ### Install MoskaEngine with pip
 ```
 pip install moskaengine
-# Make sure the version is 0.1.10
+# Make sure the version is 0.1.14
 pip list | grep moskaengine
 ```
 
