@@ -490,6 +490,13 @@ function killCardFromDeck(cardString) {
 
   let board = document.getElementById('cards-to-kill')
   board.setAttribute('activated',1);
+
+  // Deactivate all other buttons:
+  const actionMenuButtons = document.getElementsByClassName("play-cards");
+  for (let index = 0; index < actionMenuButtons.length; index++) {
+    actionMenuButtons[index].disabled = true;
+  }
+
   board.onclick = function(e){
     if(e.target.className && e.target.className.indexOf('card')!=-1 && e.target.getAttribute('card-type') != null && board.getAttribute('activated') == 1) {
       let cardToFall = e.target;
@@ -506,6 +513,10 @@ function killCardFromDeck(cardString) {
       
       deckContainer.setAttribute('style',"visibility:hidden");
       socket.emit("gameaction",gameAction)
+      // activate all buttons:
+      for (let index = 0; index < actionMenuButtons.length; index++) {
+        actionMenuButtons[index].disabled = false;
+      }
     }
   }
 }
