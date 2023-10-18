@@ -136,8 +136,16 @@ io.on( "connection", function( socket ) {
           args.push("--test");
         }
       }
-      // pythonProg = spawn('C:/home/python3111x64/python', args, {timeout: 1000000});
-      pyexe = process.platform === "win32" ? 'py' : 'python3';
+      let pyexe = 'python3';
+      if (process.platform === "win32") {
+        pyexe = 'py';
+        const { execSync } = require('child_process');
+        try {
+          execSync('py --version');
+        } catch (error) {
+          pyexe = 'python';
+        }
+      }
       pythonProg = spawn(pyexe, args, {timeout: 1000000});
       pythonProg.on('error', (err) => {
         console.error(`Failed to start Python process: ${err}`);
