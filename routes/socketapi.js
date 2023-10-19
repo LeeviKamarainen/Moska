@@ -253,7 +253,7 @@ function startGame(socket, childProcessDataListener) {
       }
       else{
         // Send the image data to the connected client
-        socket.emit('exit', { image: true, buffer: data.toString('base64') });
+        socket.emit('exit', { image: true, buffer: Buffer.from(data, 'base64') });
       }
     });
   });
