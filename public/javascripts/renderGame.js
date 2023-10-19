@@ -151,7 +151,7 @@ function renderGameOver(data) {
         let endState = `<div>
         GAME OVER!
         <br>
-        <a href=`+`data:image/png;base64,${base64String}`+`  target="_blank">Evaluation image:</>
+        <a href=`+`data:image/png;base64,${base64String}`+`  target="_blank">Evaluation image (right-click and open in a new tab):</a>
         </div>
         `
         endElement.innerHTML = endState;
@@ -277,19 +277,32 @@ async function initializeCode(gameArray) {
     nextMoveButton = document.getElementById('next-move-button');
     nextMoveButton.addEventListener("click",goOneMoveForward);
 
-     // Rendering error message if previous move was not valid:
-     if(ERROR_STATE != 0) {
+    // Rendering error message if previous move was not valid:
+    if(ERROR_STATE != 0) {
       console.log(ERROR_STATE)
       let errorDiv = document.getElementById('errormessage');
       errorDiv.removeAttribute('hidden');
       errorDiv.innerHTML = ERROR_STATE;
     }
 
-    // Emit an event to notify that the rendering of the current data has stopped.
-    const rendering_ended = new Event('renderingStopped');
-    document.dispatchEvent(rendering_ended);
-  }
+    // If all except one player have finished the game (player.finished==1) in the last state, render game over state
+    let nfinished_players = 0;
+    // stateJson is the last state json, set in the for loop above
+    for (let playerIndex = 0; playerIndex < stateJson.players.length; playerIndex++) {
+      if(stateJson.players[playerIndex].finished == 1) {
+        nfinished_players += 1;
+      }
+    }
+    //console.log("There are "+nfinished_players+" finished players")
+    
+    if(nfinished_players >= stateJson.players.length-1) {
+      console.log("Received state with all but one player finished. Rendering game over state.")
+      // Emit an event to notify that the rendering of the current data has stopped.
+      const rendering_ended = new Event('renderingStopped');
+      document.dispatchEvent(rendering_ended);
+    }
 
+}
 }
 
 
