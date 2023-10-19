@@ -41,8 +41,9 @@ let ERROR_STATE = 0;
 
 let gameTurnIndex = 0;
 let turnTime = 1500;
+
 if (document.readyState !== "loading") {
-  
+
   let hourglass = document.getElementById("hourglass")
   console.log(document.gameStart)
   
@@ -59,8 +60,9 @@ if (document.readyState !== "loading") {
   socket.on('exit',(data) => {
     renderGameOver(data)
   })
-  } else {
-    console.log("Loading!")
+}
+else {
+  console.log("Loading!")
       
   document.addEventListener("DOMContentLoaded", function () {
     console.log("DOM READY")
@@ -79,13 +81,21 @@ if (document.readyState !== "loading") {
     })
     
   });
-  }
-
-  function sleepFunction(millisec) {
-    return new Promise(resolve => {
-        setTimeout(() => { resolve('') }, millisec);
-    })
 }
+
+
+
+/**
+ * Delays the execution of the function by the specified number of milliseconds.
+ * @param {number} millisec - The number of milliseconds to delay the function execution.
+ * @returns {Promise} A Promise that resolves after the specified number of milliseconds.
+ */
+function sleepFunction(millisec) {
+  return new Promise(resolve => {
+      setTimeout(() => { resolve('') }, millisec);
+  })
+}
+
 
 function activateBoard(button,event) {
   if(event.target.className!="card") {
@@ -93,6 +103,12 @@ function activateBoard(button,event) {
   }
 }
 
+/**
+ * Moves the displayed game state one move back in the game. The true game state is not changed.
+ * @function
+ * @name goOneMoveBack
+ * @returns {void}
+ */
 function goOneMoveBack() {
   console.log("There are "+STATE_ARRAY.length+" states in the STATE_ARRAY")
   DISPLAY_STATE_INDEX -= 1;
@@ -105,6 +121,11 @@ function goOneMoveBack() {
   checkActionState(STATE_ARRAY[DISPLAY_STATE_INDEX])
 }
 
+
+
+/**
+ * Moves the game forward by one state and renders the updated game state using the updateState function.
+ */
 function goOneMoveForward() {
   console.log("There are "+STATE_ARRAY.length+" states in the stateArray")
   DISPLAY_STATE_INDEX += 1;
@@ -117,11 +138,15 @@ function goOneMoveForward() {
   checkActionState(STATE_ARRAY[DISPLAY_STATE_INDEX])
 }
 
+
+
 function goToNewestState() {
   console.log(STATE_ARRAY[STATE_ARRAY.length-1])
   updateState(STATE_ARRAY[STATE_ARRAY.length-1],DEFAULT_BOARD_DIV,"")
   checkActionState(STATE_ARRAY[STATE_ARRAY.length-1])
 }
+
+
 
 function renderGameOver(data) {
   // Check first if the rendering has been stopped, and after that render game over state.
@@ -130,23 +155,18 @@ function renderGameOver(data) {
     console.log("Rendering game over!")
     alert("GAME OVER.")
     
-
     let endElement = document.createElement('div');
     endElement.id = "gameover";
     
-    if (data && data.image && data.buffer) {
-
-    
-      const img = document.createElement('img');
-      
-      // Create a Blob from the binary data
-      const blob = new Blob([new Uint8Array(data.buffer)], { type: 'image/png' });
-
-      // Use a FileReader to read the Blob as a Base64 data URL
-      const reader = new FileReader();
+    // Display the image if it exists:
+    // The image is sent as { image: true, buffer: data.toString('base64') }
+    if (data.image) {
+      console.log("Image data found!");
       let base64String;
+      let reader = new FileReader();
+      reader.readAsDataURL(data.buffer);
       reader.onload = () => {
-        base64String = reader.result.split(',')[1];
+        base64String = reader.result.replace('data:', '').replace(/^.+,/, '');
         // Set the image source
         let endState = `<div>
         GAME OVER!
@@ -156,9 +176,9 @@ function renderGameOver(data) {
         `
         endElement.innerHTML = endState;
       };
-      reader.readAsDataURL(blob);
       
     } else {
+      console.log("No image data found!");
       let endState = `<div id="gameover"> GAME OVER!
     </div>
     `
@@ -209,9 +229,9 @@ async function initializeCode(gameArray) {
       console.log(gameArray.gameprogress[gameArray.gameprogress.length-1])
       killCardFromDeck(gameArray.gameprogress[gameArray.gameprogress.length-1])
     }}
-    catch(e){
-      console.log("Something went wrong: "+e)
-    }
+  catch(e){
+    console.log("Something went wrong: "+e)
+  }
   if(gameArray.gamestates.length != 0) { 
     
     let connectionIter = 0;
@@ -254,8 +274,6 @@ async function initializeCode(gameArray) {
     
     updateState(stateJson,boardDiv,"Your turn ("+gameTurnIndex+")")
     //updateState(stateArray[stateArray.length-1],gameActionString)
-
-    
 
     checkActionState(stateArray[stateArray.length-1])
     turnIndex = gameArray.gameindex-1;
