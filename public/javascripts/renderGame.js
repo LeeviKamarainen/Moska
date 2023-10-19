@@ -31,57 +31,63 @@ let DEFAULT_BOARD_DIV = `<div id="board">
   <button id="reverse-move-button" class = "play-cards" onclick="goOneMoveBack()">Backward</button>
   <button id="next-move-button" class = "play-cards" onclick="goOneMoveForward()">Forward</button>
 </div>
-</div>
-</body>`
+</div>`
 // Global array of game states
 let STATE_ARRAY = [];
 let DISPLAY_STATE_INDEX = 0;
 let CURRENT_USER;
 let ERROR_STATE = 0;
-
+let TOTAL_RECEIVED_STATES = 0;
 let gameTurnIndex = 0;
 let turnTime = 1500;
+let SAVED_DATA = null;
 
-if (document.readyState !== "loading") {
 
-  let hourglass = document.getElementById("hourglass")
-  console.log(document.gameStart)
+console.log("Loading!")
+document.addEventListener("DOMContentLoaded", function () {
+  console.log("DOM READY")
+  window.isRendering = false;
   
+  let hourglass = document.getElementById("hourglass")
   hourglass.style.display = "block";
   socket.emit(document.gameStart,"true")
   socket.on('data', (data) => {
-      
+
+    if (data.gamestates != null) {
+      TOTAL_RECEIVED_STATES += data.gamestates.length;
+    }
     hourglass.style.display = "none";
-    console.log("GETTING DATA")
-    initializeCode(data)
+
+    if (!window.isRendering){
+      window.isRendering = true;
+      // Add saved data to the data
+      if (SAVED_DATA != null) {
+        console.log("Adding gamestates from SAVED_DATA")
+        data.gamestates = SAVED_DATA.gamestates.concat(data.gamestates);
+        data.gameprogress = SAVED_DATA.gameprogress.concat(data.gameprogress);
+        SAVED_DATA = null;
+      }
+      else{
+        console.log("No saved data found")
+      }
+      console.log("Beginning rendering")
+      initializeCode(data);
+      console.log("Rendering done")
+      window.isRendering = false;
+    }
+    // Else save the data
+    else {
+      console.log("Saving data")
+      SAVED_DATA = data;
+    }
+
   })
 
-  
   socket.on('exit',(data) => {
     renderGameOver(data)
   })
-}
-else {
-  console.log("Loading!")
-      
-  document.addEventListener("DOMContentLoaded", function () {
-    console.log("DOM READY")
-    
-    let hourglass = document.getElementById("hourglass")
-    hourglass.style.display = "block";
-    socket.emit(document.gameStart,"true")
-    socket.on('data', (data) => {    
-      hourglass.style.display = "none";
-      console.log("GETTING DATA")
-      initializeCode(data)
-    })
-
-    socket.on('exit',(data) => {
-      renderGameOver(data)
-    })
-    
-  });
-}
+  
+});
 
 
 
@@ -147,10 +153,19 @@ function goToNewestState() {
 }
 
 
+function wait(ms) {
+  var start = Date.now(),
+      now = start;
+  while (now - start < ms) {
+    now = Date.now();
+  }
+}
+
+
 
 function renderGameOver(data) {
   // Check first if the rendering has been stopped, and after that render game over state.
-  document.addEventListener('renderingStopped', () => {
+  document.addEventListener('lastFramesRendered', () => {
     let currentState = document.getElementById('board');
     console.log("Rendering game over!")
     alert("GAME OVER.")
@@ -161,24 +176,28 @@ function renderGameOver(data) {
     // Display the image if it exists:
     // The image is sent as { image: true, buffer: data.toString('base64') }
     if (data.image) {
-      console.log("Image data found!");
+      const img = document.createElement('img');
+
+      // Create a Blob from the binary data
+      const blob = new Blob([new Uint8Array(data.buffer)], { type: 'image/png' });
+
+      // Use a FileReader to read the Blob as a Base64 data URL
+      const reader = new FileReader();
       let base64String;
-      let reader = new FileReader();
-      reader.readAsDataURL(data.buffer);
       reader.onload = () => {
-        base64String = reader.result.replace('data:', '').replace(/^.+,/, '');
+        base64String = reader.result.split(',')[1];
         // Set the image source
         let endState = `<div>
-        GAME OVER!
+        GAME OVER!<br>Open the image in a new tab to see the evaluation image
         <br>
-        <a href=`+`data:image/png;base64,${base64String}`+`  target="_blank">Evaluation image (right-click and open in a new tab):</a>
+        <a href=`+`data:image/png;base64,${base64String}`+`  target="_blank">Evaluation image:</>
         </div>
         `
         endElement.innerHTML = endState;
       };
-      
+      reader.readAsDataURL(blob);
+
     } else {
-      console.log("No image data found!");
       let endState = `<div id="gameover"> GAME OVER!
     </div>
     `
@@ -209,33 +228,44 @@ function checkError(gameArray) {
 
 }
 
+
+
 async function initializeCode(gameArray) {
+  // Game array contains the gamestates and gameprogress
+  // Game array has:
+  // gamestates: array of gamestates
+  // gameprogress: array of game actions
   // Checking for error messages:
   let errorJson = checkError(gameArray);
+  console.log("Number of gamestates received in initializeCode: "+gameArray.gamestates.length)
   if(errorJson!=false) {
     goToNewestState();
     let errorDiv = document.getElementById('errormessage');
     errorDiv.removeAttribute('hidden');
     errorDiv.innerHTML = errorJson.error;
     ERROR_STATE = errorJson.error;
+    console.log("Error found: "+errorJson.error)
+    TOTAL_RECEIVED_STATES = TOTAL_RECEIVED_STATES - gameArray.gamestates.length;
     return;
   }
 
   //Checking to see if last gameAction is from killing from deck:
   console.log(gameArray)
   try{
-    console.log(gameArray.gameprogress[gameArray.gameprogress.length-1].split(":"))
-    if(gameArray.gameprogress[gameArray.gameprogress.length-1].split(":")[0] == "Lifted card from deck") {
-      console.log(gameArray.gameprogress[gameArray.gameprogress.length-1])
-      killCardFromDeck(gameArray.gameprogress[gameArray.gameprogress.length-1])
+    let lastGameActionString = gameArray.gameprogress[gameArray.gameprogress.length-1];
+    console.log("Last action: ", lastGameActionString);
+    // Check if the last action of the user exists, and was to koplata
+    // Which is true if "Lifted card from deck" is somewhere in the last action string
+    if(lastGameActionString != null && lastGameActionString.includes("Lifted card from deck")) {
+      killCardFromDeck(lastGameActionString);
     }}
   catch(e){
     console.log("Something went wrong: "+e)
   }
-  if(gameArray.gamestates.length != 0) { 
-    
-    let connectionIter = 0;
-    let gameResponse;
+
+
+  if(gameArray.gamestates.length != 0) {
+    // If there are gamestates, render the game
 
     let slider = document.getElementById('timeslider');
     let sliderValue = document.getElementById('timeslidervalue');
@@ -245,12 +275,10 @@ async function initializeCode(gameArray) {
       sliderValue.textContent = "Seconds per turn: "+(turnTime/1000).toFixed(1);
     });
     
-    stateArray = gameArray.gamestates;
-    gameProgress = gameArray.gameprogress;
+    let stateArray = gameArray.gamestates;
+    let gameProgress = gameArray.gameprogress;
     CURRENT_USER = gameArray.currentUser.username;
-    
-    console.log(gameProgress)
-    console.log(stateArray)
+
     // Save the boardDiv:s state only if its null:
     if(boardDiv == null) {
       boardDiv = DEFAULT_BOARD_DIV;
@@ -265,14 +293,16 @@ async function initializeCode(gameArray) {
       STATE_ARRAY.push(stateJson);
       turnStringIndex += 1;
       gameTurnIndex += 1;
-      console.log(stateJson)
-      await sleepFunction(turnTime)
+      console.log("Rendering state: "+STATE_ARRAY.length);
       gameActionString = "Turn: "+gameTurnIndex;
       updateState(stateJson,boardDiv,gameActionString)
-    } 
+      await sleepFunction(turnTime);
+      //wait(turnTime);
+    }
+    
     DISPLAY_STATE_INDEX = STATE_ARRAY.length-1;
     
-    updateState(stateJson,boardDiv,"Your turn ("+gameTurnIndex+")")
+    //updateState(stateJson,boardDiv,"Your turn ("+gameTurnIndex+")")
     //updateState(stateArray[stateArray.length-1],gameActionString)
 
     checkActionState(stateArray[stateArray.length-1])
@@ -313,14 +343,19 @@ async function initializeCode(gameArray) {
     }
     //console.log("There are "+nfinished_players+" finished players")
     
-    if(nfinished_players >= stateJson.players.length-1) {
-      console.log("Received state with all but one player finished. Rendering game over state.")
+    //if(nfinished_players >= stateJson.players.length-1) {
+    //  console.log("Received state with all but one player finished. Rendering game over state.")
       // Emit an event to notify that the rendering of the current data has stopped.
-      const rendering_ended = new Event('renderingStopped');
-      document.dispatchEvent(rendering_ended);
+    console.log("TOTAL_RECEIVED_STATES: "+TOTAL_RECEIVED_STATES)
+    console.log("STATE_ARRAY.length: "+STATE_ARRAY.length)
+    if (TOTAL_RECEIVED_STATES == STATE_ARRAY.length) {
+      const lastFramesRendered = new Event('lastFramesRendered');
+      document.dispatchEvent(lastFramesRendered);
     }
-
 }
+// Send renderingStopped event to the document
+const renderingStopped = new Event('renderingStopped');
+document.dispatchEvent(renderingStopped);
 }
 
 
@@ -912,5 +947,6 @@ function playFallHand(cardArray,callback) {
   deckContainer.appendChild(card2);
   deckContainer.appendChild(amountLeft);
 
+  // Render the updated state immediately
 
   }
