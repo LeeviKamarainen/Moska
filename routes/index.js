@@ -5,31 +5,6 @@ var path = require('path')
 const { spawn } = require('child_process');
 let socketapi = require('./socketapi');
 
-//console.log("Python program started")
-let gameIndex = 0;
-let gameStringIndex = 2;
-let dataArrived;
-/*pythonProg.stdout.on('data', function(data) {
-  console.log("DATA ARRIVING!")
-    let dataString = data.toString();
-    let dataArray = dataString.split(/\r?\n/)
-    dataArrived = true;
-    for (let index = 0; index < dataArray.length; index++) {
-      let element = dataArray[index];
-    try {
-    gameStates.push(JSON.parse(element))
-    }
-    catch {
-      if(element!="") {
-      gameProgress.push(element)
-      }
-    }
-  }
-})*/
-
-
-let gameProgress = [];
-let gameStates = [];
 /* GET home page. */
 router.get('/', function(req, res, next) {
 });
@@ -40,17 +15,7 @@ router.get('/login', function(req, res, next) {
 
 
 router.get("/getstate", async function(req,res,next){
-  /*
-  console.log("Sending game states!")
-  console.log(gameProgress)
-  gameIndex = gameStates.length;
-  gameStringIndex = gameProgress.length;
-  res.json({"gamestates": gameStates,"gameprogress": gameProgress, "gameindex":gameIndex, "dataArrived":dataArrived, "gamestringindex": gameStringIndex});
-  dataArrived = false;
-  pythonProg.stderr.on('data', function(data) {
-    console.log(`stdout: ${data}`);
-  })
-  */
+
 })
 
 router.post("/playmove",function(req,res,next) {
