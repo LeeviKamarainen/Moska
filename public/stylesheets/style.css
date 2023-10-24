@@ -173,7 +173,7 @@ By clicking the button, the user can choose to show or hide the evaluation of th
   width: 50%;
   bottom: 0;
   z-index: 0;
-  overflow:visible;
+  overflow:hidden;
   left: 50%;
   transform: translateX(-50%);
   transition: height 0.2s, z-index 0.2s;
@@ -299,17 +299,27 @@ By clicking the button, the user can choose to show or hide the evaluation of th
 #gameover {
   background-color: #32CD32;
   padding: 20px;
-  width: 20%;
+  width: 40%;
+  height: 50%;
   border-radius: 10px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-  bottom: 50%;
+  bottom: 25%;
   z-index: 10;
-  left: 40%;
+  left: 30%;
   position: absolute;
   font-size: x-large;
   text-align: center;
 }
 
+#evaluationimage {
+  transition: height 0.2s, width 0.2s
+}
+
+#evaluationimage:hover {
+  transform: scale(3);
+  width: 100%;
+  height: 100%;
+}
 /* Navigation bar styling: */
 
 .navbar {

@@ -102,7 +102,7 @@ function goOneMoveBack() {
   }
   console.log("Display state index is: "+DISPLAY_STATE_INDEX)
   updateState(STATE_ARRAY[DISPLAY_STATE_INDEX],DEFAULT_BOARD_DIV,"")
-  checkActionState(STATE_ARRAY[DISPLAY_STATE_INDEX])
+  // checkActionState(STATE_ARRAY[DISPLAY_STATE_INDEX])
 }
 
 function goOneMoveForward() {
@@ -111,10 +111,15 @@ function goOneMoveForward() {
   // Render game to the next state using updateState function
   if(DISPLAY_STATE_INDEX >= STATE_ARRAY.length) {
     DISPLAY_STATE_INDEX = STATE_ARRAY.length-1;
+    
+  }
+  if(DISPLAY_STATE_INDEX == STATE_ARRAY.length-1) {
+    goToNewestState()
+    return;
   }
   console.log("Display state index is: "+DISPLAY_STATE_INDEX)
   updateState(STATE_ARRAY[DISPLAY_STATE_INDEX],DEFAULT_BOARD_DIV,"")
-  checkActionState(STATE_ARRAY[DISPLAY_STATE_INDEX])
+  // checkActionState(STATE_ARRAY[DISPLAY_STATE_INDEX])
 }
 
 function goToNewestState() {
@@ -128,7 +133,6 @@ function renderGameOver(data) {
   document.addEventListener('renderingStopped', () => {
     let currentState = document.getElementById('board');
     console.log("Rendering game over!")
-    alert("GAME OVER.")
     
 
     let endElement = document.createElement('div');
@@ -151,7 +155,7 @@ function renderGameOver(data) {
         let endState = `<div>
         GAME OVER!
         <br>
-        <a href=`+`data:image/png;base64,${base64String}`+`  target="_blank">Evaluation image:</>
+        <img id="evaluationimage" style="height:50%;width:50%;" src=`+`data:image/png;base64,${base64String}`+`></>
         </div>
         `
         endElement.innerHTML = endState;
