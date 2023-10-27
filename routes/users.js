@@ -51,6 +51,63 @@ router.get('/finduser', async function(req,res,next) {
  })
 
 
+router.get('/getleaderboard', async function(req,res,next) {
+  // This is a test route to find a user in the database
+  const refdb = req.refdb;
+  const snapshot = await refdb.once('value');
+  const listOfUsers = snapshot.val();
+  let leaderboard = [];
+  for(var userID in listOfUsers) {
+    let user = listOfUsers[userID];
+    console.log(user)
+    if(user.leaderboard!=null) {
+      if(user.leaderboard.totalGames>0) {
+        let statsJson = {
+          "username": user.username,
+          "gamesWon": user.leaderboard.gamesWon,
+          "gamesLost": user.leaderboard.gamesLost,
+          "totalGames": user.leaderboard.totalGames,
+          "percentWon": user.leaderboard.gamesWon/user.leaderboard.totalGames*100,
+          "loseStreak": user.leaderboard.loseStreak
+        }
+        leaderboard.push(statsJson);
+      }
+    }
+  }
+  res.json(leaderboard);
+ })
+
+router.post('/updateuser', async function(req,res,next) {
+  // This is a test route to find a user in the database
+  const refdb = req.refdb;
+  const snapshot = await refdb.once('value');
+  const listOfUsers = snapshot.val();
+  const updatedAttribute = req.body.stats;
+  let userInfo = updateUser(listOfUsers, req.body.email,updatedAttribute)
+  // Get reference to the user in the database:
+  try {
+    const userRef = refdb.child(userInfo.userID);
+    
+    if(userRef!=null) {
+      // Update the user in the database:
+      userRef.update(userInfo.userFound);
+      // Log the updated user:
+      const userSnapshot = await userRef.once('value');
+      const userTEST = userSnapshot.val();
+      console.log("Updated user "+userInfo.userFound.email+" in database:")
+      console.log(userTEST)
+    } else {
+      console.log("ERROR: User not found in database.")
+    }
+  } catch (error) {
+    console.log(error)
+    console.log("ERROR: User not found in database.")
+  }
+  
+  res.json(userInfo);
+ })
+
+
 router.post("/register",upload.none(),
 body("email").isLength({min: 3}),
   async (req, res, next) => {
@@ -62,9 +119,9 @@ body("email").isLength({min: 3}),
     const refdb = req.refdb;
     const snapshot = await refdb.once('value');
     const listOfUsers = snapshot.val();
-    let user = getUser(listOfUsers,req.body.email);
+    let user = getUser(listOfUsers,req.body.email,req.body.username);
     if(user) {
-        return res.status(403).json({email: "Email already in use"})
+        return res.status(403).json({email: "Email or username already in use"})
       } else {
         console.log("Adding new user");
         bcrypt.genSalt(10, (err, salt) => {
@@ -74,7 +131,13 @@ body("email").isLength({min: 3}),
               email: req.body.email,
               username: req.body.username,
               password: hash,
-              exp_level: 0
+              exp_level: 0,
+              leaderboard: {
+                gamesWon: 0,
+                gamesLost: 0,
+                totalGames: 0,
+                loseStreak: 0
+              }
             };
             refdb.push(newUser)
             return res.json({success: true});
@@ -118,15 +181,71 @@ async (req,res,next) => {
   });
 
 
-function getUser(listOfUsers,userEmail) {
+function getUser(listOfUsers,userEmail,userName) {
   let userFound = null;
+  
+  // Check first if user name exists:
+  if(userName!=null) {
+  for(var user in listOfUsers) {
+    if(listOfUsers[user].email.toLowerCase()==userEmail.toLowerCase() || listOfUsers[user].username==userName) {
+      console.log(listOfUsers[user].email+" "+listOfUsers[user].username)
+      userFound = listOfUsers[user];
+      break;
+    }
+    }
+  }
+  else {
+    for(var user in listOfUsers) {
+      if(listOfUsers[user].email.toLowerCase()==userEmail.toLowerCase()) {
+        console.log(listOfUsers[user].email)
+        userFound = listOfUsers[user];
+        break;
+      }
+      }
+  }
+  return userFound;
+}
+
+function updateUser(listOfUsers,userEmail,updatedAttribute) {
+  let userFound = null;
+  let userID = null;
   for(var user in listOfUsers) {
     if(listOfUsers[user].email==userEmail) {
       console.log(listOfUsers[user].email)
       userFound = listOfUsers[user];
+      userID = user;
+
+      if (userFound.leaderboard == null) { // Initialize users leaderboard if they don't have one
+        userFound.leaderboard = {
+        }
+      }
+      if (userFound.leaderboard.gamesWon == null) {
+        userFound.leaderboard.gamesWon = 0;
+      }
+      if (userFound.leaderboard.gamesLost == null) {
+        userFound.leaderboard.gamesLost = 0;
+      }
+      if (userFound.leaderboard.totalGames == null) {
+        userFound.leaderboard.totalGames = 0;
+      }
+      if (userFound.leaderboard.loseStreak == null) {
+        userFound.leaderboard.loseStreak = 0;
+      }
+      // Update the leaderboard:
+      userFound.leaderboard.gamesWon = userFound.leaderboard.gamesWon+updatedAttribute.gameWon;
+      userFound.leaderboard.gamesLost = userFound.leaderboard.gamesLost+updatedAttribute.gameLost;
+      // Calculate total games played:
+      userFound.leaderboard.totalGames = userFound.leaderboard.gamesWon+userFound.leaderboard.gamesLost;
+
+      // Handle lose streaks:
+      if(updatedAttribute.gameWon==0) { // If the user lost the game
+        userFound.leaderboard.loseStreak = userFound.leaderboard.loseStreak+1;
+      } else {
+        userFound.leaderboard.loseStreak = 0;
+      }
       break;
     }
   }
-  return userFound;
+  return {"userFound":userFound,"userID":userID};
 }
 module.exports = router;

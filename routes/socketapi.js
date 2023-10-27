@@ -5,6 +5,7 @@ const io = require( "socket.io" )();
 const { spawn } = require('child_process');
 const  jwt = require('jsonwebtoken');
 const { use } = require('./users');
+const fetch = require('node-fetch');
 const socketapi = {
     io: io
 };
@@ -242,21 +243,74 @@ function startGame(socket, childProcessDataListener) {
     console.log("EXITING!");
     console.log(data);
 
-    let folder_name = socket.decoded.username + "-Games";
-    let file_name = "HumanGame-" + gameIndex + ".png";
+    if(data != 0) { // Invalid exit code:
+      console.log("Invalid exit code. Game did not finish.")
+    }
 
-    // Read the evaluation image file and send it to the client.
-    fs.readFile(__dirname + "/../" + folder_name + "/" + file_name, function (err, data) {
-      if (err) {
-        console.log('Error reading the image file:', err);
-        socket.emit('exit', true);
+    if(data == 0) { // Valid exit code:
+      // Get the states and progress array from the map corresponding to current user:
+      let stateAndProgress = usersAndStateAndProgress.get(socket.decoded.email);
+
+      // Length of the progress and state arrays:
+      let stateLength = stateAndProgress[0].length;
+
+      // Last state and progress:
+      let lastState = stateAndProgress[0][stateLength-1];
+
+      // Check if the player won or lost the game:
+      let gameWon = 0;
+      let gameLost = 0;
+
+      if(socket.decoded.email == "Test@email.com") { // For testing purposes change name to Test_4:
+        socket.decoded.username = "Test_4";
       }
-      else{
-        // Send the image data to the connected client
-        socket.emit('exit', { image: true, buffer: Buffer.from(data, 'base64') });
+      console.log(lastState)
+      for (let index = 0; index < lastState.players.length; index++) {
+        let player = lastState.players[index];
+        if(player.name==socket.decoded.username && (player.finished == 1 || player.cards.length == 0)) {
+          console.log("User "+socket.decoded.username+" won the game.")
+          gameWon = 1;
+          gameLost = 0;
+          break;
+        } else if(player.name==socket.decoded.username && player.finished == 0 && player.cards.length != 0) {
+          console.log("User "+socket.decoded.username+" lost the game.")
+          gameWon = 0;
+          gameLost = 1;
+          break;
+        }
       }
+
+      if(socket.decoded.email == "Test@email.com") { // Change back::
+        socket.decoded.username = "Test";
+      }
+
+      let folder_name = socket.decoded.username + "-Games";
+      let file_name = "HumanGame-" + gameIndex + ".png";
+
+      // Read the evaluation image file and send it to the client.
+      fs.readFile(__dirname + "/../" + folder_name + "/" + file_name, function (err, data) {
+        if (err) {
+          console.log('Error reading the image file:', err);
+          socket.emit('exit', true);
+        }
+        else{
+          // Send the image data to the connected client
+          socket.emit('exit', { image: true, buffer: Buffer.from(data, 'base64') });
+        }
+      });
+      let res = fetch("http://localhost:3000/users/updateuser", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({email: socket.decoded.email,stats: {"gameWon":gameWon,"gameLost":gameLost}})
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Database update response:', data);
+      })
+    }
     });
-  });
 }
 
 
@@ -283,7 +337,6 @@ function getNextGameIndex(username) {
   console.log("No available game index found!")
   return game_index;
 }
-
 
 /**
  * Returns the Python executable depending on the platform.

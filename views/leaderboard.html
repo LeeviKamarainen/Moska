@@ -11,11 +11,11 @@
       gtag('config', 'G-RYH4QXEN2S');
     </script>
     <title>Tutorial Page</title>
-    <link rel="stylesheet" href="../stylesheets/login.css">
+    <link rel="stylesheet" href="../stylesheets/leaderboard.css">
   </head>
   <body>
     <script type="text/javascript" src="../javascripts/navigationbar.js"></script>
-    <script type="text/javascript" src="../javascripts/gamelogs.js"></script>
+    <script type="text/javascript" src="../javascripts/leaderboard.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
     var socket = io({query: {"token": localStorage.getItem('auth_token')},
@@ -31,8 +31,20 @@
       <a href="/" class="login" id="logout">Logout</a>
       <a href="register" class="register">Register</a>
     </div>
-    <div class="container">
-        <ol id="gamelogs"></ol>
-    </div>
+    <table>
+      <thead>
+          <tr>
+              <th onclick="sortTable(0)">Player Name</th>
+              <th onclick="sortTable(1)">Games Won</th>
+              <th onclick="sortTable(2)">Games Lost</th>
+              <th onclick="sortTable(4)">Percentage Won</th>
+              <th onclick="sortTable(3)">Total Games</th>
+              <th onclick="sortTable(5)">Lose Streak</th>
+          </tr>
+      </thead>
+      <tbody id="leaderboard-body">
+          <!-- Table rows will be populated here programmatically -->
+      </tbody>
+  </table>
   </body>
 </html>
