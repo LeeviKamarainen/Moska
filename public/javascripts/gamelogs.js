@@ -11,7 +11,7 @@ if (document.readyState !== "loading") {
     let gameLogs = document.getElementById('gamelogs')
     console.log(gameLogs)
     socket.emit("gamelogs","true");
-
+    let res = fetch("/users/getleaderboard")
     gameLogs.innerHTML = "";
     socket.on("rendergamelogs", (gamelogdata) => {
         console.log(gamelogdata.gamelogs)

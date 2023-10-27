@@ -40,5 +40,10 @@ router.get('/startgame', function(req, res, next) {
   res.sendFile(path.join(__dirname,"../public","game.html"));
 });
 
+router.get('/leaderboard', function(req, res, next) {
+  res.sendFile(path.join(__dirname,"../views","leaderboard.html"));
+});
+
+
 
 module.exports = router;
