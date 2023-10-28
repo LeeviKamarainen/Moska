@@ -15,6 +15,7 @@ async function  initializeLeaderboard() {
     leaderboardData = await response.then(res => res.json());
     console.log(leaderboardData)
     populateLeaderboard();
+    sortTable(5); // Sort by average evaluation score by default
   
 }
 
@@ -27,6 +28,8 @@ function populateLeaderboard() {
       // Create and populate table cells for each data field
       const usernameCell = document.createElement('td');
       usernameCell.textContent = entry.username;
+      const averageEvaluationCell = document.createElement('td');
+      averageEvaluationCell.textContent = isNaN(Math.round(entry.averageEvaluation*100)/100) ? 0 : Math.round(entry.averageEvaluation*100)/100;
       const gamesWonCell = document.createElement('td');
       gamesWonCell.textContent = entry.gamesWon;
       const gamesLostCell = document.createElement('td');
@@ -40,6 +43,7 @@ function populateLeaderboard() {
       
       // Append the cells to the table row
       row.appendChild(usernameCell);
+      row.appendChild(averageEvaluationCell);
       row.appendChild(gamesWonCell);
       row.appendChild(gamesLostCell);
       row.appendChild(percentWonCell);
@@ -52,14 +56,13 @@ function populateLeaderboard() {
 }
 
 function sortTable(columnIndex) {
-  console.log(leaderboardData)
   // Get the current sorting direction for the column
   if (!sortDirection[columnIndex]) {
-    sortDirection[columnIndex] = 'asc';
-} else if (sortDirection[columnIndex] === 'asc') {
     sortDirection[columnIndex] = 'desc';
-} else {
+} else if (sortDirection[columnIndex] === 'desc') {
     sortDirection[columnIndex] = 'asc';
+} else {
+    sortDirection[columnIndex] = 'desc';
 }
 
 leaderboardData.sort((a, b) => {

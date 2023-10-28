@@ -68,7 +68,8 @@ router.get('/getleaderboard', async function(req,res,next) {
           "gamesLost": user.leaderboard.gamesLost,
           "totalGames": user.leaderboard.totalGames,
           "percentWon": user.leaderboard.gamesWon/user.leaderboard.totalGames*100,
-          "loseStreak": user.leaderboard.loseStreak
+          "loseStreak": user.leaderboard.loseStreak,
+          "averageEvaluation": user.leaderboard.averageEvaluation,
         }
         leaderboard.push(statsJson);
       }
@@ -231,12 +232,34 @@ function updateUser(listOfUsers,userEmail,updatedAttribute) {
       if (userFound.leaderboard.loseStreak == null) {
         userFound.leaderboard.loseStreak = 0;
       }
+      // Initialize totalEvaluation and the amount of states played accross all games. This is needed to calculate the average evaluation of the user:
+      if (userFound.leaderboard.totalEvaluation == null) {
+        userFound.leaderboard.totalEvaluation = 0;
+      }
+      if (userFound.leaderboard.stateAmount == null) {
+        userFound.leaderboard.stateAmount = 0;
+      }
+      if(userFound.leaderboard.averageEvaluation == null) {
+        userFound.leaderboard.averageEvaluation = 0;
+      }
+      if(userFound.leaderboard.gamesForfeited == null) {
+        userFound.leaderboard.gamesForfeited = 0;
+      }
+        
       // Update the leaderboard:
       userFound.leaderboard.gamesWon = userFound.leaderboard.gamesWon+updatedAttribute.gameWon;
       userFound.leaderboard.gamesLost = userFound.leaderboard.gamesLost+updatedAttribute.gameLost;
       // Calculate total games played:
       userFound.leaderboard.totalGames = userFound.leaderboard.gamesWon+userFound.leaderboard.gamesLost;
 
+      // Calculate forfeited games:
+      userFound.leaderboard.gamesForfeited = userFound.leaderboard.gamesForfeited+updatedAttribute.gameForfeited;
+
+      // Calculate average evaluation:
+      console.log(updatedAttribute.stateAmount)
+      userFound.leaderboard.totalEvaluation = userFound.leaderboard.totalEvaluation+updatedAttribute.totalEvaluation;
+      userFound.leaderboard.stateAmount = userFound.leaderboard.stateAmount+updatedAttribute.stateAmount;
+      userFound.leaderboard.averageEvaluation = userFound.leaderboard.totalEvaluation/userFound.leaderboard.stateAmount;
       // Handle lose streaks:
       if(updatedAttribute.gameWon==0) { // If the user lost the game
         userFound.leaderboard.loseStreak = userFound.leaderboard.loseStreak+1;
