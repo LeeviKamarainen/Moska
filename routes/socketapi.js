@@ -243,28 +243,60 @@ function startGame(socket, childProcessDataListener) {
     console.log("EXITING!");
     console.log(data);
 
+
+    if(socket.decoded.email == "Test@email.com") { // For testing purposes change name to Test_4:
+      socket.decoded.username = "Test_4";
+    }
+
+    // Calculate average evaluation score:
+    
+    // Get the states and progress array from the map corresponding to current user:
+    let stateAndProgress = usersAndStateAndProgress.get(socket.decoded.email);
+    // Length of the progress and state arrays:
+    let stateLength = stateAndProgress[0].length;
+    // Last state and progress:
+    let lastState = stateAndProgress[0][stateLength-1];
+    console.log(lastState)
+    console.log(stateLength)
+    let playerIndex = 0;
+    for (let index = 0; index < lastState.players.length; index++) {
+      let player = lastState.players[index];
+      if(player.name==socket.decoded.username) {
+        playerIndex = index;
+        break;
+      }
+    }
+
+    // Calculate average evaluation score:
+    let totalEvaluation = 0;
+    for (let index = 0; index < stateLength; index++) {
+      let state = stateAndProgress[0][index];
+      totalEvaluation = totalEvaluation + state.players[playerIndex].last_evaluation;
+    }
+    
     if(data != 0) { // Invalid exit code:
-      console.log("Invalid exit code. Game did not finish.")
+      console.log("Invalid exit code. Game finished prematurely.")
+      
+      // Storing in the database that game ended prematurely:
+      let res = fetch("http://localhost:3000/users/updateuser", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({email: socket.decoded.email,stats: {"gameWon":0,"gameLost":0,"gameForfeited":1,"totalEvaluation":totalEvaluation,"stateAmount":stateLength}})
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Database update response:', data);
+      })
     }
 
     if(data == 0) { // Valid exit code:
-      // Get the states and progress array from the map corresponding to current user:
-      let stateAndProgress = usersAndStateAndProgress.get(socket.decoded.email);
-
-      // Length of the progress and state arrays:
-      let stateLength = stateAndProgress[0].length;
-
-      // Last state and progress:
-      let lastState = stateAndProgress[0][stateLength-1];
 
       // Check if the player won or lost the game:
       let gameWon = 0;
       let gameLost = 0;
 
-      if(socket.decoded.email == "Test@email.com") { // For testing purposes change name to Test_4:
-        socket.decoded.username = "Test_4";
-      }
-      console.log(lastState)
       for (let index = 0; index < lastState.players.length; index++) {
         let player = lastState.players[index];
         if(player.name==socket.decoded.username && (player.finished == 1 || player.cards.length == 0)) {
@@ -303,7 +335,7 @@ function startGame(socket, childProcessDataListener) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({email: socket.decoded.email,stats: {"gameWon":gameWon,"gameLost":gameLost}})
+        body: JSON.stringify({email: socket.decoded.email,stats: {"gameWon":gameWon,"gameLost":gameLost,"gameForfeited":0,"totalEvaluation":totalEvaluation,"stateAmount":stateLength}})
       })
       .then(response => response.json())
       .then(data => {
