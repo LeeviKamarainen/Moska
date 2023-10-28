@@ -41,54 +41,71 @@ let TOTAL_RECEIVED_STATES = 0;
 let gameTurnIndex = 0;
 let turnTime = 1500;
 let SAVED_DATA = null;
+let IS_RENDERING = false;
 
 
 console.log("Loading!")
 document.addEventListener("DOMContentLoaded", function () {
   console.log("DOM READY")
-  window.isRendering = false;
   
   let hourglass = document.getElementById("hourglass")
   hourglass.style.display = "block";
   socket.emit(document.gameStart,"true")
   socket.on('data', (data) => {
-
-    if (data.gamestates != null) {
-      TOTAL_RECEIVED_STATES += data.gamestates.length;
-    }
-    hourglass.style.display = "none";
-
-    if (!window.isRendering){
-      window.isRendering = true;
-      // Add saved data to the data
-      if (SAVED_DATA != null) {
-        console.log("Adding gamestates from SAVED_DATA")
-        data.gamestates = SAVED_DATA.gamestates.concat(data.gamestates);
-        data.gameprogress = SAVED_DATA.gameprogress.concat(data.gameprogress);
-        SAVED_DATA = null;
-      }
-      else{
-        console.log("No saved data found")
-      }
-      console.log("Beginning rendering")
-      initializeCode(data);
-      console.log("Rendering done")
-      window.isRendering = false;
-    }
-    // Else save the data
-    else {
-      console.log("Saving data")
-      SAVED_DATA = data;
-    }
+    onDataFromPython(data, hourglass);
 
   })
 
   socket.on('exit',(data) => {
-    renderGameOver(data)
+    renderGameOver(data);
+
   })
   
 });
 
+
+
+/**
+ * Callback function for receiving data from Python.
+ * @param {Object} data - The data received from Python.
+ * @param {HTMLElement} hourglass - The hourglass element to hide.
+ */
+function onDataFromPython(data, hourglass) {
+
+  // Update the total number of received states
+  if (data.gamestates != null) {
+    TOTAL_RECEIVED_STATES += data.gamestates.length;
+  }
+  hourglass.style.display = "none";
+
+  // If nothing is blocking rendering, render the data
+  if (!IS_RENDERING) {
+    IS_RENDERING = true;
+    initializeCode(data);
+    // On renderingStopped event, set IS_RENDERING to false, and if there is saved data, render it.
+    document.addEventListener('renderingStopped', () => {
+      console.log("Received renderingStopped event");
+      if (SAVED_DATA != null) {
+        console.log("Rendering saved data")
+        initializeCode(SAVED_DATA);
+        SAVED_DATA = null;
+      }
+      IS_RENDERING = false;
+
+    })
+  }
+  // Else add the data to the saved data
+  else {
+    console.log("Saving data");
+    if (SAVED_DATA==null){
+      SAVED_DATA = data;
+    }
+    else{
+      SAVED_DATA.gamestates = SAVED_DATA.gamestates.concat(data.gamestates);
+      SAVED_DATA.gameprogress = SAVED_DATA.gameprogress.concat(data.gameprogress);
+    }
+  }
+}
 
 
 /**
@@ -124,7 +141,7 @@ function goOneMoveBack() {
   }
   console.log("Display state index is: "+DISPLAY_STATE_INDEX)
   updateState(STATE_ARRAY[DISPLAY_STATE_INDEX],DEFAULT_BOARD_DIV,"")
-  // checkActionState(STATE_ARRAY[DISPLAY_STATE_INDEX])
+  checkActionState(STATE_ARRAY[DISPLAY_STATE_INDEX])
 }
 
 
@@ -146,7 +163,7 @@ function goOneMoveForward() {
   }
   console.log("Display state index is: "+DISPLAY_STATE_INDEX)
   updateState(STATE_ARRAY[DISPLAY_STATE_INDEX],DEFAULT_BOARD_DIV,"")
-  // checkActionState(STATE_ARRAY[DISPLAY_STATE_INDEX])
+  checkActionState(STATE_ARRAY[DISPLAY_STATE_INDEX])
 }
 
 
@@ -241,6 +258,7 @@ async function initializeCode(gameArray) {
   // gameprogress: array of game actions
   // Checking for error messages:
   let errorJson = checkError(gameArray);
+  console.log("Beginning rendering")
   console.log("Number of gamestates received in initializeCode: "+gameArray.gamestates.length)
   if(errorJson!=false) {
     goToNewestState();
@@ -250,6 +268,9 @@ async function initializeCode(gameArray) {
     ERROR_STATE = errorJson.error;
     console.log("Error found: "+errorJson.error)
     TOTAL_RECEIVED_STATES = TOTAL_RECEIVED_STATES - gameArray.gamestates.length;
+    // Send renderingStopped event to the document
+    const renderingStopped = new Event('renderingStopped');
+    document.dispatchEvent(renderingStopped);
     return;
   }
 
@@ -360,6 +381,7 @@ async function initializeCode(gameArray) {
 // Send renderingStopped event to the document
 const renderingStopped = new Event('renderingStopped');
 document.dispatchEvent(renderingStopped);
+console.log("Finished rendering")
 }
 
 
