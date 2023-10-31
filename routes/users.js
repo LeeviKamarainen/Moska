@@ -44,7 +44,6 @@ router.get('/finduser', async function(req,res,next) {
   const refdb = req.refdb;
   const snapshot = await refdb.once('value');
   const listOfUsers = snapshot.val();
-  console.log(req.body.email)
   let user = getUser(listOfUsers, req.body.email)
   res.json(user);
 
@@ -59,7 +58,6 @@ router.get('/getleaderboard', async function(req,res,next) {
   let leaderboard = [];
   for(var userID in listOfUsers) {
     let user = listOfUsers[userID];
-    console.log(user)
     if(user.leaderboard!=null) {
       if(user.leaderboard.totalGames>0) {
         let statsJson = {
@@ -112,7 +110,6 @@ router.post('/updateuser', async function(req,res,next) {
 router.post("/register",upload.none(),
 body("email").isLength({min: 3}),
   async (req, res, next) => {
-    console.log(req.body)
     const errors = validationResult(req);
     if(!errors.isEmpty()) {
       return res.status(400).json({errors: errors.array()})
@@ -189,7 +186,6 @@ function getUser(listOfUsers,userEmail,userName) {
   if(userName!=null) {
   for(var user in listOfUsers) {
     if(listOfUsers[user].email.toLowerCase()==userEmail.toLowerCase() || listOfUsers[user].username==userName) {
-      console.log(listOfUsers[user].email+" "+listOfUsers[user].username)
       userFound = listOfUsers[user];
       break;
     }
@@ -198,7 +194,6 @@ function getUser(listOfUsers,userEmail,userName) {
   else {
     for(var user in listOfUsers) {
       if(listOfUsers[user].email.toLowerCase()==userEmail.toLowerCase()) {
-        console.log(listOfUsers[user].email)
         userFound = listOfUsers[user];
         break;
       }
@@ -212,7 +207,6 @@ function updateUser(listOfUsers,userEmail,updatedAttribute) {
   let userID = null;
   for(var user in listOfUsers) {
     if(listOfUsers[user].email==userEmail) {
-      console.log(listOfUsers[user].email)
       userFound = listOfUsers[user];
       userID = user;
 
@@ -256,7 +250,6 @@ function updateUser(listOfUsers,userEmail,updatedAttribute) {
       userFound.leaderboard.gamesForfeited = userFound.leaderboard.gamesForfeited+updatedAttribute.gameForfeited;
 
       // Calculate average evaluation:
-      console.log(updatedAttribute.stateAmount)
       userFound.leaderboard.totalEvaluation = userFound.leaderboard.totalEvaluation+updatedAttribute.totalEvaluation;
       userFound.leaderboard.stateAmount = userFound.leaderboard.stateAmount+updatedAttribute.stateAmount;
       userFound.leaderboard.averageEvaluation = userFound.leaderboard.totalEvaluation/userFound.leaderboard.stateAmount;
