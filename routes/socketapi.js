@@ -256,6 +256,17 @@ function startGame(socket, childProcessDataListener) {
     let stateLength = stateAndProgress[0].length;
     // Last state and progress:
     let lastState = stateAndProgress[0][stateLength-1];
+    // If there are no states, the game hadn't begun yet.
+    if (!lastState) {
+      console.log("Game hadn't begun yet. Not doing anything.")
+      return
+    }
+    // Check for errors
+    else if (lastState.error) {
+      console.log("Game ended with error. Not doing anything.")
+      return
+    }
+
     console.log(lastState)
     console.log(stateLength)
     let playerIndex = 0;
@@ -271,6 +282,9 @@ function startGame(socket, childProcessDataListener) {
     let totalEvaluation = 0;
     for (let index = 0; index < stateLength; index++) {
       let state = stateAndProgress[0][index];
+      if (state.error) {
+        continue;
+      }
       totalEvaluation = totalEvaluation + state.players[playerIndex].last_evaluation;
     }
     
