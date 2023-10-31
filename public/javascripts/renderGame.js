@@ -141,7 +141,7 @@ function goOneMoveBack() {
   }
   console.log("Display state index is: "+DISPLAY_STATE_INDEX)
   updateState(STATE_ARRAY[DISPLAY_STATE_INDEX],DEFAULT_BOARD_DIV,"")
-  checkActionState(STATE_ARRAY[DISPLAY_STATE_INDEX])
+  checkActionState(STATE_ARRAY[DISPLAY_STATE_INDEX],true)
 }
 
 
@@ -163,7 +163,7 @@ function goOneMoveForward() {
   }
   console.log("Display state index is: "+DISPLAY_STATE_INDEX)
   updateState(STATE_ARRAY[DISPLAY_STATE_INDEX],DEFAULT_BOARD_DIV,"")
-  checkActionState(STATE_ARRAY[DISPLAY_STATE_INDEX])
+  checkActionState(STATE_ARRAY[DISPLAY_STATE_INDEX],true)
 }
 
 
@@ -326,6 +326,11 @@ async function initializeCode(gameArray) {
     }
     
     DISPLAY_STATE_INDEX = STATE_ARRAY.length-1;
+
+    if (stateJson.error) {
+      console.log("Last state was error state, skipping")
+      return;
+    }
     
     //updateState(stateJson,boardDiv,"Your turn ("+gameTurnIndex+")")
     //updateState(stateArray[stateArray.length-1],gameActionString)
@@ -385,8 +390,12 @@ console.log("Finished rendering")
 }
 
 
-function checkActionState(stateJson) {
+function checkActionState(stateJson, fromReplay=false) {
   const actionMenuButtons = document.getElementsByClassName("play-cards");
+
+  if (stateJson.error) {
+    return;
+  }
 
   // First make sure that all of the buttons are hidden (if they have previously been unhidden.)
   for (let index = 0; index < actionMenuButtons.length; index++) {
@@ -410,15 +419,29 @@ function checkActionState(stateJson) {
     
     if (["Refresh", "reverse-move-button", "next-move-button"].includes(actionMenuButtons[index].id)) {
       actionMenuButtons[index].disabled = false;
+      // If from replay, the Refresh will take to the newest state
+      if (fromReplay && actionMenuButtons[index].id == "Refresh") {
+        actionMenuButtons[index].addEventListener("click", goToNewestState);
+      }
       continue;
     }
     
     // Check if the initiator actions includes the buttons id and that the player whos turn is now is the player:
     if(stateJson.players[playerIndex].playable_moves.includes(actionMenuButtons[index].id) && playerName==stateJson.players[playerIndex].name) {
-      actionMenuButtons[index].disabled = false; 
+      // If the state is 'fromReplay', then the buttons are reddish
+      actionMenuButtons[index].disabled = false;
+
+      if (fromReplay) {
+        actionMenuButtons[index].style.backgroundColor = "red";
+        if (actionMenuButtons[index].id == "EndTurn") {
+          actionMenuButtons[index+1].style.backgroundColor = "red";
+        }
+        continue;
+      }
 
       //Make it so refresh button is always visible:
-      if(actionMenuButtons[index].id == "EndTurn") { // In case of the action being end turn, we also need  to make draw all button visible and add event listener to it.
+      if(actionMenuButtons[index].id == "EndTurn") {
+        // In case of the action being end turn, we also need  to make draw all button visible and add event listener to it.
         actionMenuButtons[index+1].disabled = false;
         actionMenuButtons[index+1].addEventListener("click",function() {
           //Modify the stateJson to contain the wanted action:
@@ -434,6 +457,8 @@ function checkActionState(stateJson) {
         stateJson.action = actionMenuButtons[index].id;
         playCards(stateJson)
       })
+
+
     }
   }
 }
@@ -772,7 +797,7 @@ function playFallHand(cardArray,callback) {
     let currentState = document.getElementById('board');
     let tempElement = document.createElement('div');
     tempElement.innerHTML = emptyState;
-    if(currentState == null || tempElement == null) {
+    if(currentState == null || tempElement == null || stateJson.error) {
       return null;
     }
     currentState.replaceWith(tempElement);
