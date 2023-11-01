@@ -174,6 +174,10 @@ async (req,res,next) => {
             }
           );
         }
+        else {
+          console.log("Login failed")
+          return res.status(403).json({message: "Login failed"});
+        }
       })
     }
 
