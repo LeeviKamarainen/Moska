@@ -25,7 +25,7 @@ function registerUser(event) {
     console.log(data)
   if(data.email) {
     //document.getElementById('error-message').innerHTML = 'Email already in use';
-    window.alert('Email or username already in use')    
+    window.alert('Username is already in use')    
     }
     else if(data.errors) {
         window.alert('Error: '+data.errors[0].msg+' in '+data.errors[0].path)
