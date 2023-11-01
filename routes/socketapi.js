@@ -326,7 +326,7 @@ function startGame(socket, childProcessDataListener) {
         }
       }
 
-      if(socket.decoded.username == "Test@email.com") { // Change back::
+      if(socket.decoded.username == "Test_4") { // Change back::
         socket.decoded.username = "Test";
       }
 
@@ -349,7 +349,7 @@ function startGame(socket, childProcessDataListener) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({email: socket.decoded.username,stats: {"gameWon":gameWon,"gameLost":gameLost,"gameForfeited":0,"totalEvaluation":totalEvaluation,"stateAmount":stateLength}})
+        body: JSON.stringify({username: socket.decoded.username,stats: {"gameWon":gameWon,"gameLost":gameLost,"gameForfeited":0,"totalEvaluation":totalEvaluation,"stateAmount":stateLength}})
       })
       .then(response => response.json())
       .then(data => {

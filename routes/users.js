@@ -82,7 +82,7 @@ router.post('/updateuser', async function(req,res,next) {
   const snapshot = await refdb.once('value');
   const listOfUsers = snapshot.val();
   const updatedAttribute = req.body.stats;
-  let userInfo = updateUser(listOfUsers, req.body.email,updatedAttribute)
+  let userInfo = updateUser(listOfUsers, req.body.username,updatedAttribute)
   // Get reference to the user in the database:
   try {
     const userRef = refdb.child(userInfo.userID);
@@ -196,11 +196,12 @@ function getUserByName(listOfUsers,userName) {
   return userFound;
 }
 
-function updateUser(listOfUsers,userEmail,updatedAttribute) {
+function updateUser(listOfUsers,username,updatedAttribute) {
   let userFound = null;
   let userID = null;
+  console.log("Updating user "+username+" in database")
   for(var user in listOfUsers) {
-    if(listOfUsers[user].email==userEmail) {
+    if(listOfUsers[user].username.toLowerCase() == username.toLowerCase()) {
       userFound = listOfUsers[user];
       userID = user;
 
