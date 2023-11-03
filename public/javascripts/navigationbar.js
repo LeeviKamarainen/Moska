@@ -6,7 +6,7 @@ if (document.readyState !== "loading") {
     });
   }
 
-  function initializeCodeNav() {
+  async function initializeCodeNav() {
    
    let loginHref =  document.getElementById("login");
    let logoutHref = document.getElementById("logout");
@@ -16,11 +16,23 @@ if (document.readyState !== "loading") {
     });
    // Check for authToken:
    let authToken = localStorage.getItem('auth_token');
-   if(authToken) {
+   console.log(authToken)
+  if (authToken != null) {
+      // Validate the auth token by fetching users/validateuser route:
+      let response = fetch("/users/validateuser", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + authToken
+        }
+      })
+      let auth = await response.then(res => res.json());
+   if(auth) {
     loginHref.style.display = 'none'
     logoutHref.style.display = 'block'
    }
-   else {
+  }
+  else {
     loginHref.style.display = 'block'
     logoutHref.style.display = 'none'
    }

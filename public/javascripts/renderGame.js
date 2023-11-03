@@ -299,6 +299,7 @@ async function initializeCode(gameArray) {
       gameTurnIndex += 1;
       console.log("Rendering state: "+STATE_ARRAY.length);
       gameActionString = "Turn: "+gameTurnIndex;
+      console.log(stateJson)
       updateState(stateJson,boardDiv,gameActionString)
       await sleepFunction(turnTime);
       //wait(turnTime);
