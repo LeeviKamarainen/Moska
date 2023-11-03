@@ -44,7 +44,7 @@ router.get('/finduser', async function(req,res,next) {
   const refdb = req.refdb;
   const snapshot = await refdb.once('value');
   const listOfUsers = snapshot.val();
-  let user = getUser(listOfUsers, req.body.email)
+  let user = getUserByName(listOfUsers, req.body.username)
   res.json(user);
 
  })
@@ -88,7 +88,7 @@ router.post('/updateuser', async function(req,res,next) {
   const snapshot = await refdb.once('value');
   const listOfUsers = snapshot.val();
   const updatedAttribute = req.body.stats;
-  let userInfo = updateUser(listOfUsers, req.body.email,updatedAttribute)
+  let userInfo = updateUser(listOfUsers, req.body.username,updatedAttribute)
   // Get reference to the user in the database:
   try {
     const userRef = refdb.child(userInfo.userID);
@@ -114,7 +114,7 @@ router.post('/updateuser', async function(req,res,next) {
 
 
 router.post("/register",upload.none(),
-body("email").isLength({min: 3}),
+// body("email").isLength({min: 3}),
   async (req, res, next) => {
     const errors = validationResult(req);
     if(!errors.isEmpty()) {
@@ -123,16 +123,15 @@ body("email").isLength({min: 3}),
     const refdb = req.refdb;
     const snapshot = await refdb.once('value');
     const listOfUsers = snapshot.val();
-    let user = getUser(listOfUsers,req.body.email,req.body.username);
+    let user = getUserByName(listOfUsers,req.body.username);
     if(user) {
-        return res.status(403).json({email: "Email or username already in use"})
+        return res.status(403).json({email: "Username already in use"})
       } else {
-        console.log("Adding new user");
         bcrypt.genSalt(10, (err, salt) => {
           bcrypt.hash(req.body.password, salt, (err,hash) => {
             if(err) throw err;
             let newUser = {
-              email: req.body.email,
+              email: req.body.username,
               username: req.body.username,
               password: hash,
               exp_level: 0,
@@ -155,16 +154,18 @@ async (req,res,next) => {
   const refdb = req.refdb;
   const snapshot = await refdb.once('value');
   const listOfUsers = snapshot.val();
-  let user = getUser(listOfUsers,req.body.email);
+  let user = getUserByName(listOfUsers,req.body.username);
+  console.log("Logging in user "+req.body.username)
     if(!user) {
       return res.status(403).json({message: "Login failed"});
     } else {
+      console.log("User found in database")
       bcrypt.compare(req.body.password, user.password, (err, isMatch) => {
         if(err) throw err;
         if(isMatch) {
           const jwtPayload = {
             id: user._id,
-            email: user.email,
+            //email: user.email,
             username: user.username
           }
           jwt.sign(
@@ -179,40 +180,34 @@ async (req,res,next) => {
             }
           );
         }
+        else {
+          console.log("Login failed")
+          return res.status(403).json({message: "Login failed"});
+        }
       })
     }
 
   });
 
 
-function getUser(listOfUsers,userEmail,userName) {
+function getUserByName(listOfUsers,userName) {
   let userFound = null;
-  
-  // Check first if user name exists:
-  if(userName!=null) {
   for(var user in listOfUsers) {
-    if(listOfUsers[user].email.toLowerCase()==userEmail.toLowerCase() || listOfUsers[user].username==userName) {
+    // Check if a name in lowercase matches the username
+    if(listOfUsers[user].username.toLowerCase()==userName.toLowerCase()) {
       userFound = listOfUsers[user];
       break;
     }
-    }
-  }
-  else {
-    for(var user in listOfUsers) {
-      if(listOfUsers[user].email.toLowerCase()==userEmail.toLowerCase()) {
-        userFound = listOfUsers[user];
-        break;
-      }
-      }
   }
   return userFound;
 }
 
-function updateUser(listOfUsers,userEmail,updatedAttribute) {
+function updateUser(listOfUsers,username,updatedAttribute) {
   let userFound = null;
   let userID = null;
+  console.log("Updating user "+username+" in database")
   for(var user in listOfUsers) {
-    if(listOfUsers[user].email==userEmail) {
+    if(listOfUsers[user].username.toLowerCase() == username.toLowerCase()) {
       userFound = listOfUsers[user];
       userID = user;
 

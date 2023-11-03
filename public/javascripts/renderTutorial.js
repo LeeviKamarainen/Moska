@@ -218,19 +218,19 @@ let tutorialExplanationsJson = {
   "bottom": `This is your hand, you are always located on the bottom of the screen.\nYou can play cards from here by clicking on available actions below.\nYou can also click on your board to expand it upwards.\nThe color <span style="color: yellow;">yellow</span> tells you that it is that players turn.`,
   "left": "This is one of the opposing players hand, you can see the number of cards in their hand.\n",
   "top": "This is another opposing players hand, you can see the number of cards in their hand.\n",
-  "right": `This is another opposing players hand, you can see the number of cards in their hand.\nThe color <span style="color: purple;">purple</span> tells you that this is the player for who the cards are played to, also called <b>target</b>.`,
+  "right": `This is another opposing players hand, you can see the number of cards in their hand.\nThe color <span style="color: purple;">purple</span> tells you that this is the player for who the cards are played to, also called <span style="color: purple;">target</span>.`,
   "cards-to-kill": "This is the game board, you can see the cards which needs to be killed here.",
   "killed-cards": "This is the game board, you can see the cards which has already been killed during the game here.",
   "trump-card": "This indicates the trump cards color for the current game.\nTrump cards can be used to kill all other color and other trump cards with lower value.\nThis is also the last card of the deck.",
   "deck-left": "This indicates if there are any cards left in the deck.\nThe amount of cards left in the deck can be read from the text below.",
-  "PlayFallFromHand": `This action is not currently available to you, since you are not the player who needs to kill cards currently.\nWhen you are the <b>target</b>, you can press this button and pick cards as follows\n<ol><li>Pick a card to kill another card with.</li><li>Select a card which you want to kill.</li><li>Repeat until you are satisfied, and press this button again.</li></ol>`,
-  "PlayFallFromDeck": `This action is not currently available to you, since you are not the player who needs to kill cards currently.\nWhen you are the <b>target</b> and there are cards left in the deck, you can press this button to try to kill one of the cards with the top card of the deck.\nIf the card is able to kill one of the cards on the table, it appears on the left side of the board and you can choose a card to kill with it.\nIf the card is not able to kill any of the cards on the table, it appears on the game board and you need to kill it before you can kill from the deck again.`,
-  "PlayToSelf": `This action is not currently available to you, since you are not the player who needs to kill cards currently.\nWhen you are the <b>target</b> and you have a card on your hand with the same value as one of the cards currently on the game board, you can press this button to play a card to yourself`,
-  "PlayToOther": `This action is currently available to you, since it is currently your turn and you are <b> not the target </b>.\nYou can press this button to play cards to the <b>target</b> as follows\n<ol><li>Pick the cards to play to the <b>target</b> (you can select multiple and deselect the ones already clicked).</li><li>Click this button again when you are ready to attack</li></ol>`,
+  "PlayFallFromHand": `This action is not currently available to you, since you are not the player who needs to kill cards currently.\nWhen you are the <span style="color: purple;">target</span>, you can press this button and pick cards as follows\n<ol><li>Pick a card to kill another card with.</li><li>Select a card which you want to kill.</li><li>Repeat until you are satisfied, and press this button again.</li></ol>`,
+  "PlayFallFromDeck": `This action is not currently available to you, since you are not the player who needs to kill cards currently.\nWhen you are the <span style="color: purple;">target</span> and there are cards left in the deck, you can press this button to try to kill one of the cards with the top card of the deck.\nIf the card is able to kill one of the cards on the table, it appears on the left side of the board and you can choose a card to kill with it.\nIf the card is not able to kill any of the cards on the table, it appears on the game board and you need to kill it before you can kill from the deck again.`,
+  "PlayToSelf": `This action is not currently available to you, since you are not the player who needs to kill cards currently.\nWhen you are the <span style="color: purple;">target</span> and you have a card on your hand with the same value as one of the cards currently on the game board, you can press this button to play a card to yourself`,
+  "PlayToOther": `This action is currently available to you, since it is currently your turn and you are <b> not the target </b>.\nYou can press this button to play cards to the <span style="color: purple;">target</span> as follows\n<ol><li>Pick the cards to play to the <span style="color: purple;">target</span> (you can select multiple and deselect the ones already clicked).</li><li>Click this button again when you are ready to attack</li></ol>`,
   "InitialPlay": `This action is not currently available to you.\nThis action is only available when it is your turn, and the <b>target<\b> has no cards to kill yet.\nThis action is used to play the first cards for the current <b>target<\b>.`,
   "Skip": `This action is currently available to you, since it is currently your turn and you are <b>not the target</b>.\nYou can press this button to skip your turn if you do not wish to attack.`,
-  "EndTurn": `This action is not currently available, since you are not the player who needs to kill cards currently.\nWhen you are the <b>target</b>, you can press this button to end your turn\nIf there are any cards left to kill, you will pick up them to your hand.`,
-  "DrawAll": `This action is not currently available, since you are not the player who needs to kill cards currently.\nWhen you are the <b>target</b>, you can press this button to pick up all the cards on the game board (both killed and not killed cards) and end your turn`,
+  "EndTurn": `This action is not currently available, since you are not the player who needs to kill cards currently.\nWhen you are the <span style="color: purple;">target</span>, you can press this button to end your turn\nIf there are any cards left to kill, you will pick up them to your hand.`,
+  "DrawAll": `This action is not currently available, since you are not the player who needs to kill cards currently.\nWhen you are the <span style="color: purple;">target</span>, you can press this button to pick up all the cards on the game board (both killed and not killed cards) and end your turn`,
   "Refresh": `You can press this button to refresh the games state.\nYou can use this to cancel other active buttons.\nThis will always reload the newest state of the game.`,
   "reverse-move-button": `You can press this button go backwards and look at the previous states of the current game.`,
   "next-move-button": `You can press this button go forwards and look at the next states of the game (unless you are on the newest state).`
@@ -713,6 +713,7 @@ function checkActionState(stateJson) {
       cardContainer.removeAttribute("target")
       cardContainer.removeAttribute("initiator")
       cardContainer.removeAttribute("turn")
+      cardContainer.removeAttribute("turn_and_target")
       // Add target attribute to the target players div:
       if(stateJson.players[playerIndex].name == stateJson.target) {
         cardContainer.setAttribute("target",1);
@@ -726,7 +727,12 @@ function checkActionState(stateJson) {
       if(stateJson.players[playerIndex].name == stateJson.turn) {
         cardContainer.setAttribute("turn",1);
       }
-  
+
+      if(stateJson.players[playerIndex].name == stateJson.target && stateJson.players[playerIndex].name == stateJson.turn) {
+        cardContainer.removeAttribute("target")
+        cardContainer.removeAttribute("turn")
+        cardContainer.setAttribute("turn_and_target",1);
+      }
       // Get the card container element
   
       // Selecting current indeces player:

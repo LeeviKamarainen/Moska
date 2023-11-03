@@ -151,6 +151,13 @@ By clicking the button, the user can choose to show or hide the evaluation of th
 }
 
 
+.board-player[turn_and_target] {
+  border-color: black;
+  background-image: linear-gradient(to bottom right, yellow 50%, purple 50%);
+}
+
+
+
 
 
 .board-player[activated] {

@@ -30,10 +30,10 @@ io.use(function(socket, next){
         console.log(err)
         console.log("Token verification failed. Using default credentials.")
         // username is 'Anonymous' + <random number between 1 and 1000>
-        let username = 'Anonymous' + Math.floor(Math.random() * 1000);
+        let username = 'Anonymous' + Math.floor(Math.random() * 10000);
         user = {
           username: username,
-          email : username + '@example.com',
+          //email : username + '@example.com',
         };
       }
       console.log("Authentication success!")
@@ -59,7 +59,7 @@ io.on( "connection", function( socket ) {
     let actionJson = JSON.parse(data);
     console.log("Received game action from client: "+actionJson.action)
     // Find the correct python program corresponding to the user
-    let pythonProg = usersAndGames.get(socket.decoded.email);
+    let pythonProg = usersAndGames.get(socket.decoded.username);
     if(pythonProg!=null) {
       pythonProg.stdin.write(actionJson.action+"\n");
       console.log("Sent game action to the server.")
@@ -83,7 +83,7 @@ io.on( "connection", function( socket ) {
   // Send existing game progress to client:
   socket.on("gamelogs", (data) => {
     // When the client requests the game logs, send it to the client.
-    let stateAndProgress = usersAndStateAndProgress.get(socket.decoded.email);
+    let stateAndProgress = usersAndStateAndProgress.get(socket.decoded.username);
     if(stateAndProgress != undefined) {
       socket.emit('rendergamelogs',{"gamelogs": stateAndProgress[1]});
     } else {
@@ -146,7 +146,7 @@ function parseChildProcessData(data,socket) {
   }
 
   // Get the states and progress array from the map corresponding to current user and modify it:
-  let stateAndProgress = usersAndStateAndProgress.get(socket.decoded.email);
+  let stateAndProgress = usersAndStateAndProgress.get(socket.decoded.username);
   stateAndProgress[0].push(...gameStates); // Appending to the existing list
   stateAndProgress[1].push(...gameProgress);
 
@@ -168,7 +168,7 @@ function parseChildProcessData(data,socket) {
  */
 function returnLastStateAndProgress(socket,stateIndex=1,progressIndex=1) {
   // Get the states and progress array from the map corresponding to current user:
-  let stateAndProgress = usersAndStateAndProgress.get(socket.decoded.email);
+  let stateAndProgress = usersAndStateAndProgress.get(socket.decoded.username);
 
   // Length of the progress and state arrays:
   let progressLength = stateAndProgress[1].length;
@@ -193,10 +193,10 @@ module.exports = socketapi;
  */
 function startGame(socket, childProcessDataListener) {
   let stateAndProgress = [[], []];
-  usersAndStateAndProgress.set(socket.decoded.email, stateAndProgress);
+  usersAndStateAndProgress.set(socket.decoded.username, stateAndProgress);
   // If the user already has a child process running,
   // terminate it to reduce the risk of unreferenced child processes running and causing memory loss.
-  if (!usersAndGames.has(socket.decoded.email)) {
+  if (!usersAndGames.has(socket.decoded.username)) {
 
     let username = socket.decoded ? socket.decoded.username : "Human";
     let args = [__dirname + "/../Python/browserMoska.py"];
@@ -217,14 +217,14 @@ function startGame(socket, childProcessDataListener) {
     pythonProg = spawn(pyexe, args, { timeout: 1000000 });
   }
   else{
-    pythonProg = usersAndGames.get(socket.decoded.email);
+    pythonProg = usersAndGames.get(socket.decoded.username);
   }
   pythonProg.on('error', (err) => {
     console.error(`Failed to start Python process: ${err}`);
   });
 
   // Store the python program in a map with the user's email as the key.
-  usersAndGames.set(socket.decoded.email, pythonProg);
+  usersAndGames.set(socket.decoded.username, pythonProg);
   pythonProg.stderr.on('data', function (data) {
     // If the python program sends an error, log it.
     console.log(data.toString());
@@ -244,18 +244,29 @@ function startGame(socket, childProcessDataListener) {
     console.log(data);
 
 
-    if(socket.decoded.email == "Test@email.com") { // For testing purposes change name to Test_4:
+    if(socket.decoded.username == "Test@email.com") { // For testing purposes change name to Test_4:
       socket.decoded.username = "Test_4";
     }
 
     // Calculate average evaluation score:
     
     // Get the states and progress array from the map corresponding to current user:
-    let stateAndProgress = usersAndStateAndProgress.get(socket.decoded.email);
+    let stateAndProgress = usersAndStateAndProgress.get(socket.decoded.username);
     // Length of the progress and state arrays:
     let stateLength = stateAndProgress[0].length;
     // Last state and progress:
     let lastState = stateAndProgress[0][stateLength-1];
+    // If there are no states, the game hadn't begun yet.
+    if (!lastState) {
+      console.log("Game hadn't begun yet. Not doing anything.")
+      return
+    }
+    // Check for errors
+    else if (lastState.error) {
+      console.log("Game ended with error. Not doing anything.")
+      return
+    }
+
     console.log(lastState)
     console.log(stateLength)
     let playerIndex = 0;
@@ -271,6 +282,9 @@ function startGame(socket, childProcessDataListener) {
     let totalEvaluation = 0;
     for (let index = 0; index < stateLength; index++) {
       let state = stateAndProgress[0][index];
+      if (state.error) {
+        continue;
+      }
       totalEvaluation = totalEvaluation + state.players[playerIndex].last_evaluation;
     }
     
@@ -283,7 +297,7 @@ function startGame(socket, childProcessDataListener) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({email: socket.decoded.email,stats: {"gameWon":0,"gameLost":0,"gameForfeited":1,"totalEvaluation":totalEvaluation,"stateAmount":stateLength}})
+        body: JSON.stringify({username: socket.decoded.username,stats: {"gameWon":0,"gameLost":0,"gameForfeited":1,"totalEvaluation":totalEvaluation,"stateAmount":stateLength}})
       })
       .then(response => response.json())
       .then(data => {
@@ -312,7 +326,7 @@ function startGame(socket, childProcessDataListener) {
         }
       }
 
-      if(socket.decoded.email == "Test@email.com") { // Change back::
+      if(socket.decoded.username == "Test_4") { // Change back::
         socket.decoded.username = "Test";
       }
 
@@ -335,7 +349,7 @@ function startGame(socket, childProcessDataListener) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({email: socket.decoded.email,stats: {"gameWon":gameWon,"gameLost":gameLost,"gameForfeited":0,"totalEvaluation":totalEvaluation,"stateAmount":stateLength}})
+        body: JSON.stringify({username: socket.decoded.username,stats: {"gameWon":gameWon,"gameLost":gameLost,"gameForfeited":0,"totalEvaluation":totalEvaluation,"stateAmount":stateLength}})
       })
       .then(response => response.json())
       .then(data => {
@@ -396,11 +410,11 @@ function getPyexe() {
  */
 function killUserGameProcess(socket) {
   // When the user disconnects, terminate the python program.
-  let pythonProg = usersAndGames.get(socket.decoded.email);
+  let pythonProg = usersAndGames.get(socket.decoded.username);
   if (pythonProg != null) {
     console.log("User disconnected. Terminating game.");
     pythonProg.kill();
-    usersAndGames.delete(socket.decoded.email);
+    usersAndGames.delete(socket.decoded.username);
     socket.emit('exit');
   }
   else {

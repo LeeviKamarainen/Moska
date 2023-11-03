@@ -41,54 +41,71 @@ let TOTAL_RECEIVED_STATES = 0;
 let gameTurnIndex = 0;
 let turnTime = 1500;
 let SAVED_DATA = null;
+let IS_RENDERING = false;
 
 
 console.log("Loading!")
 document.addEventListener("DOMContentLoaded", function () {
   console.log("DOM READY")
-  window.isRendering = false;
   
   let hourglass = document.getElementById("hourglass")
   hourglass.style.display = "block";
   socket.emit(document.gameStart,"true")
   socket.on('data', (data) => {
-
-    if (data.gamestates != null) {
-      TOTAL_RECEIVED_STATES += data.gamestates.length;
-    }
-    hourglass.style.display = "none";
-
-    if (!window.isRendering){
-      window.isRendering = true;
-      // Add saved data to the data
-      if (SAVED_DATA != null) {
-        console.log("Adding gamestates from SAVED_DATA")
-        data.gamestates = SAVED_DATA.gamestates.concat(data.gamestates);
-        data.gameprogress = SAVED_DATA.gameprogress.concat(data.gameprogress);
-        SAVED_DATA = null;
-      }
-      else{
-        console.log("No saved data found")
-      }
-      console.log("Beginning rendering")
-      initializeCode(data);
-      console.log("Rendering done")
-      window.isRendering = false;
-    }
-    // Else save the data
-    else {
-      console.log("Saving data")
-      SAVED_DATA = data;
-    }
+    onDataFromPython(data, hourglass);
 
   })
 
   socket.on('exit',(data) => {
-    renderGameOver(data)
+    renderGameOver(data);
+
   })
   
 });
 
+
+
+/**
+ * Callback function for receiving data from Python.
+ * @param {Object} data - The data received from Python.
+ * @param {HTMLElement} hourglass - The hourglass element to hide.
+ */
+function onDataFromPython(data, hourglass) {
+
+  // Update the total number of received states
+  if (data.gamestates != null) {
+    TOTAL_RECEIVED_STATES += data.gamestates.length;
+  }
+  hourglass.style.display = "none";
+
+  // If nothing is blocking rendering, render the data
+  if (!IS_RENDERING) {
+    IS_RENDERING = true;
+    initializeCode(data);
+    // On renderingStopped event, set IS_RENDERING to false, and if there is saved data, render it.
+    document.addEventListener('renderingStopped', () => {
+      console.log("Received renderingStopped event");
+      if (SAVED_DATA != null) {
+        console.log("Rendering saved data")
+        initializeCode(SAVED_DATA);
+        SAVED_DATA = null;
+      }
+      IS_RENDERING = false;
+
+    })
+  }
+  // Else add the data to the saved data
+  else {
+    console.log("Saving data");
+    if (SAVED_DATA==null){
+      SAVED_DATA = data;
+    }
+    else{
+      SAVED_DATA.gamestates = SAVED_DATA.gamestates.concat(data.gamestates);
+      SAVED_DATA.gameprogress = SAVED_DATA.gameprogress.concat(data.gameprogress);
+    }
+  }
+}
 
 
 /**
@@ -124,7 +141,7 @@ function goOneMoveBack() {
   }
   console.log("Display state index is: "+DISPLAY_STATE_INDEX)
   updateState(STATE_ARRAY[DISPLAY_STATE_INDEX],DEFAULT_BOARD_DIV,"")
-  // checkActionState(STATE_ARRAY[DISPLAY_STATE_INDEX])
+  checkActionState(STATE_ARRAY[DISPLAY_STATE_INDEX],true)
 }
 
 
@@ -146,7 +163,7 @@ function goOneMoveForward() {
   }
   console.log("Display state index is: "+DISPLAY_STATE_INDEX)
   updateState(STATE_ARRAY[DISPLAY_STATE_INDEX],DEFAULT_BOARD_DIV,"")
-  // checkActionState(STATE_ARRAY[DISPLAY_STATE_INDEX])
+  checkActionState(STATE_ARRAY[DISPLAY_STATE_INDEX],true)
 }
 
 
@@ -241,6 +258,7 @@ async function initializeCode(gameArray) {
   // gameprogress: array of game actions
   // Checking for error messages:
   let errorJson = checkError(gameArray);
+  console.log("Beginning rendering")
   console.log("Number of gamestates received in initializeCode: "+gameArray.gamestates.length)
   if(errorJson!=false) {
     goToNewestState();
@@ -250,6 +268,9 @@ async function initializeCode(gameArray) {
     ERROR_STATE = errorJson.error;
     console.log("Error found: "+errorJson.error)
     TOTAL_RECEIVED_STATES = TOTAL_RECEIVED_STATES - gameArray.gamestates.length;
+    // Send renderingStopped event to the document
+    const renderingStopped = new Event('renderingStopped');
+    document.dispatchEvent(renderingStopped);
     return;
   }
 
@@ -306,6 +327,11 @@ async function initializeCode(gameArray) {
     }
     
     DISPLAY_STATE_INDEX = STATE_ARRAY.length-1;
+
+    if (stateJson.error) {
+      console.log("Last state was error state, skipping")
+      return;
+    }
     
     //updateState(stateJson,boardDiv,"Your turn ("+gameTurnIndex+")")
     //updateState(stateArray[stateArray.length-1],gameActionString)
@@ -361,11 +387,16 @@ async function initializeCode(gameArray) {
 // Send renderingStopped event to the document
 const renderingStopped = new Event('renderingStopped');
 document.dispatchEvent(renderingStopped);
+console.log("Finished rendering")
 }
 
 
-function checkActionState(stateJson) {
+function checkActionState(stateJson, fromReplay=false) {
   const actionMenuButtons = document.getElementsByClassName("play-cards");
+
+  if (stateJson.error) {
+    return;
+  }
 
   // First make sure that all of the buttons are hidden (if they have previously been unhidden.)
   for (let index = 0; index < actionMenuButtons.length; index++) {
@@ -389,15 +420,29 @@ function checkActionState(stateJson) {
     
     if (["Refresh", "reverse-move-button", "next-move-button"].includes(actionMenuButtons[index].id)) {
       actionMenuButtons[index].disabled = false;
+      // If from replay, the Refresh will take to the newest state
+      if (fromReplay && actionMenuButtons[index].id == "Refresh") {
+        actionMenuButtons[index].addEventListener("click", goToNewestState);
+      }
       continue;
     }
     
     // Check if the initiator actions includes the buttons id and that the player whos turn is now is the player:
     if(stateJson.players[playerIndex].playable_moves.includes(actionMenuButtons[index].id) && playerName==stateJson.players[playerIndex].name) {
-      actionMenuButtons[index].disabled = false; 
+      // If the state is 'fromReplay', then the buttons are reddish
+      actionMenuButtons[index].disabled = false;
+
+      if (fromReplay) {
+        actionMenuButtons[index].style.backgroundColor = "red";
+        if (actionMenuButtons[index].id == "EndTurn") {
+          actionMenuButtons[index+1].style.backgroundColor = "red";
+        }
+        continue;
+      }
 
       //Make it so refresh button is always visible:
-      if(actionMenuButtons[index].id == "EndTurn") { // In case of the action being end turn, we also need  to make draw all button visible and add event listener to it.
+      if(actionMenuButtons[index].id == "EndTurn") {
+        // In case of the action being end turn, we also need  to make draw all button visible and add event listener to it.
         actionMenuButtons[index+1].disabled = false;
         actionMenuButtons[index+1].addEventListener("click",function() {
           //Modify the stateJson to contain the wanted action:
@@ -413,6 +458,8 @@ function checkActionState(stateJson) {
         stateJson.action = actionMenuButtons[index].id;
         playCards(stateJson)
       })
+
+
     }
   }
 }
@@ -751,7 +798,7 @@ function playFallHand(cardArray,callback) {
     let currentState = document.getElementById('board');
     let tempElement = document.createElement('div');
     tempElement.innerHTML = emptyState;
-    if(currentState == null || tempElement == null) {
+    if(currentState == null || tempElement == null || stateJson.error) {
       return null;
     }
     currentState.replaceWith(tempElement);
@@ -797,6 +844,7 @@ function playFallHand(cardArray,callback) {
     cardContainer.removeAttribute("target")
     cardContainer.removeAttribute("initiator")
     cardContainer.removeAttribute("turn")
+    cardContainer.removeAttribute("turn_and_target")
     // Add target attribute to the target players div:
     if(stateJson.players[playerIndex].name == stateJson.target) {
       cardContainer.setAttribute("target",1);
@@ -811,6 +859,11 @@ function playFallHand(cardArray,callback) {
       cardContainer.setAttribute("turn",1);
     }
 
+    if(stateJson.players[playerIndex].name == stateJson.target && stateJson.players[playerIndex].name == stateJson.turn) {
+      cardContainer.removeAttribute("target")
+      cardContainer.removeAttribute("turn")
+      cardContainer.setAttribute("turn_and_target",1);
+    }
     // Get the card container element
 
     // Selecting current indeces player:

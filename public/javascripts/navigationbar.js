@@ -30,6 +30,8 @@ if (document.readyState !== "loading") {
    if(auth) {
     loginHref.style.display = 'none'
     logoutHref.style.display = 'block'
+   } else {
+    localStorage.removeItem('auth_token');
    }
   }
   else {
