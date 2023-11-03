@@ -61,7 +61,7 @@ function sortTable(n) {
   table = document.getElementById('leaderboard-body');;
   switching = true;
   // Set the sorting direction to ascending:
-  dir = "asc";
+  dir = "desc";
   /* Make a loop that will continue until
   no switching has been done: */
   while (switching) {
@@ -113,10 +113,10 @@ function sortTable(n) {
       // Each time a switch is done, increase this count by 1:
       switchcount ++;
     } else {
-      /* If no switching has been done AND the direction is "asc",
-      set the direction to "desc" and run the while loop again. */
-      if (switchcount == 0 && dir == "asc") {
-        dir = "desc";
+      /* If no switching has been done AND the direction is "desc",
+      set the direction to "asc" and run the while loop again. */
+      if (switchcount == 0 && dir == "desc") {
+        dir = "asc";
         switching = true;
       }
     }

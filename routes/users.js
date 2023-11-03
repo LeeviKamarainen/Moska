@@ -50,6 +50,12 @@ router.get('/finduser', async function(req,res,next) {
  })
 
 
+ router.get('/validateuser', validateToken, async function(req,res,next) {
+  let auth = req.auth;
+  res.json(auth);
+ })
+
+
 router.get('/getleaderboard', async function(req,res,next) {
   // This is a test route to find a user in the database
   const refdb = req.refdb;

@@ -12,12 +12,12 @@ module.exports = function(req, res, next) {
     }
     if(token == null) return res.sendStatus(401);
     console.log("Token found")
-    jwt.verify(token, process.env.SECRET, (err, user) => {
+    jwt.verify(token, process.env.SECRET, (err, auth) => {
         if(err) {
-            localStorage.removeItem('auth_token');
-            return res.sendStatus(401)
+            req.auth = false;
+            next();
         };
-        req.user = user;
+        req.auth = true;
         next();
     })
 };

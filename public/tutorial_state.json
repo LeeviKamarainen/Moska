@@ -1,0 +1,360 @@
+[
+    {
+        "trump_card": "S6",
+        "deck_left": 26,
+        "cards_to_kill": [
+            "H4",
+            "D4"
+        ],
+        "killed_cards": [],
+        "target": "Kikuli",
+        "initiator": "r1ku",
+        "turn": "r1ku",
+        "players": [
+            {
+                "name": "Kikuli",
+                "pid": 0,
+                "rank": null,
+                "ready": true,
+                "finished": 0,
+                "is_bot": true,
+                "last_evaluation": 0.42,
+                "cards": [
+                    "C10",
+                    "D9",
+                    "C6",
+                    "H14",
+                    "C3",
+                    "C5"
+                ],
+                "playable_moves": []
+            },
+            {
+                "name": "Sikala",
+                "pid": 1,
+                "rank": null,
+                "ready": true,
+                "finished": 0,
+                "is_bot": true,
+                "last_evaluation": 0.61,
+                "cards": [
+                    "C2",
+                    "D3",
+                    "C13",
+                    "D6",
+                    "C14",
+                    "S5"
+                ],
+                "playable_moves": []
+            },
+            {
+                "name": "Anonymous950",
+                "pid": 2,
+                "rank": null,
+                "ready": true,
+                "finished": 0,
+                "is_bot": false,
+                "last_evaluation": 0.48,
+                "cards": [
+                    "C11",
+                    "H9",
+                    "C9",
+                    "C8",
+                    "H10",
+                    "C12"
+                ],
+                "playable_moves": []
+            },
+            {
+                "name": "r1ku",
+                "pid": 3,
+                "rank": null,
+                "ready": true,
+                "finished": 0,
+                "is_bot": true,
+                "last_evaluation": 0.63,
+                "cards": [
+                    "S4",
+                    "H5",
+                    "H3",
+                    "D14",
+                    "H6",
+                    "S10"
+                ],
+                "playable_moves": [
+                    "PlayToOther",
+                    "Skip"
+                ]
+            }
+        ]
+    },
+    {
+        "trump_card": "S6",
+        "deck_left": 26,
+        "cards_to_kill": [],
+        "killed_cards": [
+            "D4",
+            "D9",
+            "H4",
+            "H14"
+        ],
+        "target": "Kikuli",
+        "initiator": "r1ku",
+        "turn": "Kikuli",
+        "players": [
+            {
+                "name": "Kikuli",
+                "pid": 0,
+                "rank": null,
+                "ready": true,
+                "finished": 0,
+                "is_bot": true,
+                "last_evaluation": 0.43,
+                "cards": [
+                    "C10",
+                    "C6",
+                    "C3",
+                    "C5"
+                ],
+                "playable_moves": [
+                    "EndTurn"
+                ]
+            },
+            {
+                "name": "Sikala",
+                "pid": 1,
+                "rank": null,
+                "ready": true,
+                "finished": 0,
+                "is_bot": true,
+                "last_evaluation": 0.59,
+                "cards": [
+                    "C2",
+                    "D3",
+                    "C13",
+                    "D6",
+                    "C14",
+                    "S5"
+                ],
+                "playable_moves": []
+            },
+            {
+                "name": "Anonymous950",
+                "pid": 2,
+                "rank": null,
+                "ready": true,
+                "finished": 0,
+                "is_bot": false,
+                "last_evaluation": 0.52,
+                "cards": [
+                    "C11",
+                    "H9",
+                    "C9",
+                    "C8",
+                    "H10",
+                    "C12"
+                ],
+                "playable_moves": []
+            },
+            {
+                "name": "r1ku",
+                "pid": 3,
+                "rank": null,
+                "ready": true,
+                "finished": 0,
+                "is_bot": true,
+                "last_evaluation": 0.6,
+                "cards": [
+                    "S4",
+                    "H5",
+                    "H3",
+                    "D14",
+                    "H6",
+                    "S10"
+                ],
+                "playable_moves": []
+            }
+        ]
+    },
+    {
+        "trump_card": "S6",
+        "deck_left": 25,
+        "cards_to_kill": [
+            "C14"
+        ],
+        "killed_cards": [
+            "D4",
+            "D9",
+            "H4",
+            "H14"
+        ],
+        "target": "Kikuli",
+        "initiator": "r1ku",
+        "turn": "Sikala",
+        "players": [
+            {
+                "name": "Kikuli",
+                "pid": 0,
+                "rank": null,
+                "ready": true,
+                "finished": 0,
+                "is_bot": true,
+                "last_evaluation": 0.41,
+                "cards": [
+                    "C10",
+                    "C6",
+                    "C3",
+                    "C5"
+                ],
+                "playable_moves": []
+            },
+            {
+                "name": "Sikala",
+                "pid": 1,
+                "rank": null,
+                "ready": true,
+                "finished": 0,
+                "is_bot": true,
+                "last_evaluation": 0.61,
+                "cards": [
+                    "C2",
+                    "D3",
+                    "C13",
+                    "D6",
+                    "S5",
+                    "S3"
+                ],
+                "playable_moves": [
+                    "Skip"
+                ]
+            },
+            {
+                "name": "Anonymous950",
+                "pid": 2,
+                "rank": null,
+                "ready": false,
+                "finished": 0,
+                "is_bot": false,
+                "last_evaluation": 0.48,
+                "cards": [
+                    "C11",
+                    "H9",
+                    "C9",
+                    "C8",
+                    "H10",
+                    "C12"
+                ],
+                "playable_moves": []
+            },
+            {
+                "name": "r1ku",
+                "pid": 3,
+                "rank": null,
+                "ready": false,
+                "finished": 0,
+                "is_bot": true,
+                "last_evaluation": 0.55,
+                "cards": [
+                    "S4",
+                    "H5",
+                    "H3",
+                    "D14",
+                    "H6",
+                    "S10"
+                ],
+                "playable_moves": []
+            }
+        ]
+    },
+    {
+        "trump_card": "S6",
+        "deck_left": 25,
+        "cards_to_kill": [
+            "C14"
+        ],
+        "killed_cards": [
+            "D4",
+            "D9",
+            "H4",
+            "H14"
+        ],
+        "target": "Kikuli",
+        "initiator": "r1ku",
+        "turn": "Anonymous950",
+        "players": [
+            {
+                "name": "Kikuli",
+                "pid": 0,
+                "rank": null,
+                "ready": false,
+                "finished": 0,
+                "is_bot": true,
+                "last_evaluation": 0.41,
+                "cards": [
+                    "C10",
+                    "C6",
+                    "C3",
+                    "C5"
+                ],
+                "playable_moves": []
+            },
+            {
+                "name": "Sikala",
+                "pid": 1,
+                "rank": null,
+                "ready": true,
+                "finished": 0,
+                "is_bot": true,
+                "last_evaluation": 0.61,
+                "cards": [
+                    "C2",
+                    "D3",
+                    "C13",
+                    "D6",
+                    "S5",
+                    "S3"
+                ],
+                "playable_moves": []
+            },
+            {
+                "name": "Anonymous950",
+                "pid": 2,
+                "rank": null,
+                "ready": true,
+                "finished": 0,
+                "is_bot": false,
+                "last_evaluation": 0.48,
+                "cards": [
+                    "C11",
+                    "H9",
+                    "C9",
+                    "C8",
+                    "H10",
+                    "C12"
+                ],
+                "playable_moves": [
+                    "PlayToOther",
+                    "Skip"
+                ]
+            },
+            {
+                "name": "r1ku",
+                "pid": 3,
+                "rank": null,
+                "ready": false,
+                "finished": 0,
+                "is_bot": true,
+                "last_evaluation": 0.55,
+                "cards": [
+                    "S4",
+                    "H5",
+                    "H3",
+                    "D14",
+                    "H6",
+                    "S10"
+                ],
+                "playable_moves": []
+            }
+        ]
+    }
+]

@@ -320,6 +320,7 @@ async function initializeCode(gameArray) {
       gameTurnIndex += 1;
       console.log("Rendering state: "+STATE_ARRAY.length);
       gameActionString = "Turn: "+gameTurnIndex;
+      console.log(stateJson)
       updateState(stateJson,boardDiv,gameActionString)
       await sleepFunction(turnTime);
       //wait(turnTime);
@@ -843,6 +844,7 @@ function playFallHand(cardArray,callback) {
     cardContainer.removeAttribute("target")
     cardContainer.removeAttribute("initiator")
     cardContainer.removeAttribute("turn")
+    cardContainer.removeAttribute("turn_and_target")
     // Add target attribute to the target players div:
     if(stateJson.players[playerIndex].name == stateJson.target) {
       cardContainer.setAttribute("target",1);
@@ -857,6 +859,11 @@ function playFallHand(cardArray,callback) {
       cardContainer.setAttribute("turn",1);
     }
 
+    if(stateJson.players[playerIndex].name == stateJson.target && stateJson.players[playerIndex].name == stateJson.turn) {
+      cardContainer.removeAttribute("target")
+      cardContainer.removeAttribute("turn")
+      cardContainer.setAttribute("turn_and_target",1);
+    }
     // Get the card container element
 
     // Selecting current indeces player:
