@@ -16,7 +16,6 @@ if (document.readyState !== "loading") {
     });
    // Check for authToken:
    let authToken = localStorage.getItem('auth_token');
-   console.log(authToken)
   if (authToken != null) {
       // Validate the auth token by fetching users/validateuser route:
       let response = fetch("/users/validateuser", {
