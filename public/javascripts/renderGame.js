@@ -275,13 +275,15 @@ async function initializeCode(gameArray) {
   }
 
   //Checking to see if last gameAction is from killing from deck:
-  console.log(gameArray)
   try{
     let lastGameActionString = gameArray.gameprogress[gameArray.gameprogress.length-1];
     console.log("Last action: ", lastGameActionString);
     // Check if the last action of the user exists, and was to koplata
     // Which is true if "Lifted card from deck" is somewhere in the last action string
     if(lastGameActionString != null && lastGameActionString.includes("Lifted card from deck")) {
+      
+      let hourglass = document.getElementById("hourglass")
+      hourglass.style.display = "none";
       killCardFromDeck(lastGameActionString);
     }}
   catch(e){
@@ -320,7 +322,6 @@ async function initializeCode(gameArray) {
       gameTurnIndex += 1;
       console.log("Rendering state: "+STATE_ARRAY.length);
       gameActionString = "Turn: "+gameTurnIndex;
-      console.log(stateJson)
       updateState(stateJson,boardDiv,gameActionString)
       await sleepFunction(turnTime);
       //wait(turnTime);
@@ -490,38 +491,46 @@ function playCards(stateJson) {
      }
   }
 
+  const toggleMatchingCardsCheckbox = document.getElementById("show-matching-cards-checkbox");
   //Case when human plays :
   if(stateJson.action == "PlayFallFromHand") {
     let cardArray = ["PlayFallFromHand",""];
+    toggleMatchingCardsCheckbox.addEventListener("change", toggleMatchingCards);
+    if(toggleMatchingCardsCheckbox.checked) {
+      toggleCanKillCards();
+    }
     playFallHand(cardArray,function(temp){
-      console.log(cardArray)
       let actionCards = cardArray[1].split(" ")
-      console.log(actionCards)
       let cardpairs="";
       for (let index = 1; index < actionCards.length; index++) {
         let cardpair = actionCards[index];
         cardpairs = cardpairs+" "+cardpair;
       }
       let actionString = "PlayFallFromHand;"+cardpairs
-      console.log(actionString)
+      toggleMatchingCardsCheckbox.removeEventListener("change", toggleMatchingCards);
       sendGameAction(actionString);
       return temp;
     });
   }
 
+  // Check for the setting toggleMatchingCards:
+
   if(stateJson.action == "PlayFallFromDeck") {
     let returnString= "PlayFallFromDeck;"
     sendGameAction(returnString)
-    console.log(returnString)
   }
 
   if(stateJson.action == "PlayToOther") {
     let cardArray = ["PlayToOther",""];
     const playToOtherButton = document.getElementById("PlayToOther");
+    toggleMatchingCardsCheckbox.addEventListener("change", toggleMatchingCards);
+    if(toggleMatchingCardsCheckbox.checked) {
+      toggleMatchingCardsCheckbox.removeEventListener("change", toggleMatchingCards);
+      toggleMatchingCards();
+    }
     playToOther(cardArray,playToOtherButton,function(temp){
       let actionString = createCardString(cardArray)
       sendGameAction(actionString)
-      console.log(temp)
       return temp;
     });
   }
@@ -538,10 +547,14 @@ function playCards(stateJson) {
   
   if(stateJson.action == "PlayToSelf") {
       let cardArray = ["PlayToSelf",""];
+      toggleMatchingCardsCheckbox.addEventListener("change", toggleMatchingCards);
+      if(toggleMatchingCardsCheckbox.checked) {
+        toggleMatchingCards();
+      }
       playToSelf(cardArray,function(temp){
         let actionString = createCardString(cardArray)
         sendGameAction(actionString)
-        console.log(actionString)
+        toggleMatchingCardsCheckbox.removeEventListener("change", toggleMatchingCards);
         return temp;
       });
     }
@@ -549,13 +562,11 @@ function playCards(stateJson) {
     if(stateJson.action == "EndTurn") {
       let returnString = "EndTurn;n";
       sendGameAction(returnString)
-      console.log(returnString)
     }
 
     if(stateJson.action == "DrawAll") {
       let returnString = "EndTurn;y";
       sendGameAction(returnString)
-      console.log(returnString)
     }
 
     if(stateJson.action == "Skip") {
@@ -568,7 +579,6 @@ function playCards(stateJson) {
 function sendGameAction(actionString) {
   ERROR_STATE = 0;
   let dataToSend = JSON.stringify({"action": actionString})
-  console.log(dataToSend)
   /*await fetch('http://localhost:3000/playmove', {
     method: 'POST',
     headers: { "Content-Type": "application/json" },
@@ -619,8 +629,6 @@ function killCardFromDeck(cardString) {
     if(e.target.className && e.target.className.indexOf('card')!=-1 && e.target.getAttribute('card-type') != null && board.getAttribute('activated') == 1) {
       let cardToFall = e.target;
       cardToFall.setAttribute('selected',1);
-
-      console.log(e.target.getAttribute('card-index'))
       let gameAction = JSON.stringify({"action": e.target.getAttribute('card-index')});
 
       board.removeAttribute('activated')
@@ -664,8 +672,6 @@ function playToSelf(cardArray,callback) {
       if(cardToPlay.getAttribute('selected')==1){
         cardToPlay.removeAttribute('selected')
         delete cardsSelected[e.target.getAttribute('card-index')];
-        
-        console.log(cardsSelected)
       }
       else {
         let cardPair = "";
@@ -673,8 +679,6 @@ function playToSelf(cardArray,callback) {
         
         cardToPlay.setAttribute('selected',1);
         cardsSelected[e.target.getAttribute('card-index')] = cardPair;
-        
-        console.log(cardsSelected)
       }
   }
 }
@@ -704,8 +708,6 @@ function playToOther(cardArray,playToOtherButton,callback) {
       if(cardToPlay.getAttribute('selected')==1){
         cardToPlay.removeAttribute('selected')
         delete cardsSelected[e.target.getAttribute('card-index')];
-        
-        console.log(cardsSelected)
       }
       else {
         let cardPair = "";
@@ -713,8 +715,6 @@ function playToOther(cardArray,playToOtherButton,callback) {
         
         cardToPlay.setAttribute('selected',1);
         cardsSelected[e.target.getAttribute('card-index')] = cardPair;
-        
-        console.log(cardsSelected)
       }
   }
 }
@@ -902,9 +902,23 @@ function playFallHand(cardArray,callback) {
 
       // Append the image, heading, and paragraph elements to the card element
       card.appendChild(cardImage);
-
+      card.setAttribute('parentContainer',containerName);
       // Append the card element to the card container
       cardContainer.appendChild(card);
+
+      // Check if the card matches to any of the cards to kill or killed cards:
+      if(playerIndex==humanIndex) {
+        const isMatch = hasMatchingCards(cardString,stateJson.killed_cards,stateJson.cards_to_kill);
+        if(isMatch) {
+          card.setAttribute('has-matching-cards',1);
+        }
+
+        // Check if the card can kill any of the cards to kill:
+        const canKill = canKillCards(cardString,stateJson.cards_to_kill,stateJson.trump_card);
+        if(canKill) {
+          card.setAttribute('can-kill',1);
+        }
+      }
     }
     
   }
@@ -1008,3 +1022,66 @@ function playFallHand(cardArray,callback) {
   // Render the updated state immediately
 
   }
+
+  function hasMatchingCards(card,killed_cards,cards_to_kill) {
+    const cardToCheck = card.substring(1); // Extract the card number (e.g., "6" from "H6")
+  
+    // Extract the card numbers from the lists and check for matches
+    const numbersInList1 = killed_cards.map(card => card.substring(1));
+    const numbersInList2 = cards_to_kill.map(card => card.substring(1));
+    // Check if the card number exists in either list
+    const isMatchInList1 = numbersInList1.includes(cardToCheck);
+    const isMatchInList2 = numbersInList2.includes(cardToCheck);
+    return isMatchInList1 || isMatchInList2;
+  }
+  
+  function canKillCards(card,cards_to_kill,trump_card) {
+    // Suit of the card
+    const suitToCheck = card[0]; // Extract the card suit (e.g., "H" from "H6")
+    const rankToCheck = parseInt(card.substring(1)); // Extract the card rank (e.g., "6" from "H6")
+    // Suit of the trump card
+    const trump_suit = trump_card[0];
+    // Check if the card is of same suit and higher rank than any of the cards to kill
+    const suitsInList = cards_to_kill.map(card => card[0]);
+    // Extract the card numbers from the lists and check for matches
+    const numbersInList = cards_to_kill.map(card => parseInt(card.substring(1)));
+   // Check if the card is of same suit and higher rank
+    let foundCard = false;
+    for (let index = 0; index < suitsInList.length; index++) {
+      if(suitToCheck == trump_suit && suitsInList[index] != trump_suit) { // If the card is of trump suit, it can kill any card
+        foundCard = true;
+        break;
+      }
+      if(suitToCheck == suitsInList[index] && rankToCheck > numbersInList[index]) { // Only need to find one card which matches:
+        foundCard = true;
+        break;
+      }
+    }
+    return foundCard
+  }
+
+  function toggleMatchingCards() {
+    const cards = document.querySelectorAll(".card");
+    cards.forEach(card => {
+        const hasMatchingCards = card.hasAttribute("has-matching-cards")
+        if (!hasMatchingCards  && card.getAttribute("parentcontainer")== "bottom" && card.tagName == "DIV") {
+            if(card.getAttribute("not-matching-cards-style") == null) {
+            card.setAttribute("not-matching-cards-style",1);
+            } else {
+              card.removeAttribute("not-matching-cards-style");
+            }
+        }
+    });}
+
+  function toggleCanKillCards() {
+    const cards = document.querySelectorAll(".card");
+    cards.forEach(card => {
+        const canKill = card.hasAttribute("can-kill")
+        if (!canKill && card.getAttribute("parentcontainer")== "bottom"  && card.tagName == "DIV") {
+            if(card.getAttribute("can-not-kill-style") == null) {
+            card.setAttribute("can-not-kill-style",1);
+            } else {
+              card.removeAttribute("can-not-kill-style");
+            }
+        }
+    });}
