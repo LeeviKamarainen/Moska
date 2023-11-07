@@ -1038,14 +1038,14 @@ function playFallHand(cardArray,callback) {
   function canKillCards(card,cards_to_kill,trump_card) {
     // Suit of the card
     const suitToCheck = card[0]; // Extract the card suit (e.g., "H" from "H6")
-    const rankToCheck = card.substring(1); // Extract the card rank (e.g., "6" from "H6")
+    const rankToCheck = parseInt(card.substring(1)); // Extract the card rank (e.g., "6" from "H6")
     // Suit of the trump card
     const trump_suit = trump_card[0];
     // Check if the card is of same suit and higher rank than any of the cards to kill
     const suitsInList = cards_to_kill.map(card => card[0]);
     // Extract the card numbers from the lists and check for matches
-    const numbersInList = cards_to_kill.map(card => card.substring(1));
-    // Check if the card is of same suit and higher rank
+    const numbersInList = cards_to_kill.map(card => parseInt(card.substring(1)));
+   // Check if the card is of same suit and higher rank
     let foundCard = false;
     for (let index = 0; index < suitsInList.length; index++) {
       if(suitToCheck == trump_suit && suitsInList[index] != trump_suit) { // If the card is of trump suit, it can kill any card
