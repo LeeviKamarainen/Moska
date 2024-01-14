@@ -1,0 +1,18 @@
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="../javascripts/socketManager.js"></script>
+<div id="chat-box">
+    <div id="chat-header" onclick="toggleChat(event)">Chat
+      <div id="chat-switch-div">
+        <div id="chat-switch">
+        <label for="global-chat">Global</label>
+        <input type="radio" id="global-chat" name="chat-type" checked onclick="switchChatType('global')">
+        <label for="lobby-chat">Lobby</label>
+        <input type="radio" id="lobby-chat" name="chat-type" onclick="switchChatType('lobby')"></div>
+  </div></div>
+    <div id="chat-body"></div>
+    <input type="text" id="chat-input" placeholder="Type your message...">
+    <button id="chat-send" onclick="sendMessage()">Send</button>
+</div>
+<link rel="stylesheet" href="../stylesheets/chat.css">
+<script type="text/javascript" src="../javascripts/chat.js"></script>

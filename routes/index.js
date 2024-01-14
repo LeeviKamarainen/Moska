@@ -13,11 +13,6 @@ router.get('/login', function(req, res, next) {
   res.sendFile(path.join(__dirname,"../views","login.html"));
 });
 
-
-router.get("/getstate", async function(req,res,next){
-
-})
-
 router.post("/playmove",function(req,res,next) {
   console.log(req.body)
   pythonProg.stdin.write(req.body.action+"\n");
@@ -42,6 +37,10 @@ router.get('/startgame', function(req, res, next) {
 
 router.get('/leaderboard', function(req, res, next) {
   res.sendFile(path.join(__dirname,"../views","leaderboard.html"));
+});
+
+router.get('/lobby', function(req, res, next) {
+  res.sendFile(path.join(__dirname,"../views","lobby.html"));
 });
 
 

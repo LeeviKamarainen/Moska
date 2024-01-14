@@ -10,7 +10,7 @@ const socketapi = {
     io: io
 };
 const fs = require('fs');
-
+const {lobbyManager} = require('./lobbyapi');
 
 let gameIndex = 0;
 let gameStringIndex = 2;
@@ -53,7 +53,11 @@ io.use(function(socket, next){
 
 io.on( "connection", function( socket ) {
   console.log( "An user connected" );
+  console.log(socket)
+  // Send socket to the lobby manager:
+  lobbyManager(socket);
 
+  console.log(socket)
   socket.on("gameaction",(data) => {
     // When the client sends a game action, send it to the python program.
     let actionJson = JSON.parse(data);
@@ -102,6 +106,13 @@ io.on( "connection", function( socket ) {
     startGame(socket, childProcessDataListener);
   })
 
+  socket.on("chatmessage",(data) => {
+    receiveChatMessage(socket,data);
+  });
+
+  socket.on("chatHistory",(data) => {
+    emitChatHistory(socket,data);
+  })
 
 
 /**
@@ -359,8 +370,66 @@ function startGame(socket, childProcessDataListener) {
     });
 }
 
+function receiveChatMessage(socket,data) { 
+  var now = new Date();
+  var timeNow = [
+    now.getFullYear(),
+    '-',
+    now.getDate(),
+    '-',
+    now.getMonth() + 1,
+    ' ',
+    padNumber(now.getHours()),
+    ':',
+    padNumber(now.getMinutes()),
+    ':',
+    padNumber(now.getSeconds())
+  ].join('');
+  let message = data.message;
+  let chatType = data.chatType;
+  let lobbyId = data.lobbyId
+  if(data.lobbyId == undefined) {
+    data.lobbyId = "global";
+  }
+  var messageObject = {
+    username: socket.decoded.username,
+    message: message,
+    time: timeNow,
+    chatType: chatType,
+    lobbyId: lobbyId
+  }
+  let messageArray;
+    try {
+      const data = fs.readFileSync(__dirname+'/../messageHistory/messageHistory.json','utf-8');
+      messageArray = JSON.parse(data);
+  } catch (error) {
+    messageArray = [];
+  }
+  messageArray.push(messageObject);
+  try {
+    fs.writeFileSync(__dirname+'/../messageHistory/messageHistory.json', JSON.stringify(messageArray));
+    if(chatType == "global") {
+      io.emit('newChatMessage', JSON.stringify(messageObject));
+    } else {
+      io.to(lobbyId).emit('newChatMessage', JSON.stringify(messageObject));
+    }
+  } catch (error) {
+    console.log(error)
+  }
+  }
 
-
+  // Only emit the chat history that which the player has access to:
+  function emitChatHistory(socket,lobbyId) {
+    let messageString;
+      try {
+        const data = fs.readFileSync(__dirname+'/../messageHistory/messageHistory.json','utf-8');
+        let messageJson = JSON.parse(data);
+        messageString = messageJson.filter(message => message.chatType == "global" || message.lobbyId == lobbyId.id);
+    } catch (error) {
+      messageString = [];
+    }
+    socket.emit('chatHistory', JSON.stringify(messageString));
+  }
 /**
  * Finds the next available game index for the user name.
  * The next available game index is the first game index that does not have a corresponding file in the user's folder.
@@ -420,4 +489,8 @@ function killUserGameProcess(socket) {
   else {
     console.log("Attempted disconnect. No game in progress.");
   }
+}
+
+function padNumber(number) {
+  return number < 10 ? '0' + number : number;
 }

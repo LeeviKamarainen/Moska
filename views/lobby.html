@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RYH4QXEN2S"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-RYH4QXEN2S');
+    </script>
+    <link rel="stylesheet" href="../stylesheets/lobby.css">
+    <link rel="stylesheet" href="../stylesheets/navbar.css">
+  </head>
+  <body>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="../javascripts/socketManager.js"></script>
+    <script type="text/javascript" src="../javascripts/lobby.js"></script>
+    </script> 
+    <div class="navbar">
+      <a href="/">Home</a>
+      <a href="tutorial">Tutorial</a>
+      <!--  <a href="gamelogs">Game Logs</a>  -->
+      <a href="leaderboard">Leaderboard</a>
+      <a href="login" class="login" id="login">Login</a>
+      <a href="/" class="login" id="logout">Logout</a>
+      <a href="register" class="register">Register</a>
+    </div>
+    <div class="container">
+        <div class="lobby-list">
+            <h2>Lobby List</h2>
+            <ul id="lobbyList">
+                <!-- Lobby list items will be dynamically added here -->
+            </ul>
+            <input type="text" id="lobbyNameInput" placeholder="Enter Lobby Name">
+            <button id="createLobbyBtn">Create Lobby</button>
+        </div>
+        <div class="current-lobby">
+            <h2 id = "currentLobbyHeader">Your Current Lobby</h2>
+            <div id="currentLobby">
+                <!-- Current lobby information will be dynamically added here -->
+            </div>
+        </div>
+    </div>
+    
+    <div id="chat-box">
+      <div id="chat-header" onclick="toggleChat(event)">Chat
+        <div id="chat-switch-div">
+          <div id="chat-switch">
+          <label for="global-chat">Global</label>
+          <input type="radio" id="global-chat" name="chat-type" checked onclick="switchChatType('global')">
+          <label for="lobby-chat">Lobby</label>
+          <input type="radio" id="lobby-chat" name="chat-type" onclick="switchChatType('lobby')"></div>
+    </div></div>
+      <div id="chat-body"></div>
+      <input type="text" id="chat-input" placeholder="Type your message...">
+      <button id="chat-send" onclick="sendMessage()">Send</button>
+  </div>
+  <link rel="stylesheet" href="../stylesheets/chat.css">
+  <script type="text/javascript" src="../javascripts/chat.js"></script>
+  
+  </body>
+</html>

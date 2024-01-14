@@ -17,13 +17,9 @@
   <body>
     <script type="text/javascript" src="javascripts/renderGame.js"></script>
     <script type="text/javascript" src="javascripts/navigationbar.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
     
-    <script>
-    var socket = io({query: {"token": localStorage.getItem('auth_token')},
-  reconnection: true});
-    console.log(socket)
-    </script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="../javascripts/socketManager.js"></script>
   
   <!--  <form id="add-card-form">
       <label for="card-type">Enter Card type:</label>
@@ -86,7 +82,6 @@
     <button id="next-move-button" class = "play-cards">Forward</button>
   </div>
 </div>
-
 </body>
 
 
