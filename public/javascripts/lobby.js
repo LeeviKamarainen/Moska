@@ -2,23 +2,29 @@
 
 if (document.readyState !== "loading") {
     initializeLobby();
-  } else {
+} else {
     document.addEventListener("DOMContentLoaded", function () {
         initializeLobby();
     });
-  }
+}
 
-  async function  initializeLobby() {
+/**
+ * Initializes the lobby by setting up the socket connection, fetching lobby data,
+ * and populating the lobby list in the UI. Also sets up the event listener for the
+ * "Create Lobby" button.
+ *
+ * @async
+ * @function initializeLobby
+ * @returns {Promise<void>} A promise that resolves when the lobby is initialized.
+ */
+async function initializeLobby() {
     var socket = socketManager.getInstance();
     // Sample lobby data
-    let lobbies = [
-    ];
-    socket.emit('getLobbies',{}, (data) => {
-        console.log(data);
+    let lobbies = [];
+    socket.emit('getLobbies', {}, (data) => {
         lobbydata = data;
         lobbies = data.lobbies;
         // Populate lobby list
-        console.log(lobbies)
         const lobbyList = document.getElementById('lobbyList');
         lobbyList.innerHTML = '';
         lobbies.forEach(lobby => {
@@ -27,7 +33,7 @@ if (document.readyState !== "loading") {
             listItem.addEventListener('click', () => showCurrentLobby(lobby));
             listItem.setAttribute('lobbyid', lobby.id);
             lobbyList.appendChild(listItem);
-            });
+        });
 
         // Create Lobby button
         const createLobbyBtn = document.getElementById('createLobbyBtn');
@@ -46,12 +52,11 @@ function showCurrentLobby(lobby) {
 function createLobby() {
     const lobbyNameInput = document.getElementById('lobbyNameInput');
     const lobbyName = lobbyNameInput.value.trim();
-    
+
     if (lobbyName !== '') {
-        const newLobby = { id: Date.now(), name: lobbyName, currentPlayers: []};
-        console.log(newLobby)
-        socket.emit("createLobby",newLobby , (data) => {
-            if(data.response == "success") {
+        const newLobby = { id: Date.now(), name: lobbyName, currentPlayers: [] };
+        socket.emit("createLobby", newLobby, (data) => {
+            if (data.response == "success") {
                 newLobby.host = data.host;
                 const listItem = document.createElement('li');
                 listItem.textContent = `${newLobby.name} - Current Players: ${newLobby.currentPlayers}`;
@@ -68,9 +73,8 @@ function createLobby() {
 }
 
 function joinLobby(lobby) {
-    console.log(lobby)
-    socket.emit("joinLobby",lobby, (data) => {
-        if(data.response == "success") {
+    socket.emit("joinLobby", lobby, (data) => {
+        if (data.response == "success") {
             initializeLobby();
             showCurrentLobby(data.newLobby);
         } else {
