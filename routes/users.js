@@ -83,7 +83,6 @@ router.get('/getleaderboard', async function(req,res,next) {
  })
 
 router.post('/updateuser', async function(req,res,next) {
-  // This is a test route to find a user in the database
   const refdb = req.refdb;
   const snapshot = await refdb.once('value');
   const listOfUsers = snapshot.val();

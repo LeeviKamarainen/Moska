@@ -25,7 +25,6 @@ function loginUser(event) {
       console.log(data)
     if(data.token) {
         storeToken(data.token);
-        console.log(data.token)
         socket.connect('http://localhost:3000', {
           query: {"token": localStorage.getItem('auth_token')}
         }); 
@@ -33,12 +32,9 @@ function loginUser(event) {
     }
     else{
         if(data.message) {
-            window.alert('Invalid credentials')  
-          //document.getElementById('error-message').innerHTML = 'Invalid credentials';
+            window.alert('Invalid credentials');
         } else {
-            //document.getElementById('error-message').innerHTML = "Very strange error!";
-            
-            window.alert('Very strange error!')  
+            window.alert('Very strange error!');
         }
       }
     })

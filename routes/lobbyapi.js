@@ -16,14 +16,10 @@ function lobbyManager(socket) {
         if(lobbyIndex != -1) {
             socket.join(lobbies[lobbyIndex].id);
         }
-        console.log(socket);
         callback({"lobbies":lobbies,"connectedLobby":lobbyIndex});
     })
 
     socket.on("createLobby",(data,callback) => {
-        console.log(data);
-        console.log(callback)
-        console.log(lobbies)
         if(lobbies.length <= 7) {
             data.host = socket.decoded.username;
             lobbies.push(data);
@@ -70,7 +66,6 @@ function lobbyManager(socket) {
         else {
             lobbies[lobbyIndex].currentPlayers.push(socket.decoded.username);
             socket.join(data);
-            console.log(socket);
             callback({"response":"success","newLobby":lobbies[lobbyIndex]});
         }
     })

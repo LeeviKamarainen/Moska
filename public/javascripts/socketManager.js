@@ -1,5 +1,3 @@
-// socketManager.js
-
 // Use a singleton pattern to ensure only one socket instance is created
 var socketManager = (function () {
     var instance;

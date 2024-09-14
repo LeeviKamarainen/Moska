@@ -53,11 +53,8 @@ io.use(function(socket, next){
 
 io.on( "connection", function( socket ) {
   console.log( "An user connected" );
-  console.log(socket)
   // Send socket to the lobby manager:
   lobbyManager(socket);
-
-  console.log(socket)
   socket.on("gameaction",(data) => {
     // When the client sends a game action, send it to the python program.
     let actionJson = JSON.parse(data);

@@ -43,11 +43,12 @@ let turnTime = 1500;
 let SAVED_DATA = null;
 let IS_RENDERING = false;
 
-
+var socket;
 console.log("Loading!")
 document.addEventListener("DOMContentLoaded", function () {
   console.log("DOM READY")
-  
+  socket = socketManager.getInstance();
+
   let hourglass = document.getElementById("hourglass")
   hourglass.style.display = "block";
   socket.emit(document.gameStart,"true")
