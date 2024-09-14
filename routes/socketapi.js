@@ -48,8 +48,6 @@ io.use(function (socket, next) {
 	}
 })
 
-
-
 io.on("connection", function (socket) {
 	// Send socket to the lobby manager:
 	lobbyManager(socket);
@@ -91,6 +89,11 @@ io.on("connection", function (socket) {
 		startGame(socket, childProcessDataListener);
 	})
 
+	socket.on("multiplayergameStart", (data) => {
+		// Begin a new multiplayer game for the user.
+		startMultiplayerGame(socket, childProcessDataListener);
+	})
+
 	socket.on("gamereconnect", (data) => {
 		// For now, do exactly the same thing as gamestart.
 		// In the future, we can use the data to reconnect to a previous game.
@@ -104,7 +107,6 @@ io.on("connection", function (socket) {
 	socket.on("chatHistory", (data) => {
 		emitChatHistory(socket, data);
 	})
-
 
 	/**
 	* Parses the child process data and emits it to the socket.
@@ -184,11 +186,19 @@ io.on("connection", function (socket) {
 module.exports = socketapi;
 
 
+// Start multiplayer game:
+function startMultiplayerGame(socket, childProcessDataListener, lobbyId) {
+
+
+}
+
+
 
 /**
  * Starts a game for the given socket and child process data listener.
  * @param {Object} socket - The socket object for the user.
  * @param {Function} childProcessDataListener - The function to handle data from the child process.
+ * @param {number} gameTypeFlag - The flag indicating the type of game to start (singleplayer vs multiplayer).
  */
 function startGame(socket, childProcessDataListener) {
 	let stateAndProgress = [[], []];

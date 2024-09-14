@@ -1,13 +1,25 @@
 
 
 const lobbies = [
-    { id: 1, name: 'Lobby 1', currentPlayers: [] },
-    { id: 2, name: 'Lobby 2', currentPlayers: [] },
-    { id: 3, name: 'Lobby 3', currentPlayers: [] }
+    { id: 1, name: 'Lobby 1', currentPlayers: [], host: undefined },
+    { id: 2, name: 'Lobby 2', currentPlayers: [], host: undefined},
+    { id: 3, name: 'Lobby 3', currentPlayers: [], host: undefined},
+    { id: 4, name: 'Lobby 4', currentPlayers: [], host: undefined},
+    { id: 5, name: 'Lobby 5', currentPlayers: [], host: undefined}
 ];
 
 
 function lobbyManager(socket) {
+
+    socket.on("joinPage", (data, callback) => {
+        socket.join(data.page);
+        console.log("Joined page " + data.page);
+    });
+
+    socket.on("leavePage", (data, callback) => {
+        socket.leave(data.page);
+        console.log("Left page " + data.page);
+    });
 
     socket.on("getLobbies", (data, callback) => {
         // Check if the user is already connected to a lobby, if so, redirect them to that lobby
@@ -43,6 +55,12 @@ function lobbyManager(socket) {
         }
     });
 
+    socket.on("updateLobby", (data) => {
+		// When client requests an update to the lobby, send it to the public room
+		socket.to("lobby").emit("updateLobbyForAll",{"lobbies":lobbies});
+		console.log("Lobby update requested.")
+	})
+
     socket.on("joinLobby", (data, callback) => {
         let lobbyIndex = findLobbyIndexById(data);
 
@@ -50,7 +68,11 @@ function lobbyManager(socket) {
 
         if (connectedLobbyIndex != -1) {
             lobbies[connectedLobbyIndex].currentPlayers.splice(lobbies[connectedLobbyIndex].currentPlayers.indexOf(socket.decoded.username), 1);
+            // If the host leaves the lobby, assign a new host to the lobby
             socket.leave(lobbies[connectedLobbyIndex].id);
+            if (lobbies[connectedLobbyIndex].host == socket.decoded.username) {
+                lobbies[connectedLobbyIndex].host = lobbies[connectedLobbyIndex].currentPlayers[0] ? lobbies[connectedLobbyIndex].currentPlayers[0] : undefined;
+            }
         }
 
         if (lobbyIndex == -1) {
@@ -65,8 +87,12 @@ function lobbyManager(socket) {
         }
         else {
             lobbies[lobbyIndex].currentPlayers.push(socket.decoded.username);
+            if (lobbies[lobbyIndex].currentPlayers.length == 1) {
+                lobbies[lobbyIndex].host = socket.decoded.username;
+                console.log(lobbies[lobbyIndex].host);
+            }
             socket.join(data);
-            callback({ "response": "success", "newLobby": lobbies[lobbyIndex] });
+            callback({ "response": "success", "newLobby": lobbies[lobbyIndex], "username": socket.decoded.username });
         }
     })
 
