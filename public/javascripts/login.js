@@ -1,17 +1,27 @@
 
 if (document.readyState !== "loading") {
-    initializeCodeLogin();
-  } else {
-    document.addEventListener("DOMContentLoaded", function () {
-      initializeCodeLogin();
-    });
-  }
+	initializeCodeLogin();
+} else {
+	document.addEventListener("DOMContentLoaded", function () {
+		initializeCodeLogin();
+	});
+}
 
-  function initializeCodeLogin() {
-    document.getElementById("login-form").addEventListener("submit", loginUser);
+/**
+ * Initializes the login functionality by adding an event listener to the login form.
+ * The event listener triggers the loginUser function when the form is submitted.
+ */
+function initializeCodeLogin() {
+	document.getElementById("login-form").addEventListener("submit", loginUser);
 }
 
 
+/**
+ * Handles the user login process by preventing the default form submission,
+ * sending a POST request to the server with the form data, and processing the response.
+ *
+ * @param {Event} event - The event object representing the form submission event.
+ */
 function loginUser(event) {
     event.preventDefault();
     const formData = new FormData(event.target);
@@ -40,6 +50,11 @@ function loginUser(event) {
     })
 }
 
+/**
+ * Stores the provided authentication token in the local storage.
+ *
+ * @param {string} token - The authentication token to be stored.
+ */
 function storeToken(token) {
-  localStorage.setItem('auth_token', token);
+	localStorage.setItem('auth_token', token);
 }
