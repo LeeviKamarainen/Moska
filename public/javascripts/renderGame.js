@@ -169,7 +169,7 @@ function goOneMoveForward() {
 
 
 function goToNewestState() {
-  console.log(STATE_ARRAY[STATE_ARRAY.length-1])
+  //console.log(STATE_ARRAY[STATE_ARRAY.length-1])
   updateState(STATE_ARRAY[STATE_ARRAY.length-1],DEFAULT_BOARD_DIV,"")
   checkActionState(STATE_ARRAY[STATE_ARRAY.length-1])
 }
@@ -235,7 +235,7 @@ function renderGameOver(data) {
 function checkError(gameArray) {
   
   try{
-    console.log(gameArray)
+    //console.log(gameArray)
     let errorJson = gameArray.gamestates[0];
     if(errorJson.error != null) {
       return errorJson;
