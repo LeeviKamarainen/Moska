@@ -65,14 +65,11 @@ io.on("connection", function (socket) {
 		let actionJson = JSON.parse(data);
 		// Find the correct python program corresponding to the user
 		let lobbyIndex = checkIfConnectedToLobby(socket.decoded.username);
-		console.log(socket.decoded.username);
-		console.log(lobbyIndex);
-		console.log(lobbies);
-		let lobbyId = lobbies[lobbyIndex].id;
 		let pythonProg;
 		if(lobbyIndex === -1) {
 		pythonProg = usersAndGames.get(socket.decoded.username);
 		} else {
+			let lobbyId = lobbies[lobbyIndex].id;
 			pythonProg = usersAndGames.get(lobbyId);
 		}
 		if (pythonProg != null) {
