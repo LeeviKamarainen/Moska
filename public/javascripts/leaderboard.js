@@ -18,25 +18,6 @@ async function initializeLeaderboard() {
 
 }
 
-/**
- * Populates the leaderboard table with data.
- * 
- * This function clears the existing rows in the leaderboard table body and 
- * populates it with new rows based on the provided leaderboard data.
- * Each row contains the following columns: username, average evaluation, 
- * games won, games lost, percent won, total games, and lose streak.
- * 
- * @function
- * @name populateLeaderboard
- * @param {Array<Object>} leaderboardData - An array of objects representing the leaderboard entries.
- * @param {string} leaderboardData[].username - The username of the player.
- * @param {number} leaderboardData[].averageEvaluation - The average evaluation score of the player.
- * @param {number} leaderboardData[].gamesWon - The number of games won by the player.
- * @param {number} leaderboardData[].gamesLost - The number of games lost by the player.
- * @param {number} leaderboardData[].percentWon - The percentage of games won by the player.
- * @param {number} leaderboardData[].totalGames - The total number of games played by the player.
- * @param {number} leaderboardData[].loseStreak - The current losing streak of the player.
- */
 function populateLeaderboard() {
 	const tableBody = document.getElementById('leaderboard-body');
 	tableBody.innerHTML = ''; // Clear the table body
@@ -82,10 +63,23 @@ function populateLeaderboard() {
  */
 function sortTable(n) {
 	var rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-	table = document.getElementById('leaderboard-body');;
+	table = document.getElementById('leaderboard-body');
 	switching = true;
 	// Set the sorting direction to ascending:
-	dir = "desc";
+	dir = sortDirection[n] === "asc" ? "desc" : "asc";
+	sortDirection[n] = dir;
+
+	// Hide all sort icons
+	const allSortIcons = document.querySelectorAll('[id^="sort-icon"]');
+	allSortIcons.forEach(icon => {
+		icon.style.display = 'none';
+	});
+
+	// Show the sort icon for the current column
+	const sortIcon = document.getElementById(`sort-icon${n}`);
+	sortIcon.style.display = 'inline';
+	sortIcon.textContent = dir === "asc" ? '↑' : '↓';
+
 	/* Make a loop that will continue until
 	no switching has been done: */
 	while (switching) {

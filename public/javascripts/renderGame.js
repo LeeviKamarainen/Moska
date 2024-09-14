@@ -702,13 +702,59 @@ function playFallHand(cardArray, callback) {
 	humanDeck.setAttribute('activated', 1)
 
 	humanDeck.onclick = function (e) {
-		if (e.target.className && e.target.className.indexOf('card') != -1 && e.target.getAttribute('card-type') != null && humanDeck.getAttribute('activated') == 1) {
+		if (e.target.className && e.target.className.indexOf('card') != -1 && e.target.getAttribute('card-type') != null) {
 			let cardPair = "";
 			cardPair = cardPair.concat(e.target.getAttribute('card-index'));
 			let cardToPlay = e.target;
-			cardToPlay.setAttribute('selected', 1);
-			board.setAttribute('activated', 1)
-			humanDeck.removeAttribute('activated');
+			// If a the hand is not activated, this means
+			// that a card from hand is already selected, and the user is trying to deselect it
+			if (!humanDeck.hasAttribute('activated')) {
+				cardToPlay.removeAttribute('selected')
+				humanDeck.setAttribute('activated', 1)
+				board.removeAttribute('activated')
+			}
+			// If the hand is active, and the selected card has 'used' attribute
+			// the user is trying to deselect the card and the card it is mapped to
+			else if (cardToPlay.hasAttribute('used')) {
+				// Remove the used attribute of both cards
+				cardToPlay.removeAttribute('used')
+				// Split cardArray[1] on spaces
+				let cardArraySplitted = cardArray[1].split(" ");
+				// Find an element that starts with card_str
+				card_str = e.target.getAttribute('card-index');
+				// console.log(card_str)
+				let index = -1;
+				for (let i = 0; i < cardArraySplitted.length; i++) {
+					if (cardArraySplitted[i].startsWith(card_str)) {
+						index = i;
+						break;
+					}
+				}
+				// If the card is not found, return
+				if (index == -1) {
+					return;
+				}
+				let cardPair = cardArraySplitted[index];
+				console.log(cardPair)
+				// Get the card to fall, i.e. split the cardPair on comma and take the second element
+				let cardsSplit = cardPair.split(",");
+				console.log(cardsSplit)
+				let cardToFall_str = cardsSplit[1];
+				// Find the card from cards-to-kill that has the cardToFall_str as card-index
+				let cardToFall = board.querySelector(`[card-index="${cardToFall_str}"]`);
+				console.log(cardToFall)
+				cardToFall.removeAttribute('used');
+				// Remove the pair from cardArray[1]
+				let cardPair_str = 
+				cardArray[1] = cardArray[1].replace(cardPair, "");
+				cardArray[1] = cardArray[1].replace("  ", " ");
+
+			} else {
+				// If the hand is active, the user is trying to select a card from hand
+				cardToPlay.setAttribute('selected', 1);
+				board.setAttribute('activated', 1)
+				humanDeck.removeAttribute('activated');
+			}
 			board.onclick = function (e) {
 				if (e.target.className && e.target.className.indexOf('card') != -1 && e.target.getAttribute('card-type') != null && board.getAttribute('activated') == 1) {
 					let cardToFall = e.target;
