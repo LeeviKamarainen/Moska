@@ -19,6 +19,7 @@ if (document.readyState !== "loading") {
  */
 async function initializeLobby() {
     var socket = socketManager.getInstance();
+    socket.emit('joinPage', { page: 'lobby' });
     // Sample lobby data
     let lobbies = [];
     socket.emit('getLobbies', {}, (data) => {
@@ -35,18 +36,67 @@ async function initializeLobby() {
             lobbyList.appendChild(listItem);
         });
 
+        socket.on('updateLobbyForAll', (data) => {
+            console.log("Lobby update received.");
+            lobbies = data.lobbies;
+            lobbyList.innerHTML = '';
+            lobbies.forEach(lobby => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${lobby.name} - Current Players: ${lobby.currentPlayers.length}`;
+                listItem.addEventListener('click', () => showCurrentLobby(lobby));
+                listItem.setAttribute('lobbyid', lobby.id);
+                lobbyList.appendChild(listItem);
+            });
+        });
+
+        socket.on('multiplayerStartGame', () => {
+            startGame();
+        })
         // Create Lobby button
-        const createLobbyBtn = document.getElementById('createLobbyBtn');
-        createLobbyBtn.addEventListener('click', createLobby);
+        //const createLobbyBtn = document.getElementById('createLobbyBtn');
+        //createLobbyBtn.addEventListener('click', createLobby);
     });
 };
 
-function showCurrentLobby(lobby) {
+function showCurrentLobby(lobby, username) {
     const currentLobbyContainer = document.getElementById('currentLobby');
-    currentLobbyContainer.innerHTML = `<p><strong>Lobby Name:</strong> ${lobby.name}</p>
+    currentLobbyContainerString = `<p><strong>Lobby Name:</strong> ${lobby.name}</p>
                                        <p><strong>Current Players:</strong> ${lobby.currentPlayers.map(player => `<p>${player}</p>`).join('')}</p>
                                        <p><strong>Host:</strong> ${lobby.host}</p>
-                                       <button id="joinLobbyBtn" onclick=joinLobby(${lobby.id})>Join Lobby</button>`;
+                                       <button id="joinLobbyBtn" onclick=joinLobby(${lobby.id})>Join Lobby</button>
+                                       `;
+    // If the user is the host, show the start game button
+    if (lobby.host === username && lobby.host !== undefined) {
+        console.log("Host is " + lobby.host);
+        console.log("Username is " + username);
+        currentLobbyContainerString += `<button id="startGameBtn" onclick=hostStartGame(${lobby.id})>Start Game</button>`;
+    }
+    currentLobbyContainer.innerHTML = currentLobbyContainerString;
+
+    
+}
+
+function hostStartGame() {
+    fetch('/startgame')
+			.then(response => response.text())
+			.then(updatedHTML => {
+				// Replace the existing HTML with the updated HTML
+				document.open();
+				document.write(updatedHTML);
+				document.gameStart = "multiplayergameStart";
+				document.close();
+			});
+}
+
+function startGame() {
+    fetch('/startgame')
+    .then(response => response.text())
+    .then(updatedHTML => {
+        // Replace the existing HTML with the updated HTML
+        document.open();
+        document.write(updatedHTML);
+        document.close();
+    });
 }
 
 function createLobby() {
@@ -76,9 +126,16 @@ function joinLobby(lobby) {
     socket.emit("joinLobby", lobby, (data) => {
         if (data.response == "success") {
             initializeLobby();
-            showCurrentLobby(data.newLobby);
+            socket.emit("updateLobby");
+            showCurrentLobby(data.newLobby, data.username);
         } else {
             alert(data.response);
         }
     });
 }
+
+// Handle page unload to leave the room
+window.addEventListener('beforeunload', () => {
+    socket.emit('leavePage', { page: 'lobby' });
+    console.log("Left lobby page.")
+});

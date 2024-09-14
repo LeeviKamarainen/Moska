@@ -5,3 +5,4 @@ node_modules
 __*
 *Games/
 MoskaEngine
+messageHistory.json

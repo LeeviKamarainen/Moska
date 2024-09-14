@@ -42,7 +42,7 @@ let gameTurnIndex = 0;
 let turnTime = 1500;
 let SAVED_DATA = null;
 let IS_RENDERING = false;
-
+let PLAYER_NAME;
 var socket;
 console.log("Loading!")
 document.addEventListener("DOMContentLoaded", function () {
@@ -51,8 +51,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
   let hourglass = document.getElementById("hourglass")
   hourglass.style.display = "block";
-  socket.emit(document.gameStart,"true")
+  socket.on('userDetails', (data) => {
+	// Store username in to localstorage:
+	localStorage.setItem('username', data.username);
+  });
+  socket.emit(document.gameStart,"true", function (data) { 
+	console.log("game started"+data.response)
+  })
   socket.on('data', (data) => {
+	console.log("where is data")
     onDataFromPython(data, hourglass);
 
 	})
@@ -241,6 +248,8 @@ function checkError(gameArray) {
 
 
 async function initializeCode(gameArray) {
+	PLAYER_NAME = localStorage.getItem('username');
+	console.log("You are player "+PLAYER_NAME);
 	// Game array contains the gamestates and gameprogress
 	// Game array has:
 	// gamestates: array of gamestates
@@ -386,7 +395,7 @@ function checkActionState(stateJson, fromReplay = false) {
 	let playerIndex;
 	//Find human player index:
 	for (let index = 0; index < stateJson.players.length; index++) {
-		if (!stateJson.players[index].is_bot) {
+		if (!stateJson.players[index].is_bot && stateJson.players[index].name == PLAYER_NAME) {
 			playerIndex = index;
 		}
 
@@ -460,7 +469,7 @@ function playCards(stateJson) {
 	// Find player name:
 	let humanName;
 	for (let playerIndex = 0; playerIndex < stateJson.players.length; playerIndex++) {
-		if (!stateJson.players[playerIndex].is_bot) { // Player is human:
+		if (!stateJson.players[playerIndex].is_bot && stateJson.players[playerIndex].name == PLAYER_NAME) { // Player is human:
 			humanName = stateJson.players[playerIndex].name;
 		}
 	}
@@ -825,7 +834,7 @@ function updateState(stateJson, emptyState, gameActionString) {
 		//Splitting the players name by first numeric character
 		let isBot = stateJson.players[playerIndex].is_bot;
 		let currentName = stateJson.players[playerIndex].name;
-		if (!isBot && currentName == CURRENT_USER) { // Player is human and the current user:
+		if (!isBot && currentName == PLAYER_NAME) { // Player is human and the current user:
 			humanIndex = playerIndex;
 		}
 	}

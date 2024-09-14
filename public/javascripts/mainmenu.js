@@ -26,7 +26,6 @@ async function initializeCodeMenu() {
 		fetch('/startgame')
 			.then(response => response.text())
 			.then(updatedHTML => {
-
 				// Replace the existing HTML with the updated HTML
 				document.open();
 				document.write(updatedHTML);

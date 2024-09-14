@@ -7,7 +7,7 @@ var socketManager = (function () {
             query: { "token": localStorage.getItem('auth_token') },
             reconnection: true,
             reconnectionDelay: 500,
-            reconnectionAttempts: 10
+            reconnectionAttempts: 10,
         });
 
         // You can add any additional socket-related logic here
