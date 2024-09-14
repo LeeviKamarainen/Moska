@@ -21,7 +21,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-//app.listen(3000,'86.50.34.207');
+//app.listen(3000);
 
 const admin = require('firebase-admin');
 let apiKey = process.env.firebase_apiKey;

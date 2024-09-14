@@ -48,6 +48,10 @@ async function initializeLobby() {
                 lobbyList.appendChild(listItem);
             });
         });
+
+        socket.on('multiplayerStartGame', () => {
+            startGame();
+        })
         // Create Lobby button
         //const createLobbyBtn = document.getElementById('createLobbyBtn');
         //createLobbyBtn.addEventListener('click', createLobby);
@@ -63,11 +67,36 @@ function showCurrentLobby(lobby, username) {
                                        `;
     // If the user is the host, show the start game button
     if (lobby.host === username && lobby.host !== undefined) {
-        currentLobbyContainerString += `<button id="startGameBtn" onclick=startGame(${lobby.id})>Start Game</button>`;
+        console.log("Host is " + lobby.host);
+        console.log("Username is " + username);
+        currentLobbyContainerString += `<button id="startGameBtn" onclick=hostStartGame(${lobby.id})>Start Game</button>`;
     }
     currentLobbyContainer.innerHTML = currentLobbyContainerString;
 
     
+}
+
+function hostStartGame() {
+    fetch('/startgame')
+			.then(response => response.text())
+			.then(updatedHTML => {
+				// Replace the existing HTML with the updated HTML
+				document.open();
+				document.write(updatedHTML);
+				document.gameStart = "multiplayergameStart";
+				document.close();
+			});
+}
+
+function startGame() {
+    fetch('/startgame')
+    .then(response => response.text())
+    .then(updatedHTML => {
+        // Replace the existing HTML with the updated HTML
+        document.open();
+        document.write(updatedHTML);
+        document.close();
+    });
 }
 
 function createLobby() {

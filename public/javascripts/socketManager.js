@@ -3,7 +3,7 @@ var socketManager = (function () {
     var instance;
 
     function init() {
-        var socket = io('192.168.81.8:3000',{
+        var socket = io({
             query: { "token": localStorage.getItem('auth_token') },
             reconnection: true,
             reconnectionDelay: 500,

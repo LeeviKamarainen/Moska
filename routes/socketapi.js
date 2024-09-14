@@ -10,8 +10,8 @@ const socketapi = {
 	io: io
 };
 const fs = require('fs');
-const { lobbyManager } = require('./lobbyapi');
-
+const { lobbyManager, checkIfConnectedToLobby, lobbies } = require('./lobbyapi');
+console.log(lobbies)
 let gameIndex = 0;
 let gameStringIndex = 2;
 let dataArrived;
@@ -37,6 +37,7 @@ io.use(function (socket, next) {
 				};
 			}
 			socket.decoded = user;
+			socket.emit('userDetails', user);
 			gameIndex = getNextGameIndex(socket.decoded.username);
 			next();
 		})
@@ -49,13 +50,31 @@ io.use(function (socket, next) {
 })
 
 io.on("connection", function (socket) {
+
+	// Check if the user is connected to a lobby, if so, add them back in to the lobby
+	let lobbyIndex = checkIfConnectedToLobby(socket.decoded.username);
+	if (lobbyIndex != -1) {
+		socket.join("room"+lobbies[lobbyIndex].id);
+		// Remove the previous socket from the lobby:
+	}
+
 	// Send socket to the lobby manager:
 	lobbyManager(socket);
 	socket.on("gameaction", (data) => {
 		// When the client sends a game action, send it to the python program.
 		let actionJson = JSON.parse(data);
 		// Find the correct python program corresponding to the user
-		let pythonProg = usersAndGames.get(socket.decoded.username);
+		let lobbyIndex = checkIfConnectedToLobby(socket.decoded.username);
+		console.log(socket.decoded.username);
+		console.log(lobbyIndex);
+		console.log(lobbies);
+		let lobbyId = lobbies[lobbyIndex].id;
+		let pythonProg;
+		if(lobbyIndex === -1) {
+		pythonProg = usersAndGames.get(socket.decoded.username);
+		} else {
+			pythonProg = usersAndGames.get(lobbyId);
+		}
 		if (pythonProg != null) {
 			pythonProg.stdin.write(actionJson.action + "\n");
 		}
@@ -70,7 +89,7 @@ io.on("connection", function (socket) {
 	})
 
 	socket.on("disconnect", (data) => {
-		killUserGameProcess(socket);
+		//killUserGameProcess(socket);
 	})
 
 	// Send existing game progress to client:
@@ -89,9 +108,10 @@ io.on("connection", function (socket) {
 		startGame(socket, childProcessDataListener);
 	})
 
-	socket.on("multiplayergameStart", (data) => {
+	socket.on("multiplayergameStart", (data,callback) => {
 		// Begin a new multiplayer game for the user.
 		startMultiplayerGame(socket, childProcessDataListener);
+		callback({ "response": "for room 1" });
 	})
 
 	socket.on("gamereconnect", (data) => {
@@ -113,14 +133,26 @@ io.on("connection", function (socket) {
 	* @param {string} data - The data received from the child process.
 	*/
 	const childProcessDataListener = (data) => {
-
-		let parsedData = parseChildProcessData(data, socket);
-		socket.emit('data', { "gamestates": parsedData.gameStates, "gameprogress": parsedData.gameProgress, "gameindex": gameIndex, "dataArrived": dataArrived, "gamestringindex": gameStringIndex, "currentUser": socket.decoded }, 1000)
-
+		console.log(socket.decoded.username)
+		let lobbyIndex = checkIfConnectedToLobby(socket.decoded.username);
+		let lobbyId;
+		if(lobbyIndex > -1) {
+			lobbyId = lobbies[lobbyIndex].id;
+		} else {
+			lobbyId = -1;
+		}
+		console.log(io.sockets.adapter.rooms);
+		console.log(lobbyId);
+		console.log(lobbyIndex);
+		let parsedData = parseChildProcessData(data, socket, lobbyId);
+		if(lobbyIndex === -1) {
+			// Emit the data to the lobby:
+			socket.emit('data', { "gamestates": parsedData.gameStates, "gameprogress": parsedData.gameProgress, "gameindex": gameIndex, "dataArrived": dataArrived, "gamestringindex": gameStringIndex, "currentUser": socket.decoded }, 1000)
+		} else {
+			console.log("Emitting data to lobby "+lobbyId)
+			io.to("room"+lobbyId).emit('data', { "gamestates": parsedData.gameStates, "gameprogress": parsedData.gameProgress, "gameindex": gameIndex, "dataArrived": dataArrived, "gamestringindex": gameStringIndex, "currentUser": socket.decoded }, 1000)
+		}
 	}
-
-
-
 
 	/**
 	 * Parses the data from the python program and sends it to the client.
@@ -129,7 +161,7 @@ io.on("connection", function (socket) {
 	 * @param {Object} socket - The socket object representing the client connection.
 	 * @returns {Object} - An object containing the game states and progress arrays.
 	 */
-	function parseChildProcessData(data, socket) {
+	function parseChildProcessData(data, socket, lobbyId) {
 		// Parse the data from the python program and send it to the client.
 		// Return the game states and progress as an array.
 		gameProgress = [];
@@ -150,7 +182,13 @@ io.on("connection", function (socket) {
 		}
 
 		// Get the states and progress array from the map corresponding to current user and modify it:
-		let stateAndProgress = usersAndStateAndProgress.get(socket.decoded.username);
+		let stateAndProgress;
+		if(lobbyId != -1) {
+			stateAndProgress = usersAndStateAndProgress.get(lobbyId);
+		}
+		else {
+			stateAndProgress = usersAndStateAndProgress.get(socket.decoded.username);
+		}
 		stateAndProgress[0].push(...gameStates); // Appending to the existing list
 		stateAndProgress[1].push(...gameProgress);
 
@@ -169,7 +207,17 @@ io.on("connection", function (socket) {
 	 */
 	function returnLastStateAndProgress(socket, stateIndex = 1, progressIndex = 1) {
 		// Get the states and progress array from the map corresponding to current user:
-		let stateAndProgress = usersAndStateAndProgress.get(socket.decoded.username);
+		
+		// Check if player is connected to a lobby:
+		let lobbyIndex = checkIfConnectedToLobby(socket.decoded.username);
+		let lobbyId;
+		let stateAndProgress
+		if(lobbyIndex > -1) {
+			lobbyId = lobbies[lobbyIndex].id;
+			stateAndProgress = usersAndStateAndProgress.get(lobbyId);
+		} else {
+			stateAndProgress = usersAndStateAndProgress.get(socket.decoded.username);
+		}
 
 		// Length of the progress and state arrays:
 		let progressLength = stateAndProgress[1].length;
@@ -183,16 +231,179 @@ io.on("connection", function (socket) {
 	}
 
 });
-module.exports = socketapi;
-
 
 // Start multiplayer game:
-function startMultiplayerGame(socket, childProcessDataListener, lobbyId) {
+function startMultiplayerGame(socket, childProcessDataListener) {
+	let lobbyIndex = checkIfConnectedToLobby(socket.decoded.username);
+	let lobbyId = lobbies[lobbyIndex].id;
+	// Find if the user is in a lobby:
 
+	let stateAndProgress = [[], []];
+	usersAndStateAndProgress.set(lobbyId, stateAndProgress);
+	if(lobbyId == undefined) {
+		console.log("Lobby ID is undefined.")
+		return null;
+	}
+	else {
+		io.to("room"+lobbyId).emit('multiplayerStartGame', true);
+	}
+	// If the user already has a child process running,
+	// terminate it to reduce the risk of unreferenced child processes running and causing memory loss.
+	if (!usersAndGames.has(lobbyId)) {
+		// Get all the players in the lobby:
+		let lobby = lobbies.find(lobby => lobby.id == lobbyId);
+		let players = lobby.currentPlayers;
+		console.log(lobby, players);
+		if(!(players.length >= 2)) {
+			console.log("Not enough players to start the game.");
+			return null;
+		}
+		// Formulate the players in to comma separated string:
+		let playersString = players.join(",");
+		let args = [__dirname + "/../Python/browserMoska.py"];
+
+		if (playersString) {
+			args.push("--name");
+			args.push(playersString);
+			args.push("--gameid");
+			args.push(gameIndex);
+			if (playersString == "Test") {
+				args.push("--test");
+			}
+		}
+
+		let pyexe = getPyexe();
+
+		pythonProg = spawn(pyexe, args, { timeout: 1000000 });
+	}
+	else {
+		pythonProg = usersAndGames.get(lobbyId);
+	}
+	pythonProg.on('error', (err) => {
+		console.error(`Failed to start Python process: ${err}`);
+	});
+
+	// Store the python program in a map with the user's email as the key.
+	usersAndGames.set(lobbyId, pythonProg);
+	pythonProg.stderr.on('data', function (data) {
+		// If the python program sends an error, log it.
+		console.log(data.toString());
+	});
+
+	console.log("Python program started");
+
+	// When the python program sends data, parse it and send it to the client.
+	pythonProg.stdout.on('data', childProcessDataListener);
+
+	pythonProg.stdout.on('end', () => {
+		// Process the complete output from the Python program
+		console.log("END OF THE STREAM!");
+	});
+
+	pythonProg.on('exit', function (data) {
+
+		// Calculate average evaluation score:
+
+		// Get the states and progress array from the map corresponding to current user:
+		let stateAndProgress = usersAndStateAndProgress.get(lobbyId);
+		// Length of the progress and state arrays:
+		let stateLength = stateAndProgress[0].length;
+		// Last state and progress:
+		let lastState = stateAndProgress[0][stateLength - 1];
+		// If there are no states, the game hadn't begun yet.
+		if (!lastState) {
+			return
+		}
+		// Check for errors
+		else if (lastState.error) {
+			return
+		}
+
+		let playerIndex = 0;
+		/*for (let index = 0; index < lastState.players.length; index++) {
+			let player = lastState.players[index];
+			if (player.name == socket.decoded.username) {
+				playerIndex = index;
+				break;
+			}
+		}
+
+		// Calculate average evaluation score:
+		let totalEvaluation = 0;
+		for (let index = 0; index < stateLength; index++) {
+			let state = stateAndProgress[0][index];
+			if (state.error) {
+				continue;
+			}
+			totalEvaluation = totalEvaluation + state.players[playerIndex].last_evaluation;
+		}*/
+
+		/*if (data != 0) { // Invalid exit code:
+			console.log("Invalid exit code. Game finished prematurely.")
+
+			// Storing in the database that game ended prematurely:
+			let res = fetch("http://localhost:3000/users/updateuser", {
+				method: "POST",
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ username: socket.decoded.username, stats: { "gameWon": 0, "gameLost": 0, "gameForfeited": 1, "totalEvaluation": totalEvaluation, "stateAmount": stateLength } })
+			})
+				.then(response => response.json())
+				.then(data => {
+					console.log('Database update response:', data);
+				})
+		}*/
+
+		if (data == 0) { // Valid exit code:
+
+			// Check if the player won or lost the game:
+			let gameWon = 0;
+			let gameLost = 0;
+
+			/*for (let index = 0; index < lastState.players.length; index++) {
+				let player = lastState.players[index];
+				if (player.name == socket.decoded.username && (player.finished == 1 || player.cards.length == 0)) {
+					console.log("User " + socket.decoded.username + " won the game.")
+					gameWon = 1;
+					gameLost = 0;
+					break;
+				} else if (player.name == socket.decoded.username && player.finished == 0 && player.cards.length != 0) {
+					console.log("User " + socket.decoded.username + " lost the game.")
+					gameWon = 0;
+					gameLost = 1;
+					break;
+				}
+			}*/
+
+			let folder_name = socket.decoded.username + "-Games";
+			let file_name = "HumanGame-" + gameIndex + ".png";
+
+			// Read the evaluation image file and send it to the client.
+			fs.readFile(__dirname + "/../" + folder_name + "/" + file_name, function (err, data) {
+				if (err) {
+					socket.emit('exit', true);
+				}
+				else {
+					// Send the image data to the connected client
+					socket.emit('exit', { image: true, buffer: Buffer.from(data, 'base64') });
+				}
+			});
+			/*let res = fetch("http://localhost:3000/users/updateuser", {
+				method: "POST",
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ username: socket.decoded.username, stats: { "gameWon": gameWon, "gameLost": gameLost, "gameForfeited": 0, "totalEvaluation": totalEvaluation, "stateAmount": stateLength } })
+			})
+				.then(response => response.json())
+				.then(data => {
+					console.log('Database update response:', data);
+				})*/
+		}
+	});
 
 }
-
-
 
 /**
  * Starts a game for the given socket and child process data listener.
@@ -402,7 +613,7 @@ function receiveChatMessage(socket, data) {
 		if (chatType == "global") {
 			io.emit('newChatMessage', JSON.stringify(messageObject));
 		} else {
-			io.to(lobbyId).emit('newChatMessage', JSON.stringify(messageObject));
+			io.to("room"+lobbyId).emit('newChatMessage', JSON.stringify(messageObject));
 		}
 	} catch (error) {
 		console.log(error)
@@ -485,3 +696,4 @@ function killUserGameProcess(socket) {
 function padNumber(number) {
 	return number < 10 ? '0' + number : number;
 }
+module.exports = socketapi;

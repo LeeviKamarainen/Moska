@@ -1,11 +1,11 @@
 
 
 const lobbies = [
-    { id: 1, name: 'Lobby 1', currentPlayers: [], host: undefined },
-    { id: 2, name: 'Lobby 2', currentPlayers: [], host: undefined},
-    { id: 3, name: 'Lobby 3', currentPlayers: [], host: undefined},
-    { id: 4, name: 'Lobby 4', currentPlayers: [], host: undefined},
-    { id: 5, name: 'Lobby 5', currentPlayers: [], host: undefined}
+    { id: 1, name: 'Lobby 1', currentPlayers: [], host: undefined, gameInProgress: false },
+    { id: 2, name: 'Lobby 2', currentPlayers: [], host: undefined, gameInProgress: false },
+    { id: 3, name: 'Lobby 3', currentPlayers: [], host: undefined, gameInProgress: false },
+    { id: 4, name: 'Lobby 4', currentPlayers: [], host: undefined, gameInProgress: false },
+    { id: 5, name: 'Lobby 5', currentPlayers: [], host: undefined, gameInProgress: false }
 ];
 
 
@@ -44,7 +44,7 @@ function lobbyManager(socket) {
 
     socket.on('disconnect', () => {
         // Check if the user is connected to a lobby, if so, start a timer to check if they reconnect
-        let lobbyIndex = checkIfConnectedToLobby(socket.decoded.username);
+       /* let lobbyIndex = checkIfConnectedToLobby(socket.decoded.username);
         if (lobbyIndex != -1) {
             setTimeout(() => {
                 if (!socket.connected) {
@@ -52,7 +52,7 @@ function lobbyManager(socket) {
                     socket.leave(lobbies[lobbyIndex].id);
                 }
             }, 10000);
-        }
+        }*/
     });
 
     socket.on("updateLobby", (data) => {
@@ -91,7 +91,7 @@ function lobbyManager(socket) {
                 lobbies[lobbyIndex].host = socket.decoded.username;
                 console.log(lobbies[lobbyIndex].host);
             }
-            socket.join(data);
+            socket.join("room"+lobbies[lobbyIndex].id);
             callback({ "response": "success", "newLobby": lobbies[lobbyIndex], "username": socket.decoded.username });
         }
     })
@@ -123,5 +123,9 @@ function checkIfConnectedToLobby(username) {
     return lobbies.findIndex(lobby => lobby.currentPlayers.includes(username));
 }
 
+function getPlayersInLobby(lobbyId) {
+    const lobby = lobbies.find(lobby => lobby.id == lobbyId);
+    return lobby.currentPlayers;
+}
 
-module.exports = { lobbyManager };
+module.exports = { lobbyManager, checkIfConnectedToLobby, lobbies };
