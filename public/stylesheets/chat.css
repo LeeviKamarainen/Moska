@@ -4,10 +4,10 @@ body {
 
 #chat-box {
     position: fixed;
-    bottom: 2%;
-    right: 5%;
-    width: 25%;
-    height: 40%;
+    bottom: 0%;
+    right: 0%;
+    width: 15%;
+    height: 30%;
     border: 1px solid #ccc;
     border-radius: 10px;
     resize: both;

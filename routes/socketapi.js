@@ -29,10 +29,9 @@ io.use(function (socket, next) {
 				console.log(err)
 				console.log("Token verification failed. Using default credentials.")
 				// username is 'Anonymous' + <random number between 1 and 1000>
-				let username = 'Anonymous' + Math.floor(Math.random() * 10000);
+				let username = 'Anonymous' + Math.floor(Math.random() * 100000);
 				user = {
 					username: username,
-					//email : username + '@example.com',
 				};
 			}
 			socket.decoded = user;
