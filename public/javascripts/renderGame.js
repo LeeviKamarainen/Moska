@@ -954,12 +954,21 @@ function updateState(stateJson, emptyState, gameActionString) {
 		const card = document.createElement("div");
 		card.classList.add("card");
 
+		// Check if card == kopled_card
+		console.log("Kopled card: " + stateJson.kopled_card)
+		console.log("Card: " + cardString)
+
 		// Create new image element for the card
 		const cardImage = document.createElement("img");
 		cardImage.src = parsedString;
 		cardImage.className = "card";
 		cardImage.setAttribute('card-type', cardString);
 		cardImage.setAttribute('card-index', index);
+
+		if (cardString == stateJson.kopled_card) {
+			cardImage.setAttribute('kopled', 1);
+		}
+
 		// Append the image, heading, and paragraph elements to the card element
 		card.appendChild(cardImage);
 
