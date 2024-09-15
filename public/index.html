@@ -75,19 +75,15 @@
     .login-form button:hover {
       background-color: #45a049;
     }
-
-    #chatcontainer {
-      width: 100%;
-      height: 400px;
-      border: none;
-      margin-top: 20px;
-    }
   </style>
 </head>
 
 <body>
   <script type="text/javascript" src="javascripts/mainmenu.js"></script>
   <script type="text/javascript" src="javascripts/navigationbar.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="../javascripts/socketManager.js"></script>
+
   <div class="navbar">
     <a href="/">Home</a>
     <a href="tutorial">Tutorial</a>
@@ -106,6 +102,21 @@
   </div>
 
   <!--<object type="text/html" data="htmlComponents/chat.html" id="chatcontainer"></object> -->
+  <div id="chat-box">
+      <div id="chat-header" onmousedown="resizeChat(event)">
+        <div id="chat-switch-div">
+          <div id="chat-switch">
+          <label for="global-chat" id="global-chat-label">Global</label>
+          <input type="radio" id="global-chat" name="chat-type" checked onclick="switchChatType('global')">
+          <label for="lobby-chat" id="lobby-chat-label">Lobby</label>
+          <input type="radio" id="lobby-chat" name="chat-type" onclick="switchChatType('lobby')"></div>
+    </div></div>
+      <div id="chat-body"></div>
+      <input type="text" id="chat-input" placeholder="Type your message...">
+      <button id="chat-send" onclick="sendMessage()">Send</button>
+  </div>
+<link rel="stylesheet" href="../stylesheets/chat.css">
+<script type="text/javascript" src="../javascripts/chat.js"></script>
 </body>
 
 </html>

@@ -13,11 +13,41 @@ if (document.readyState !== "loading") {
  *
  * @param {Event} e - The event object triggered by the click event.
  */
-function toggleChat(e) {
-	if (e.target.id == "chat-header") {
+function resizeChat(e) {
+	/*if (e.target.id == "chat-header") {
 		var chatBody = document.getElementById('chat-body');
 		chatBody.style.display = (chatBody.style.display === 'none' || chatBody.style.display === '') ? 'block' : 'none';
-	}
+	}*/
+	var chatBody = document.getElementById('chat-box');
+
+	e.preventDefault();
+    window.addEventListener('mousemove', resize);
+    window.addEventListener('mouseup', stopResize);
+    
+    // Store the initial position of the cursor and element
+    const initialX = e.clientX;
+    const initialY = e.clientY;
+    const initialWidth = chatBody.offsetWidth;
+    const initialHeight = chatBody.offsetHeight;
+    const initialLeft = chatBody.getBoundingClientRect().left;
+    const initialTop = chatBody.getBoundingClientRect().top;
+
+    function resize(e) {
+        const dx = initialX - e.clientX; // Change in X (inverse)
+        const dy = initialY - e.clientY; // Change in Y (inverse)
+
+        chatBody.style.width = initialWidth + dx + 'px';
+        chatBody.style.height = initialHeight + dy + 'px';
+
+        // Adjust the position of the element
+        chatBody.style.left = initialLeft - dx + 'px';
+        chatBody.style.top = initialTop - dy + 'px';
+    }
+
+    function stopResize() {
+        window.removeEventListener('mousemove', resize);
+        window.removeEventListener('mouseup', stopResize);
+    }
 }
 
 
@@ -57,7 +87,9 @@ async function populateChatHistory() {
 	var chatBody = document.getElementById('chat-body');
 	chatBody.innerHTML = '';
 	let currentLobby = { lobbyId: 'global' };
+	// Check if user is connected to lobby, if not, set chat type to global and hide lobby chat radio
 	const lobbyChatRadio = document.getElementById('lobby-chat');
+	const lobbyChatLabel = document.getElementById('lobby-chat-label');
 	const globalChatRadio = document.getElementById('global-chat');
 	let chatType = 'global';
 	if (lobbyChatRadio.checked) {
@@ -65,6 +97,12 @@ async function populateChatHistory() {
 	}
 	// Check if the player is in lobby
 	currentLobby = await getCurrentLobby();
+	if(currentLobby == 'global') {
+		console.log("In global lobby")
+		lobbyChatRadio.style.visibility = 'hidden';
+		lobbyChatLabel.style.visibility = 'hidden';
+		globalChatRadio.checked = true;
+	}
 	socket.emit("chatHistory", currentLobby);
 
 	socket.on("chatHistory", function (data) {
@@ -109,6 +147,12 @@ async function populateChatHistory() {
 			chatBody.scrollTop = chatBody.scrollHeight;
 		}
 	})
+
+	socket.on('updateLobbyChat', (data) => {
+		console.log("Lobby update received for chat.");
+		lobbyChatRadio.style.visibility = 'visible';
+		lobbyChatLabel.style.visibility = 'visible';
+	 });
 }
 
 /**

@@ -6,25 +6,31 @@ body {
     position: fixed;
     bottom: 2%;
     right: 5%;
-    width: 20%;
-    max-height: 100%;
+    width: 25%;
+    height: 40%;
     border: 1px solid #ccc;
     border-radius: 10px;
-    overflow: hidden;
+    resize: both;
+    overflow: auto;
+    background-color: #1a1919;
 }
 
 #chat-header {
-    background-color: #32CD32;
-    ;
+    background-color: #32CD32;;
     color: #fff;
     padding: 2%;
-    text-align: center;
-    cursor: pointer;
+    height: 10%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    font-size: 1em;
+    cursor: nw-resize;
 }
 
 #chat-body {
     padding: 2%;
-    max-height: 150px;
+    max-height: 60%;
     overflow-y: auto;
     background-color: #1a1919;
     color: lightgreen;
@@ -55,6 +61,7 @@ body {
     margin: 2%;
     padding: 1%;
     border: 1px solid #ccc;
+    bottom:20%;
     border-radius: 5px;
 }
 
@@ -67,15 +74,25 @@ body {
     color: #fff;
     border: none;
     border-radius: 5px;
+    bottom: 10%;
     cursor: pointer;
 }
 
 #chat-switch-div {
-    width: 50%;
-    left: 25%;
-    position: relative;
-    cursor: none;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    width: 100%;
     z-index: 5;
+}
+#chat-switch {
+    width: 50%;
+    height: 10%;
+    left:25%;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center; /* Vertically align the label and input */
 }
 
 ::-webkit-scrollbar {

@@ -57,7 +57,8 @@ function lobbyManager(socket) {
 
     socket.on("updateLobby", (data) => {
 		// When client requests an update to the lobby, send it to the public room
-		socket.to("lobby").emit("updateLobbyForAll",{"lobbies":lobbies});
+		socket.to("lobby").emit("updateLobbyForAll",{"lobbies":lobbies, "username":socket.decoded.username});
+        socket.emit("updateLobbyChat", { "lobbies": lobbies, "username": socket.decoded.username });
 		console.log("Lobby update requested.")
 	})
 

@@ -39,6 +39,7 @@ async function initializeLobby() {
         socket.on('updateLobbyForAll', (data) => {
             console.log("Lobby update received.");
             lobbies = data.lobbies;
+            username = data.username;
             lobbyList.innerHTML = '';
             lobbies.forEach(lobby => {
                 const listItem = document.createElement('li');
@@ -47,6 +48,7 @@ async function initializeLobby() {
                 listItem.setAttribute('lobbyid', lobby.id);
                 lobbyList.appendChild(listItem);
             });
+            showCurrentLobby(lobbies.find(lobby => lobby.currentPlayers.includes(username)), username);
         });
 
         socket.on('multiplayerStartGame', () => {

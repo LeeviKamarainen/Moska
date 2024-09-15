@@ -11,7 +11,6 @@ const socketapi = {
 };
 const fs = require('fs');
 const { lobbyManager, checkIfConnectedToLobby, lobbies } = require('./lobbyapi');
-console.log(lobbies)
 let gameIndex = 0;
 let gameStringIndex = 2;
 let dataArrived;
@@ -130,7 +129,6 @@ io.on("connection", function (socket) {
 	* @param {string} data - The data received from the child process.
 	*/
 	const childProcessDataListener = (data) => {
-		console.log(socket.decoded.username)
 		let lobbyIndex = checkIfConnectedToLobby(socket.decoded.username);
 		let lobbyId;
 		if(lobbyIndex > -1) {
@@ -138,9 +136,6 @@ io.on("connection", function (socket) {
 		} else {
 			lobbyId = -1;
 		}
-		console.log(io.sockets.adapter.rooms);
-		console.log(lobbyId);
-		console.log(lobbyIndex);
 		let parsedData = parseChildProcessData(data, socket, lobbyId);
 		if(lobbyIndex === -1) {
 			// Emit the data to the lobby:
@@ -250,7 +245,6 @@ function startMultiplayerGame(socket, childProcessDataListener) {
 		// Get all the players in the lobby:
 		let lobby = lobbies.find(lobby => lobby.id == lobbyId);
 		let players = lobby.currentPlayers;
-		console.log(lobby, players);
 		if(!(players.length >= 2)) {
 			console.log("Not enough players to start the game.");
 			return null;

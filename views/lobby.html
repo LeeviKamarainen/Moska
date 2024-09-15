@@ -49,12 +49,12 @@
     </div>
     
     <div id="chat-box">
-      <div id="chat-header" onclick="toggleChat(event)">Chat
+      <div id="chat-header" onmousedown="resizeChat(event)">
         <div id="chat-switch-div">
           <div id="chat-switch">
-          <label for="global-chat">Global</label>
+          <label for="global-chat" id="global-chat-label">Global</label>
           <input type="radio" id="global-chat" name="chat-type" checked onclick="switchChatType('global')">
-          <label for="lobby-chat">Lobby</label>
+          <label for="lobby-chat" id="lobby-chat-label">Lobby</label>
           <input type="radio" id="lobby-chat" name="chat-type" onclick="switchChatType('lobby')"></div>
     </div></div>
       <div id="chat-body"></div>

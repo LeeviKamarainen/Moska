@@ -35,7 +35,7 @@ async function initializeCodeMenu() {
 			});
 	})
 
-	reconnectButton.addEventListener("click", function () {
+	/*reconnectButton.addEventListener("click", function () {
 		fetch('/startgame')
 			.then(response => response.text())
 			.then(updatedHTML => {
@@ -47,7 +47,7 @@ async function initializeCodeMenu() {
 				document.close();
 
 			});
-	})
+	})*/
 
 
 }
