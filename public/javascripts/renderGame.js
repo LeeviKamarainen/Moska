@@ -888,7 +888,7 @@ function updateState(stateJson, emptyState, gameActionString) {
 		let playerState = stateJson.players[playerIndex];
 
 		// If show_eval_tickbox is checked, show the evaluation of the player next to its name
-		if (document.getElementById("show-evaluation-tickbox").checked && !playerState.is_bot) {
+		if (document.getElementById("show-evaluation-tickbox").checked &&  stateJson.players[playerIndex].name == PLAYER_NAME) {
 			let evalTextString = stateJson.players[playerIndex].last_evaluation;
 			cardContainer.innerHTML = cardContainer.innerHTML + " (" + evalTextString + ")";
 		}
