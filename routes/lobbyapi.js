@@ -9,7 +9,7 @@ const lobbies = [
 ];
 
 
-function lobbyManager(socket) {
+function lobbyManager(socket,io) {
 
     socket.on("joinPage", (data, callback) => {
         socket.join(data.page);
@@ -28,7 +28,7 @@ function lobbyManager(socket) {
         if (lobbyIndex != -1) {
             socket.join(lobbies[lobbyIndex].id);
         }
-        callback({ "lobbies": lobbies, "connectedLobby": lobbyIndex });
+        callback({ "lobbies": lobbies, "connectedLobby": lobbyIndex, "username": socket.decoded.username });
     })
 
     socket.on("createLobby", (data, callback) => {

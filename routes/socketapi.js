@@ -57,7 +57,7 @@ io.on("connection", function (socket) {
 	}
 
 	// Send socket to the lobby manager:
-	lobbyManager(socket);
+	lobbyManager(socket,io);
 	socket.on("gameaction", (data) => {
 		// When the client sends a game action, send it to the python program.
 		let actionJson = JSON.parse(data);
@@ -76,6 +76,11 @@ io.on("connection", function (socket) {
 		else {
 			console.log("Game Program has shut down. Please restart.")
 		}
+	})
+
+	socket.on("userDetails", (data, callback) => {
+		// When the client requests the user details, send it to the client.
+		callback(socket.decoded);
 	})
 
 	socket.on("pingSocket", (data) => {

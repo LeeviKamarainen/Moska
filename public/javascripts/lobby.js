@@ -39,6 +39,7 @@ async function initializeLobby() {
         socket.on('updateLobbyForAll', (data) => {
             console.log("Lobby update received.");
             lobbies = data.lobbies;
+
             username = data.username;
             lobbyList.innerHTML = '';
             lobbies.forEach(lobby => {
@@ -48,7 +49,7 @@ async function initializeLobby() {
                 listItem.setAttribute('lobbyid', lobby.id);
                 lobbyList.appendChild(listItem);
             });
-            showCurrentLobby(lobbies.find(lobby => lobby.currentPlayers.includes(username)), username);
+            showCurrentLobby(lobbies.find(lobby => lobby.currentPlayers.includes(username)));
         });
 
         socket.on('multiplayerStartGame', () => {
@@ -60,15 +61,29 @@ async function initializeLobby() {
     });
 };
 
-function showCurrentLobby(lobby, username) {
+async function showCurrentLobby(lobby) {
+    // Check current user's username from server
+    var username;
+    await new Promise(resolve => {
+        socket.emit('userDetails', {}, (data) => {
+        username = data.username;
+        resolve();
+    });
+    });
+    console.log(username)
     const currentLobbyContainer = document.getElementById('currentLobby');
     currentLobbyContainerString = `<p><strong>Lobby Name:</strong> ${lobby.name}</p>
                                        <p><strong>Current Players:</strong> ${lobby.currentPlayers.map(player => `<p>${player}</p>`).join('')}</p>
                                        <p><strong>Host:</strong> ${lobby.host}</p>
-                                       <button id="joinLobbyBtn" onclick=joinLobby(${lobby.id})>Join Lobby</button>
                                        `;
+    // If the user is already in the lobby, show the leave lobby button, otherwise show the join lobby button
+    if (lobby.currentPlayers.includes(username)) {
+        currentLobbyContainerString += `<button id="leaveLobbyBtn" onclick=leaveLobby(${lobby.id})>Leave Lobby</button>`;
+        } else {
+        currentLobbyContainerString += `<button id="joinLobbyBtn" onclick=joinLobby(${lobby.id})>Join Lobby</button>`;
+    }
     // If the user is the host, show the start game button
-    if (lobby.host === username && lobby.host !== undefined) {
+    if (lobby.host === username && lobby.host !== undefined && lobby.currentPlayers.length > 1) {
         console.log("Host is " + lobby.host);
         console.log("Username is " + username);
         currentLobbyContainerString += `<button id="startGameBtn" onclick=hostStartGame(${lobby.id})>Start Game</button>`;
