@@ -1,4 +1,3 @@
-
 let boardDiv;// Saving the original state:
 let DEFAULT_BOARD_DIV = `<div id="board">
 <div class="hourglass" id="hourglass" style="display: none"></div>
@@ -279,9 +278,24 @@ async function initializeCode(gameArray) {
 	if (errorJson != false) {
 		goToNewestState();
 		let errorDiv = document.getElementById('errormessage');
-		errorDiv.removeAttribute('hidden');
-		errorDiv.innerHTML = errorJson.error;
-		ERROR_STATE = errorJson.error;
+		// The player who is the current_player in the last state is the one who caused the error
+		// The last state is the last state in STATE_ARRAY
+		let lastGameState;
+		for (let index = STATE_ARRAY.length - 1; index >= 0; index--) {
+			if (STATE_ARRAY[index].turn != null) {
+				lastGameState = STATE_ARRAY[index];
+				break;
+			}
+		}
+		console.log("Last game state: " + JSON.stringify(lastGameState));
+		let errorReceiverPlayer = lastGameState.turn;
+		console.log("Error receiver player: " + errorReceiverPlayer);
+		// Only render the error message to the player who caused the error
+		if (errorReceiverPlayer == PLAYER_NAME) {
+			errorDiv.removeAttribute('hidden');
+			errorDiv.innerHTML = errorJson.error;
+			ERROR_STATE = errorJson.error;
+		}
 		TOTAL_RECEIVED_STATES = TOTAL_RECEIVED_STATES - gameArray.gamestates.length;
 		// Send renderingStopped event to the document
 		const renderingStopped = new Event('renderingStopped');
@@ -973,10 +987,6 @@ function updateState(stateJson, emptyState, gameActionString) {
 		// Create new card div
 		const card = document.createElement("div");
 		card.classList.add("card");
-
-		// Check if card == kopled_card
-		console.log("Kopled card: " + stateJson.kopled_card)
-		console.log("Card: " + cardString)
 
 		// Create new image element for the card
 		const cardImage = document.createElement("img");
