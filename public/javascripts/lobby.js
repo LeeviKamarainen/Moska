@@ -22,6 +22,13 @@ async function initializeLobby() {
     socket.emit('joinPage', { page: 'lobby' });
     // Sample lobby data
     let lobbies = [];
+    var username;
+    await new Promise(resolve => {
+        socket.emit('userDetails', {}, (data) => {
+        username = data.username;
+        resolve();
+    });
+    });
     socket.emit('getLobbies', {}, (data) => {
         lobbydata = data;
         lobbies = data.lobbies;
@@ -39,8 +46,6 @@ async function initializeLobby() {
         socket.on('updateLobbyForAll', (data) => {
             console.log("Lobby update received.");
             lobbies = data.lobbies;
-
-            username = data.username;
             lobbyList.innerHTML = '';
             lobbies.forEach(lobby => {
                 const listItem = document.createElement('li');
@@ -70,6 +75,7 @@ async function showCurrentLobby(lobby) {
         resolve();
     });
     });
+    console.log(lobby)
     console.log(username)
     const currentLobbyContainer = document.getElementById('currentLobby');
     currentLobbyContainerString = `<p><strong>Lobby Name:</strong> ${lobby.name}</p>
@@ -145,6 +151,16 @@ function joinLobby(lobby) {
             initializeLobby();
             socket.emit("updateLobby");
             showCurrentLobby(data.newLobby, data.username);
+        } else {
+            alert(data.response);
+        }
+    });
+}
+
+function leaveLobby(lobby) {
+    socket.emit("leaveLobby", lobby, (data) => {
+        if (data.response == "success") {
+            showCurrentLobby(data.newLobby);
         } else {
             alert(data.response);
         }

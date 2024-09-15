@@ -97,6 +97,23 @@ function lobbyManager(socket,io) {
         }
     })
 
+    socket.on("leaveLobby", (data, callback) => {
+        let connectedLobbyIndex = checkIfConnectedToLobby(socket.decoded.username);
+        if (connectedLobbyIndex == -1) {
+            callback({ "response": "You are not connected to any lobby." });
+        } else {
+            lobbies[connectedLobbyIndex].currentPlayers.splice(lobbies[connectedLobbyIndex].currentPlayers.indexOf(socket.decoded.username), 1);
+            // If the host leaves the lobby, assign a new host to the lobby
+            socket.leave("room"+lobbies[connectedLobbyIndex].id);
+            if (lobbies[connectedLobbyIndex].host == socket.decoded.username) {
+                lobbies[connectedLobbyIndex].host = lobbies[connectedLobbyIndex].currentPlayers[0] ? lobbies[connectedLobbyIndex].currentPlayers[0] : undefined;
+            }
+            socket.to("lobby").emit("updateLobbyForAll",{"lobbies":lobbies, "username":socket.decoded.username});
+            socket.emit("updateLobbyForAll",{"lobbies":lobbies, "username":socket.decoded.username});
+            callback({ "response": "success", "newLobby": lobbies[connectedLobbyIndex] });
+        }
+    })
+
     socket.on("getCurrentLobby", (data, callback) => {
         let currentLobbyIndex = checkIfConnectedToLobby(socket.decoded.username);
         if (currentLobbyIndex == -1) {
