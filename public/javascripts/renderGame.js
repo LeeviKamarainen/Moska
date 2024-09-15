@@ -888,7 +888,7 @@ function updateState(stateJson, emptyState, gameActionString) {
 		let playerState = stateJson.players[playerIndex];
 
 		// If show_eval_tickbox is checked, show the evaluation of the player next to its name
-		if (document.getElementById("show-evaluation-tickbox").checked && !playerState.is_bot) {
+		if (document.getElementById("show-evaluation-tickbox").checked &&  stateJson.players[playerIndex].name == PLAYER_NAME) {
 			let evalTextString = stateJson.players[playerIndex].last_evaluation;
 			cardContainer.innerHTML = cardContainer.innerHTML + " (" + evalTextString + ")";
 		}
@@ -954,12 +954,21 @@ function updateState(stateJson, emptyState, gameActionString) {
 		const card = document.createElement("div");
 		card.classList.add("card");
 
+		// Check if card == kopled_card
+		console.log("Kopled card: " + stateJson.kopled_card)
+		console.log("Card: " + cardString)
+
 		// Create new image element for the card
 		const cardImage = document.createElement("img");
 		cardImage.src = parsedString;
 		cardImage.className = "card";
 		cardImage.setAttribute('card-type', cardString);
 		cardImage.setAttribute('card-index', index);
+
+		if (cardString == stateJson.kopled_card) {
+			cardImage.setAttribute('kopled', 1);
+		}
+
 		// Append the image, heading, and paragraph elements to the card element
 		card.appendChild(cardImage);
 
