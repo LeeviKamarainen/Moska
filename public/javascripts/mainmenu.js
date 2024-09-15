@@ -36,16 +36,7 @@ async function initializeCodeMenu() {
 	})
 
 	lobbyButton.addEventListener("click", function () {
-		fetch('/lobby')
-			.then(response => response.text())
-			.then(updatedHTML => {
-
-				// Replace the existing HTML with the updated HTML
-				document.open();
-				document.write(updatedHTML);
-				document.close();
-
-			});
+		window.location.href = "/lobby";
 	})
 
 

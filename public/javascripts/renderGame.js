@@ -54,6 +54,7 @@ document.addEventListener("DOMContentLoaded", function () {
   socket.on('userDetails', (data) => {
 	// Store username in to localstorage:
 	localStorage.setItem('username', data.username);
+	CURRENT_USER = data.username;
   });
   socket.emit(document.gameStart,"true", function (data) { 
 	console.log("game started"+data.response)
@@ -65,7 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	})
 
 	socket.on('exit', (data) => {
-		renderGameOver(data);
+		renderGameOver(data, data.gameOverMessage);
 
 	})
 
@@ -184,8 +185,20 @@ function wait(ms) {
 
 
 
-function renderGameOver(data) {
+function renderGameOver(data,gameOverMessage) {
 	// Check first if the rendering has been stopped, and after that render game over state.
+	if(gameOverMessage) {
+		let currentState = document.getElementById('board');
+
+		let endElement = document.createElement('div');
+		endElement.id = "gameover";
+		
+		let endState = `<div id="gameover"> GAME OVER!<br>${gameOverMessage}
+		</div>
+		`
+		endElement.innerHTML = endState;
+		currentState.appendChild(endElement);
+	}
 	document.addEventListener('lastFramesRendered', () => {
 		let currentState = document.getElementById('board');
 
@@ -206,18 +219,25 @@ function renderGameOver(data) {
 			reader.onload = () => {
 				base64String = reader.result.split(',')[1];
 				// Set the image source
-				let endState = `<div>
-        GAME OVER!<br>Open the image in a new tab to see the evaluation image
-        <br>
-        <img id="evaluationimage" style="height:50%;width:50%;" src=`+ `data:image/png;base64,${base64String}` + `></>
-        </div>
-        `
+				let endState;
+				if(gameOverMessage) {
+					endState = `<div>
+				GAME OVER!<br>${gameOverMessage}
+				</div>`
+				} 
+				else {
+					endState = `<div>
+					GAME OVER!<br>Open the image in a new tab to see the evaluation image
+					<br>
+					<img id="evaluationimage" style="height:50%;width:50%;" src=`+ `data:image/png;base64,${base64String}` + `></>
+					</div>`
+				}
 				endElement.innerHTML = endState;
 			};
 			reader.readAsDataURL(blob);
 
 		} else {
-			let endState = `<div id="gameover"> GAME OVER!
+			let endState = `<div id="gameover"> GAME OVER!<br>${gameOverMessage}
     </div>
     `
 			endElement.innerHTML = endState;
@@ -299,7 +319,7 @@ async function initializeCode(gameArray) {
 
 		let stateArray = gameArray.gamestates;
 		let gameProgress = gameArray.gameprogress;
-		CURRENT_USER = gameArray.currentUser.username;
+		//CURRENT_USER = gameArray.currentUser.username;
 
 		// Save the boardDiv:s state only if its null:
 		if (boardDiv == null) {

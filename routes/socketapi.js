@@ -16,7 +16,7 @@ let gameStringIndex = 2;
 let dataArrived;
 let gameStates = [];
 let gameProgress = [];
-
+const userTimers = {};
 const usersAndGames = new Map();
 const usersAndStateAndProgress = new Map();
 
@@ -52,10 +52,19 @@ io.on("connection", function (socket) {
 	// Check if the user is connected to a lobby, if so, add them back in to the lobby
 	let lobbyIndex = checkIfConnectedToLobby(socket.decoded.username);
 	if (lobbyIndex != -1) {
+		// Check if user reconnected in time:
 		socket.join("room"+lobbies[lobbyIndex].id);
-		// Remove the previous socket from the lobby:
 	}
-
+	if(userTimers[socket.decoded.username]) {
+		for (let key in userTimers) {
+			// If the user reconnected in time, clear the timer:
+			if(key == socket.decoded.username) {
+				clearTimeout(userTimers[key]);
+				delete userTimers[key];
+				console.log("User "+socket.decoded.username+" reconnected in time.")
+			}
+		}
+	}
 	// Send socket to the lobby manager:
 	lobbyManager(socket,io);
 	socket.on("gameaction", (data) => {
@@ -89,6 +98,44 @@ io.on("connection", function (socket) {
 	})
 
 	socket.on("disconnect", (data) => {
+		// When the client disconnects, start a timer to check if they reconnect in 10 seconds.
+		// If they don't reconnect, remove them from the lobby and kill the game process.
+		// If they reconnect, add them back to the lobby.
+		// Check if the user is connected to a lobby, if so, start a timer to check if they reconnect
+		let lobbyIndex = checkIfConnectedToLobby(socket.decoded.username);
+		if (lobbyIndex != -1) {
+			let timeOut = 60;
+			console.log("User "+socket.decoded.username+" disconnected. Starting timer for "+timeOut+" seconds.")
+			if(userTimers[socket.decoded.username]) {
+				clearTimeout(userTimers[socket.decoded.username]);
+				delete userTimers[socket.decoded.username];
+				console.log("Clearing previous timer.")
+			}
+			userTimers[socket.decoded.username] = setTimeout(() => {
+				console.log("User "+socket.decoded.username+" disconnected.")
+				if(lobbies[lobbyIndex].gameInProgress == false) {
+					lobbies[lobbyIndex].currentPlayers.splice(lobbies[lobbyIndex].currentPlayers.indexOf(socket.decoded.username), 1);
+					// Assign the new host if the host leaves:
+					if(lobbies[lobbyIndex].host == socket.decoded.username) {
+						lobbies[lobbyIndex].host = lobbies[lobbyIndex].currentPlayers[0];
+					}
+				} 
+				else {
+					// If user disconnects and the game is in progress, kill the game process:
+					let pythonProg = usersAndGames.get(lobbies[lobbyIndex].id);
+					if(pythonProg)
+					{
+						console.log("Killing game process for lobby "+lobbies[lobbyIndex].id)
+						pythonProg.kill();
+					}
+					io.to("room"+lobbies[lobbyIndex].id).emit('exit', {"gameOverMessage": "Player "+socket.decoded.username+" disconnected from the game."});
+					usersAndGames.delete(lobbies[lobbyIndex].id);
+				}
+				socket.leave("room"+lobbies[lobbyIndex].id);
+				delete userTimers[socket.decoded.username];
+			} , 1000*timeOut);
+		}
+				
 		//killUserGameProcess(socket);
 	})
 
@@ -119,6 +166,20 @@ io.on("connection", function (socket) {
 		// In the future, we can use the data to reconnect to a previous game.
 		startGame(socket, childProcessDataListener);
 	})
+	
+	socket.on("multiplayerReconnect", (data) => {
+		// Check if user is connected to a lobby and if the game is in progress:
+		console.log("User is reconnecting to a multiplayer game.")
+		let lobbyIndex = checkIfConnectedToLobby(socket.decoded.username);
+		if(lobbyIndex != -1 && lobbies[lobbyIndex].gameInProgress) {
+			socket.join("room"+lobbies[lobbyIndex].id);
+			lastValues = returnLastStateAndProgress(socket);
+			socket.emit('userDetails', socket.decoded);
+			socket.emit('data',{"gamestates": lastValues.lastState,"gameprogress": lastValues.lastProgress, "gameindex":gameIndex, "dataArrived":dataArrived, "gamestringindex": gameStringIndex},1000)
+		} else {
+			console.log("User is not connected to a lobby or the game is not in progress.")
+		}
+	});
 
 	socket.on("chatmessage", (data) => {
 		receiveChatMessage(socket, data);
@@ -215,6 +276,7 @@ io.on("connection", function (socket) {
 			stateAndProgress = usersAndStateAndProgress.get(socket.decoded.username);
 		}
 
+		if(stateAndProgress != undefined) {
 		// Length of the progress and state arrays:
 		let progressLength = stateAndProgress[1].length;
 		let stateLength = stateAndProgress[0].length;
@@ -224,6 +286,9 @@ io.on("connection", function (socket) {
 		let lastProgress = stateAndProgress[1][progressLength - progressIndex];
 
 		return { "lastState": [lastState], "lastProgress": [lastProgress] };
+		} else {
+			return { "lastState": [], "lastProgress": [] };
+		}
 	}
 
 });
@@ -269,7 +334,7 @@ function startMultiplayerGame(socket, childProcessDataListener) {
 
 		let pyexe = getPyexe();
 
-		pythonProg = spawn(pyexe, args, { timeout: 1000000 });
+		pythonProg = spawn(pyexe, args, { timeout: 10000000 });
 	}
 	else {
 		pythonProg = usersAndGames.get(lobbyId);
@@ -280,8 +345,11 @@ function startMultiplayerGame(socket, childProcessDataListener) {
 
 	// Store the python program in a map with the user's email as the key.
 	usersAndGames.set(lobbyId, pythonProg);
+	// Set game in progress in lobbies:
+	lobbies[lobbyIndex].gameInProgress = true;
 	pythonProg.stderr.on('data', function (data) {
 		// If the python program sends an error, log it.
+		console.log(data)
 		console.log(data.toString());
 	});
 
@@ -293,6 +361,12 @@ function startMultiplayerGame(socket, childProcessDataListener) {
 	pythonProg.stdout.on('end', () => {
 		// Process the complete output from the Python program
 		console.log("END OF THE STREAM!");
+		io.to("room"+lobbies[lobbyIndex].id).emit('exit', {"gameOverMessage": "Game has been closed due to disconnection or other error."});
+		// Empty the lobby and the socket room when the game ends:
+		lobbies[lobbyIndex].currentPlayers = [];
+		io.in("room"+lobbyId).socketsLeave("room"+lobbyId);
+		lobbies[lobbyIndex].gameInProgress = false;
+
 	});
 
 	pythonProg.on('exit', function (data) {

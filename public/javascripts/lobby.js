@@ -83,9 +83,13 @@ async function showCurrentLobby(lobby) {
                                        <p><strong>Host:</strong> ${lobby.host}</p>
                                        `;
     // If the user is already in the lobby, show the leave lobby button, otherwise show the join lobby button
-    if (lobby.currentPlayers.includes(username)) {
+    if (lobby.currentPlayers.includes(username) && lobby.gameInProgress == false) {
         currentLobbyContainerString += `<button id="leaveLobbyBtn" onclick=leaveLobby(${lobby.id})>Leave Lobby</button>`;
-        } else {
+        } 
+    else if(lobby.gameInProgress == true) {
+        currentLobbyContainerString += `<button id="reconnectGameBtn" onclick=multiplayerReconnect(${lobby.id})>Reconnect</button>`;
+    }
+    else {
         currentLobbyContainerString += `<button id="joinLobbyBtn" onclick=joinLobby(${lobby.id})>Join Lobby</button>`;
     }
     // If the user is the host, show the start game button
@@ -121,6 +125,19 @@ function startGame() {
         document.close();
     });
 }
+
+function multiplayerReconnect() {
+    fetch('/startgame')
+			.then(response => response.text())
+			.then(updatedHTML => {
+				// Replace the existing HTML with the updated HTML
+				document.open();
+				document.write(updatedHTML);
+				document.gameStart = "multiplayerReconnect";
+				document.close();
+			});
+}
+
 
 function createLobby() {
     const lobbyNameInput = document.getElementById('lobbyNameInput');
