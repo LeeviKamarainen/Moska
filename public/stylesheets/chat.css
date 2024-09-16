@@ -24,7 +24,7 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 0 10px;
-    font-size: 1em;
+    font-size: 1vw;
     cursor: nw-resize;
 }
 
@@ -41,6 +41,7 @@ body {
     margin-bottom: 10px;
     width: 80%;
     word-wrap: break-word;
+    font-size: 1vw
 }
 
 .message span.timestamp {
@@ -48,7 +49,7 @@ body {
     top: 0;
     right: -20%;
     color: #888;
-    font-size: 0.5em;
+    font-size: 0.5vw;
 }
 
 
@@ -63,15 +64,16 @@ body {
     border: 1px solid #ccc;
     bottom:20%;
     border-radius: 5px;
+    font-size: 1vw;
 }
 
 #chat-send {
     width: calc(100% - 4%);
     margin: 2%;
     padding: 2%;
-    background-color: #32CD32;
-    ;
+    background-color: #32CD32;;
     color: black;
+    font-size: 1vw;
     border: none;
     border-radius: 5px;
     bottom: 10%;
@@ -93,6 +95,11 @@ body {
     display: flex;
     justify-content: center;
     align-items: center; /* Vertically align the label and input */
+}
+
+#chat-switch input {
+    height: 1vw;
+    width: 1vw;
 }
 
 ::-webkit-scrollbar {
