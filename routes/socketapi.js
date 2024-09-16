@@ -104,7 +104,7 @@ io.on("connection", function (socket) {
 		// Check if the user is connected to a lobby, if so, start a timer to check if they reconnect
 		let lobbyIndex = checkIfConnectedToLobby(socket.decoded.username);
 		if (lobbyIndex != -1) {
-			let timeOut = 5;
+			let timeOut = 100;
 			console.log("User "+socket.decoded.username+" disconnected. Starting timer for "+timeOut+" seconds.")
 			if(userTimers[socket.decoded.username]) {
 				clearTimeout(userTimers[socket.decoded.username]);
