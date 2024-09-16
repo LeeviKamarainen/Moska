@@ -91,6 +91,12 @@ async function populateChatHistory() {
 	const lobbyChatRadio = document.getElementById('lobby-chat');
 	const lobbyChatLabel = document.getElementById('lobby-chat-label');
 	const globalChatRadio = document.getElementById('global-chat');
+	const chatInput = document.getElementById('chat-input');
+	chatInput.addEventListener('keypress', function (e) {
+		if (e.key === 'Enter') {
+			sendMessage();
+		}
+	});
 	let chatType = 'global';
 	if (lobbyChatRadio.checked) {
 		chatType = 'lobby';

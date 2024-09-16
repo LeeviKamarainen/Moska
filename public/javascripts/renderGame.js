@@ -23,6 +23,7 @@ let DEFAULT_BOARD_DIV = `<div id="board">
   <button id="Skip" class = "play-cards" disabled="true">Skip turn</button>
   <div style="height:100%;width:5%;"></div> <!-- For empty space in the action menu-->
   <button id="EndTurn" class = "play-cards" disabled="true">End bout</button>
+    <div style="height:100%;width:5%;"></div> <!-- For empty space in the action menu-->
   <button id="DrawAll" class = "play-cards" disabled="true">End bout (draw all)</button>
   <div style="height:100%;width:5%;"></div> <!-- For empty space in the action menu-->
   <button id="Refresh" class = "play-cards">Refresh</button>
@@ -187,16 +188,18 @@ function wait(ms) {
 function renderGameOver(data,gameOverMessage) {
 	// Check first if the rendering has been stopped, and after that render game over state.
 	if(gameOverMessage) {
-		let currentState = document.getElementById('board');
-
-		let endElement = document.createElement('div');
-		endElement.id = "gameover";
-		
-		let endState = `<div id="gameover"> GAME OVER!<br>${gameOverMessage}
-		</div>
-		`
-		endElement.innerHTML = endState;
-		currentState.appendChild(endElement);
+		// Check if the end element does already exist, then don't render it again:
+		if (document.getElementById('gameover') == null) {
+			let currentState = document.getElementById('board');
+			let endElement = document.createElement('div');
+			endElement.id = "gameover";
+			
+			let endState = `<div id="gameover"> GAME OVER!<br>${gameOverMessage}
+			</div>
+			`
+			endElement.innerHTML = endState;
+			currentState.appendChild(endElement);
+		}
 	}
 	document.addEventListener('lastFramesRendered', () => {
 		let currentState = document.getElementById('board');

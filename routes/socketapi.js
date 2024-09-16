@@ -104,7 +104,7 @@ io.on("connection", function (socket) {
 		// Check if the user is connected to a lobby, if so, start a timer to check if they reconnect
 		let lobbyIndex = checkIfConnectedToLobby(socket.decoded.username);
 		if (lobbyIndex != -1) {
-			let timeOut = 60;
+			let timeOut = 5;
 			console.log("User "+socket.decoded.username+" disconnected. Starting timer for "+timeOut+" seconds.")
 			if(userTimers[socket.decoded.username]) {
 				clearTimeout(userTimers[socket.decoded.username]);
@@ -119,6 +119,7 @@ io.on("connection", function (socket) {
 					if(lobbies[lobbyIndex].host == socket.decoded.username) {
 						lobbies[lobbyIndex].host = lobbies[lobbyIndex].currentPlayers[0];
 					}
+					io.to("lobby").emit("updateLobbyForAll",{"lobbies":lobbies, "username":socket.decoded.username});
 				} 
 				else {
 					// If user disconnects and the game is in progress, kill the game process:
@@ -129,6 +130,7 @@ io.on("connection", function (socket) {
 						pythonProg.kill();
 					}
 					io.to("room"+lobbies[lobbyIndex].id).emit('exit', {"gameOverMessage": "Player "+socket.decoded.username+" disconnected from the game."});
+					io.to("lobby").emit("updateLobbyForAll",{"lobbies":lobbies, "username":socket.decoded.username});
 					usersAndGames.delete(lobbies[lobbyIndex].id);
 				}
 				socket.leave("room"+lobbies[lobbyIndex].id);
@@ -296,14 +298,16 @@ io.on("connection", function (socket) {
 // Start multiplayer game:
 function startMultiplayerGame(socket, childProcessDataListener) {
 	let lobbyIndex = checkIfConnectedToLobby(socket.decoded.username);
+	if(lobbyIndex == -1) {
+		console.log("Lobby ID is undefined.")
+		return null;
+	}
 	let lobbyId = lobbies[lobbyIndex].id;
 	// Find if the user is in a lobby:
 
 	let stateAndProgress = [[], []];
 	usersAndStateAndProgress.set(lobbyId, stateAndProgress);
 	if(lobbyId == undefined) {
-		console.log("Lobby ID is undefined.")
-		return null;
 	}
 	else {
 		io.to("room"+lobbyId).emit('multiplayerStartGame', true);
@@ -366,6 +370,7 @@ function startMultiplayerGame(socket, childProcessDataListener) {
 		lobbies[lobbyIndex].currentPlayers = [];
 		io.in("room"+lobbyId).socketsLeave("room"+lobbyId);
 		lobbies[lobbyIndex].gameInProgress = false;
+		lobbies[lobbyIndex].host = undefined;
 
 	});
 
@@ -483,6 +488,18 @@ function startMultiplayerGame(socket, childProcessDataListener) {
 function startGame(socket, childProcessDataListener) {
 	let stateAndProgress = [[], []];
 	usersAndStateAndProgress.set(socket.decoded.username, stateAndProgress);
+
+	// Check if the user is connected to a lobby, if so, make sure that they leave the lobby:
+	let lobbyIndex = checkIfConnectedToLobby(socket.decoded.username);
+	if(lobbyIndex != -1) {
+		console.log("User is connected to a lobby, but started a singleplayer game. Leaving the lobby.")
+		socket.leave("room"+lobbies[lobbyIndex].id);
+		lobbies[lobbyIndex].currentPlayers.splice(lobbies[lobbyIndex].currentPlayers.indexOf(socket.decoded.username), 1);
+		// Assign the new host if the host leaves:
+		if(lobbies[lobbyIndex].host == socket.decoded.username) {
+			lobbies[lobbyIndex].host = lobbies[lobbyIndex].currentPlayers[0];
+		}
+	}
 	// If the user already has a child process running,
 	// terminate it to reduce the risk of unreferenced child processes running and causing memory loss.
 	if (!usersAndGames.has(socket.decoded.username)) {

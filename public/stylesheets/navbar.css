@@ -1,30 +1,70 @@
   /* Navigation bar styling: */
 
-  .navbar {
+/*  .navbar {
     overflow: hidden;
     background-color: #333;
     position: fixed;
     left: 0;
     top: 0;
     width: 100%;
-  }
+  }*/
   
   /* Style the links inside the navigation bar */
-  .navbar a {
+  /*.navbar a {
     float: left;
     display: block;
     color: white;
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
-  }
+  }*/
   
   /* Style the login and register buttons on the right side */
-  .navbar .login {
-    float: right;
+
+  .navbar {
+    overflow: hidden;
+    background-color: rgba(17,55,31,255)
   }
-  
-  .navbar .register {
-    float: right;
-    margin-right: 20px;
+
+  .navbar a {
+    float: left;
+    display: block;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
   }
+
+  .navbar a:hover {
+    background-color: #ddd;
+    color: black;
+  }
+
+/*
+  .login-form {
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    border-radius: 10px;
+    display: inline-block;
+  }
+
+  .login-form h1 {
+    margin-bottom: 20px;
+  }
+
+  .login-form button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px 20px;
+    margin: 10px 0;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+
+  .login-form button:hover {
+    background-color: #45a049;
+  }*/

@@ -16,8 +16,8 @@ body {
 }
 
 #chat-header {
-    background-color: #32CD32;;
-    color: #fff;
+    background-color: #32CD32;
+    color: black;
     padding: 2%;
     height: 10%;
     display: flex;
@@ -48,7 +48,7 @@ body {
     top: 0;
     right: -20%;
     color: #888;
-    font-size: 0.75em;
+    font-size: 0.5em;
 }
 
 
@@ -71,7 +71,7 @@ body {
     padding: 2%;
     background-color: #32CD32;
     ;
-    color: #fff;
+    color: black;
     border: none;
     border-radius: 5px;
     bottom: 10%;

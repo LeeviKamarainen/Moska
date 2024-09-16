@@ -42,28 +42,27 @@ async function initializeLobby() {
             listItem.setAttribute('lobbyid', lobby.id);
             lobbyList.appendChild(listItem);
         });
-
-        socket.on('updateLobbyForAll', (data) => {
-            console.log("Lobby update received.");
-            lobbies = data.lobbies;
-            lobbyList.innerHTML = '';
-            lobbies.forEach(lobby => {
-                const listItem = document.createElement('li');
-                listItem.textContent = `${lobby.name} - Current Players: ${lobby.currentPlayers.length}`;
-                listItem.addEventListener('click', () => showCurrentLobby(lobby));
-                listItem.setAttribute('lobbyid', lobby.id);
-                lobbyList.appendChild(listItem);
-            });
-            showCurrentLobby(lobbies.find(lobby => lobby.currentPlayers.includes(username)));
+    });
+    socket.on('updateLobbyForAll', (data) => {
+        console.log("Lobby update received.");
+        lobbies = data.lobbies;
+        lobbyList.innerHTML = '';
+        lobbies.forEach(lobby => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${lobby.name} - Current Players: ${lobby.currentPlayers.length}`;
+            listItem.addEventListener('click', () => showCurrentLobby(lobby));
+            listItem.setAttribute('lobbyid', lobby.id);
+            lobbyList.appendChild(listItem);
         });
+        showCurrentLobby(lobbies.find(lobby => lobby.currentPlayers.includes(username)));
+    });
 
-        socket.on('multiplayerStartGame', () => {
-            startGame();
-        })
+    socket.on('multiplayerStartGame', () => {
+        startGame();
+    })
         // Create Lobby button
         //const createLobbyBtn = document.getElementById('createLobbyBtn');
         //createLobbyBtn.addEventListener('click', createLobby);
-    });
 };
 
 async function showCurrentLobby(lobby) {
@@ -86,11 +85,14 @@ async function showCurrentLobby(lobby) {
     if (lobby.currentPlayers.includes(username) && lobby.gameInProgress == false) {
         currentLobbyContainerString += `<button id="leaveLobbyBtn" onclick=leaveLobby(${lobby.id})>Leave Lobby</button>`;
         } 
-    else if(lobby.gameInProgress == true) {
+    else if(lobby.gameInProgress == true && lobby.currentPlayers.includes(username)) {
         currentLobbyContainerString += `<button id="reconnectGameBtn" onclick=multiplayerReconnect(${lobby.id})>Reconnect</button>`;
     }
-    else {
+    else if(lobby.gameInProgress == false) {
         currentLobbyContainerString += `<button id="joinLobbyBtn" onclick=joinLobby(${lobby.id})>Join Lobby</button>`;
+    } 
+    else {
+        currentLobbyContainerString += `<p>Game in progress.</p>`;
     }
     // If the user is the host, show the start game button
     if (lobby.host === username && lobby.host !== undefined && lobby.currentPlayers.length > 1) {

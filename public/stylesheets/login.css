@@ -15,23 +15,31 @@ body {
 }
 
 form {
-  background-color: #32CD32;
+  background-color: rgba(17,55,31,255);
   padding: 20px;
   width: 40%;
   border-radius: 10px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
+form h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: white
+}
+form label {
+  text-align: center;
+  margin-bottom:10px;
+  color: white
+}
 
 h2 {
   text-align: center;
   margin-bottom: 20px;
-  color: #333;
 }
 
 label {
   display: block;
   margin-bottom: 10px;
-  color: #555;
 }
 
 input[type="text"],
