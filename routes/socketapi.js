@@ -314,6 +314,13 @@ function startMultiplayerGame(socket, childProcessDataListener) {
 	}
 	// If the user already has a child process running,
 	// terminate it to reduce the risk of unreferenced child processes running and causing memory loss.
+	if (usersAndGames.has(lobbyId)) {
+		console.log("Room already has a game running. Terminating the previous game and starting a new one.")
+		pythonProg = usersAndGames.get(lobbyId);
+		pythonProg.kill();
+		usersAndGames.delete(lobbyId);
+	}
+
 	if (!usersAndGames.has(lobbyId)) {
 		// Get all the players in the lobby:
 		let lobby = lobbies.find(lobby => lobby.id == lobbyId);
@@ -339,9 +346,6 @@ function startMultiplayerGame(socket, childProcessDataListener) {
 		let pyexe = getPyexe();
 
 		pythonProg = spawn(pyexe, args, { timeout: 10000000 });
-	}
-	else {
-		pythonProg = usersAndGames.get(lobbyId);
 	}
 	pythonProg.on('error', (err) => {
 		console.error(`Failed to start Python process: ${err}`);
@@ -491,6 +495,7 @@ function startGame(socket, childProcessDataListener) {
 
 	// Check if the user is connected to a lobby, if so, make sure that they leave the lobby:
 	let lobbyIndex = checkIfConnectedToLobby(socket.decoded.username);
+	console.log(lobbyIndex);
 	if(lobbyIndex != -1) {
 		console.log("User is connected to a lobby, but started a singleplayer game. Leaving the lobby.")
 		socket.leave("room"+lobbies[lobbyIndex].id);
@@ -500,10 +505,15 @@ function startGame(socket, childProcessDataListener) {
 			lobbies[lobbyIndex].host = lobbies[lobbyIndex].currentPlayers[0];
 		}
 	}
+	if(usersAndGames.has(socket.decoded.username)) {
+		console.log("User already has a game running. Terminating the previous game and starting a new one.")
+		pythonProg = usersAndGames.get(socket.decoded.username);
+		pythonProg.kill();
+		usersAndGames.delete(socket.decoded.username);
+	}
 	// If the user already has a child process running,
 	// terminate it to reduce the risk of unreferenced child processes running and causing memory loss.
 	if (!usersAndGames.has(socket.decoded.username)) {
-
 		let username = socket.decoded ? socket.decoded.username : "Human";
 		let args = [__dirname + "/../Python/browserMoska.py"];
 		// let args = ["C:/home/site/wwwroot/Python/browserMoska.py"];
@@ -521,9 +531,6 @@ function startGame(socket, childProcessDataListener) {
 		let pyexe = getPyexe();
 
 		pythonProg = spawn(pyexe, args, { timeout: 1000000 });
-	}
-	else {
-		pythonProg = usersAndGames.get(socket.decoded.username);
 	}
 	pythonProg.on('error', (err) => {
 		console.error(`Failed to start Python process: ${err}`);

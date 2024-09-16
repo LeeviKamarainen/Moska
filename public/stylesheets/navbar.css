@@ -23,7 +23,8 @@
 
   .navbar {
     overflow: hidden;
-    background-color: rgba(17,55,31,255)
+    background-color: rgba(17,55,31,255);
+    position: absolute;
   }
 
   .navbar a {

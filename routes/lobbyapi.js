@@ -22,6 +22,12 @@ function lobbyManager(socket,io) {
     });
 
     socket.on("getLobbies", (data, callback) => {
+        // Check if there is mismatch in currentPlayers and gameInProgress
+        lobbies.forEach(lobby => {
+            if (lobby.currentPlayers.length == 0 && lobby.gameInProgress) {
+                lobby.gameInProgress = false;
+            }
+        });
         // Check if the user is already connected to a lobby, if so, redirect them to that lobby
         let lobbyIndex = checkIfConnectedToLobby(socket.decoded.username);
         socket.join('global');
