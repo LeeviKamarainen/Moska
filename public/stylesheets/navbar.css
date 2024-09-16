@@ -33,9 +33,12 @@
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
-    font-size: 17px;
+    font-size: 1vw;
   }
 
+  .navbar p {
+    font-size: 1vw;
+  }
   .navbar a:hover {
     background-color: #ddd;
     color: black;

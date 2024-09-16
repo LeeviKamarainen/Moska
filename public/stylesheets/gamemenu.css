@@ -56,6 +56,8 @@ By clicking the button, the user can choose to show or hide the evaluation of th
 /*Styling for buttons on action menu*/
 .play-cards {
   height: 100%;
+  width: 10%;
+  font-size: 1vw;
 }
 
 .play-cards[disabled="true"] {
