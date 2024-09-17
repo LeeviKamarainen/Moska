@@ -17,18 +17,20 @@ if (document.readyState !== "loading") {
  * @function initializeLobby
  * @returns {Promise<void>} A promise that resolves when the lobby is initialized.
  */
+var username;
 async function initializeLobby() {
     var socket = socketManager.getInstance();
-    socket.emit('joinPage', { page: 'lobby' });
-    // Sample lobby data
-    let lobbies = [];
-    var username;
     await new Promise(resolve => {
         socket.emit('userDetails', {}, (data) => {
         username = data.username;
         resolve();
     });
     });
+    socket.emit('joinPage', { page: 'lobby' },(data) => {
+        renderOnlineUsers(data.users, username);
+    });
+    // Sample lobby data
+    let lobbies = [];
     socket.emit('getLobbies', {}, (data) => {
         lobbydata = data;
         lobbies = data.lobbies;
@@ -55,6 +57,10 @@ async function initializeLobby() {
             lobbyList.appendChild(listItem);
         });
         showCurrentLobby(lobbies.find(lobby => lobby.currentPlayers.includes(username)));
+    });
+
+    socket.on("updateOnlineUsers", (data) => {
+        renderOnlineUsers(data.users);
     });
 
     socket.on('multiplayerStartGame', () => {
@@ -185,6 +191,40 @@ function leaveLobby(lobby) {
         }
     });
 }
+
+function renderOnlineUsers(users, currentUsername) {
+    // Get the UL element to populate
+    const usersList = document.getElementById('onlineUsers');
+  
+    // Clear the current list
+    usersList.innerHTML = '';
+    console.log(users)
+    // Loop through each user in the list and create list items
+    users.forEach(user => {
+      // Create a new list item
+      const listItem = document.createElement('li');
+    listItem.textContent =  user.name
+
+    console.log(listItem.textContent)
+      // Create a span for the status indicator
+      const statusIndicator = document.createElement('span');
+      statusIndicator.style.display = 'inline-block';
+      statusIndicator.style.width = '10px';
+      statusIndicator.style.height = '10px';
+      statusIndicator.style.borderRadius = '50%';
+      statusIndicator.style.marginRight = '8px';
+  
+      // Set the color based on the user's status
+      statusIndicator.style.backgroundColor = user.isActive ? 'green' : 'yellow';
+  
+      // Add the status indicator and user name to the list item
+      listItem.prepend(statusIndicator);
+  
+      // Add the list item to the users list
+      usersList.appendChild(listItem);
+    });
+  }
+
 
 // Handle page unload to leave the room
 window.addEventListener('beforeunload', () => {

@@ -13,6 +13,22 @@ function lobbyManager(socket,io) {
 
     socket.on("joinPage", (data, callback) => {
         socket.join(data.page);
+        // Return all the usernames in the lobby page:
+        let users = io.sockets.adapter.rooms.get(data.page);
+        let online_users = [];
+        if (users) {
+            users.forEach(user => {
+                let username = io.sockets.sockets.get(user).decoded.username;
+                // Check if the username already exists in the online_users array
+                let exists = online_users.some(existingUser => existingUser.name === username);
+                if (!exists) {
+                    let details = {"name":io.sockets.sockets.get(user).decoded.username, "isActive":true};
+                    online_users.push(details);
+                }
+            });
+        }
+        callback({ "users": online_users });
+        io.to(data.page).emit("updateOnlineUsers", { "users": online_users });
         console.log("Joined page " + data.page);
     });
 

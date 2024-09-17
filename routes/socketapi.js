@@ -367,6 +367,7 @@ function startMultiplayerGame(socket, childProcessDataListener) {
 	pythonProg.stdout.on('data', childProcessDataListener);
 
 	pythonProg.stdout.on('end', () => {
+		try {
 		// Process the complete output from the Python program
 		console.log("END OF THE STREAM!");
 		io.to("room"+lobbies[lobbyIndex].id).emit('exit', {"gameOverMessage": "Game has been closed due to disconnection or other error."});
@@ -375,7 +376,11 @@ function startMultiplayerGame(socket, childProcessDataListener) {
 		io.in("room"+lobbyId).socketsLeave("room"+lobbyId);
 		lobbies[lobbyIndex].gameInProgress = false;
 		lobbies[lobbyIndex].host = undefined;
-
+		// Delete the game process:
+		usersAndGames.delete(lobbyId);
+		} catch {
+			console.log("Error in ending the game.")
+		}
 	});
 
 	pythonProg.on('exit', function (data) {

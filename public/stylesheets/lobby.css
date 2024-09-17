@@ -10,6 +10,7 @@ body {
     top: 30%;
     left: 30%;
     width: 40%;
+    height: 30%;
 }
 
 .lobby-list, .current-lobby {
@@ -61,3 +62,26 @@ button:hover {
     width: 30%;
     height: 40%;
   }
+
+.lobby-online-users {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    margin: 10px;
+    background-color: #1a1919;
+    width: 20%;
+    left: 0%;
+    color: white;
+    height: 25%;
+    overflow-y: scroll;
+    bottom: 0%;
+    position: absolute;
+}
+.lobby-online-users p {
+    margin-block-start: 0;
+    background-color: #32CD32;
+    color: black;
+    height: 10%;
+    width: 100%;
+    font-size: 1vw;
+    text-align: center;
+}
