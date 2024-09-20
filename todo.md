@@ -7,37 +7,37 @@ This lists features and bugs that are not yet implemented or fixed.
 
 #### **Bugs**
 
-| Description                                           | Current Behaviour                                  | Desired Behaviour                                  | Estimated Changes                     |
+| Description | Current Behaviour | Desired Behaviour | Estimated Changes |
 |-------------------------------------------------------|----------------------------------------------------|---------------------------------------------------|---------------------------------------|
-| The game ending message is ugly in multiplayer.  | The message indicates an error, even though there is no error            | Correct and informative message after game ends.   | Update multiplayer end-game logic.    |
-| Evaluation plot is not shown after multiplayer games. | Plot is missing from the interface.                | Display evaluation plot correctly.                 | Fix rendering logic for multiplayer.  |
-| Leaderboard default sorting is reversed.              | Sorted in reverse order by default.                | Correct the default sorting to ascending order.    | Adjust leaderboard sorting algorithm. |
+| The game ending message is ugly in multiplayer.  | The message indicates an error, even though there is no error. | Show the evaluation progression, or just show 'Game finished'.   | - |
+| Evaluation plot is not shown after multiplayer games. | Plot is missing from the interface. | Display evaluation plot correctly. | - |
+| Leaderboard default sorting is reversed -> incorrect. | Currently sorted in reverse order by default. | Correct the default sorting to ascending order. | Swap default sorting direction. |
+
+#### **Features**
+
+| Description | Current Behaviour | Desired Behaviour | Estimated Changes |
+|-------------------------------------------------------|----------------------------------------------------|---------------------------------------------------|---------------------------------------|
+| Add a 'face' next to each player (human, squirrel, AI) | Only name listed | Show a face-like image next to each player, can be random at first. | Probably in renderGame.js |
+| Show an error message to user if the game crashes. | Game hangs with timer animation when it crashes, atleast in singleplayer. | Display an appropriate error message on crash. | Move same code as in multiplayer, to a singleplayer. |
+| Allow replaying past games. | No replay functionality for past games, and no way to view own past games. | Users should be able to replay past games by doing forward-backward. | Add a separate page where the user can select one of their previous (succesful) games and start replaying it. |
+| Show the user's estimated rank on the leaderboard. | Users have no rank. | Show an estimated rank for the user's skill level. | Change what is saved for each player, and add logic to calculate the leaderboard rank. |
+| Add cleaner font to the game interface. | Current font is very simple, and small. | Implement a cleaner and more readable font. | Update font styles across the UI, especially in Game view. |
+
+---
+
 
 #### **Tests**
 
 - Add automated test coverage for multiplayer games.
 
-#### **Features**
-
-| Description                                           | Current Behaviour                                  | Desired Behaviour                                  | Estimated Changes                     |
-|-------------------------------------------------------|----------------------------------------------------|---------------------------------------------------|---------------------------------------|
-| Add a 'face' next to each player (human, squirrel, AI)| No avatar or face next to player names.            | Show customizable avatars next to each player.     | Implement avatar selection/display.   |
-| Show error message to user if the game crashes.       | Game hangs with timer animation when it crashes.   | Display an appropriate error message on crash.     | Implement error-handling logic.       |
-| Allow replaying past games.                           | No replay functionality for past games.            | Users should be able to replay past games.         | Add replay logic for game history.    |
-| Show the user's estimated rank on the leaderboard.    | Only displays rank position.                       | Display estimated rank alongside leaderboard rank. | Adjust leaderboard display logic.     |
-| Add more game configuration options at launch.        | Limited configuration options when launching.      | Add model level and other config options.          | Expand game settings interface.       |
-| Add cleaner font to the game interface.               | Current font may not be user-friendly or clear.    | Implement a cleaner and more readable font.        | Update font styles across the UI.     |
-
----
-
 ### Backend
 
 #### **Bugs**
 
-| Description                                           | Current Behaviour                                  | Desired Behaviour                                  | Estimated Changes                     |
+| Description | Current Behaviour | Desired Behaviour | Estimated Changes |
 |-------------------------------------------------------|----------------------------------------------------|---------------------------------------------------|---------------------------------------|
-| Website requires 'www' in the URL to work.            | Website only loads with 'www' in the URL.          | Remove 'www' requirement, move to Azure hosting.   | Change DNS settings, move to Azure.   |
-| Run app with PM2 for automatic restarts.              | App does not automatically restart on crashes.     | Use PM2 to ensure app restarts after crashes.      | Integrate PM2 process management.     |
+| Website requires 'www' in the URL to work. | Website only loads with 'www' in the URL. | Remove 'www' requirement, move to Azure hosting. | Move the app to Azure. |
+| Run app with PM2 for more security and automatic restarts. | App does not automatically restart on crashes. | App can be starterd with `pm2 app.js`| Download, and make sure it works. |
 
 #### **Tests**
 
