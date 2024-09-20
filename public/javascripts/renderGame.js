@@ -44,6 +44,7 @@ let SAVED_DATA = null;
 let IS_RENDERING = false;
 let PLAYER_NAME;
 var socket;
+const audioMuted = false;
 console.log("Loading!")
 document.addEventListener("DOMContentLoaded", function () {
   console.log("DOM READY")
@@ -912,6 +913,9 @@ function updateState(stateJson, emptyState, gameActionString) {
 
 		if (stateJson.players[playerIndex].name == stateJson.turn) {
 			cardContainer.setAttribute("turn", 1);
+			if(stateJson.players[playerIndex].name == PLAYER_NAME) {
+				playCurrentTurnAudio();
+			}
 		}
 
 		if (stateJson.players[playerIndex].name == stateJson.target && stateJson.players[playerIndex].name == stateJson.turn) {
@@ -1146,4 +1150,30 @@ function toggleCanKillCards() {
 			}
 		}
 	});
+}
+
+function playCurrentTurnAudio() {
+	try {
+	const muteSoundButton = document.getElementById("mute-sound-button");
+	if(muteSoundButton.hasAttribute("muted") == true) {
+		return;
+	}
+	var current_turn_audio = new Audio('../sounds/water-drip-45622.mp3');
+	current_turn_audio.play();
+	} catch{
+		console.log("Audio error.")
+	}
+}
+
+
+function muteSound(button) {
+	const muteSoundButton = document.getElementById("mute-sound-button");
+	if(muteSoundButton.hasAttribute("muted") == false) {
+		muteSoundButton.setAttribute("muted", 1);
+		muteSoundButton.innerHTML = "🔇";
+	}
+	else if (muteSoundButton.getAttribute("muted") == 1) {
+		muteSoundButton.removeAttribute("muted");
+		muteSoundButton.innerHTML = "🔊";
+	}
 }

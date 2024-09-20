@@ -30,7 +30,7 @@ let databaseURL = process.env.firebase_databaseURL;
 let projectId = process.env.firebase_projectId;
 let storageBucket = process.env.firebase_storageBucket;
 let messagingSenderId = process.env.firebase_messagingSenderId;
-let appId = process.env.firebase_appId
+let appId = process.env.firebase_appIdsdw
 let measurementId = process.env.firebase_measurementId;
 
 

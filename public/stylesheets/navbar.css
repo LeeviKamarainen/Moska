@@ -46,6 +46,12 @@
     color: black;
   }
 
+  #mute-sound-button {
+    cursor: pointer;
+    width: 5%;
+    float: right;
+  }
+
 /*
   .login-form {
     background-color: rgba(0, 0, 0, 0.7);
