@@ -223,18 +223,11 @@ function renderGameOver(data,gameOverMessage) {
 				base64String = reader.result.split(',')[1];
 				// Set the image source
 				let endState;
-				if(gameOverMessage) {
-					endState = `<div>
-				GAME OVER!<br>${gameOverMessage}
+				endState = `<div>
+				GAME OVER!<br>Open the image in a new tab to see the evaluation image
+				<br>
+				<img id="evaluationimage" style="height:50%;width:50%;" src=`+ `data:image/png;base64,${base64String}` + `></>
 				</div>`
-				} 
-				else {
-					endState = `<div>
-					GAME OVER!<br>Open the image in a new tab to see the evaluation image
-					<br>
-					<img id="evaluationimage" style="height:50%;width:50%;" src=`+ `data:image/png;base64,${base64String}` + `></>
-					</div>`
-				}
 				endElement.innerHTML = endState;
 			};
 			reader.readAsDataURL(blob);
@@ -438,7 +431,7 @@ function checkActionState(stateJson, fromReplay = false) {
 		}
 
 	}
-
+	let playCurrentTurnAudioFlag = true;
 	// Then make all of the buttons which are included in the stateJson visible:
 	for (let index = 0; index < actionMenuButtons.length; index++) {
 
@@ -455,7 +448,9 @@ function checkActionState(stateJson, fromReplay = false) {
 		if (stateJson.players[playerIndex].playable_moves.includes(actionMenuButtons[index].id) && playerName == stateJson.players[playerIndex].name) {
 			// If the state is 'fromReplay', then the buttons are reddish
 			actionMenuButtons[index].disabled = false;
-
+			if(playCurrentTurnAudioFlag == true) {
+				playCurrentTurnAudio();
+			}
 			if (fromReplay) {
 				actionMenuButtons[index].style.backgroundColor = "red";
 				if (actionMenuButtons[index].id == "EndTurn") {
@@ -913,9 +908,6 @@ function updateState(stateJson, emptyState, gameActionString) {
 
 		if (stateJson.players[playerIndex].name == stateJson.turn) {
 			cardContainer.setAttribute("turn", 1);
-			if(stateJson.players[playerIndex].name == PLAYER_NAME) {
-				playCurrentTurnAudio();
-			}
 		}
 
 		if (stateJson.players[playerIndex].name == stateJson.target && stateJson.players[playerIndex].name == stateJson.turn) {

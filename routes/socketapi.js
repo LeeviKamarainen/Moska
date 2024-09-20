@@ -370,7 +370,7 @@ function startMultiplayerGame(socket, childProcessDataListener) {
 		try {
 		// Process the complete output from the Python program
 		console.log("END OF THE STREAM!");
-		io.to("room"+lobbies[lobbyIndex].id).emit('exit', {"gameOverMessage": "Game has been closed due to disconnection or other error."});
+		//io.to("room"+lobbies[lobbyIndex].id).emit('exit', {"gameOverMessage": "Game has been closed due to disconnection or other error."});
 		// Empty the lobby and the socket room when the game ends:
 		lobbies[lobbyIndex].currentPlayers = [];
 		io.in("room"+lobbyId).socketsLeave("room"+lobbyId);
@@ -465,11 +465,11 @@ function startMultiplayerGame(socket, childProcessDataListener) {
 			// Read the evaluation image file and send it to the client.
 			fs.readFile(__dirname + "/../" + folder_name + "/" + file_name, function (err, data) {
 				if (err) {
-					socket.emit('exit', true);
+					io.to("room"+lobbies[lobbyIndex].id).emit('exit', true);
 				}
 				else {
 					// Send the image data to the connected client
-					socket.emit('exit', { image: true, buffer: Buffer.from(data, 'base64') });
+					socket.to("room"+lobbies[lobbyIndex].id).emit('exit', { image: true, buffer: Buffer.from(data, 'base64') });
 				}
 			});
 			/*let res = fetch("http://localhost:3000/users/updateuser", {
