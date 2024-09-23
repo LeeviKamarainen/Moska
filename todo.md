@@ -53,6 +53,7 @@ This lists features and bugs that are not yet implemented or fixed.
 | Save game data to each player's profile.              | No game data is saved to player profiles.          | Store detailed game data within player profiles.   | Update player data model.             |
 | Save chat history during games.                      | No chat history is saved after games.              | Store and display chat history for each game.      | Implement chat history storage.       |
 | Update MoskaEngine while maintaining compatibility with old version. | Old MoskaEngine version is still used.             | Update to newer version but ensure AI compatibility with the old version. | Implement versioning and compatibility layers. |
+| Change Python to save all game data to a certain folder | Currently, the data is saved to thefirst player's folder. | Save all game data to a specified folder. The files are then copied to player's folders on JS. | Update Python script to accept a folder path which is used. The folder has to be unique. Copy the files to player folders in JS. |
 
 ---
 

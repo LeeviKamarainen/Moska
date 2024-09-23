@@ -97,23 +97,25 @@ router.post('/updateuser', async function (req, res, next) {
 	let userID = username;
 	// Get reference to the user in the database:
 	try {
-		const userRef = refdb.child(userInfo.userID);
+		const userRef = refdb.child(userID);
 
 		if (userRef != null) {
 			// Update the user in the database:
-			userRef.update(userInfo.userFound);
+			userRef.update(updatedUser);
 			// Log the updated user:
 			const userSnapshot = await userRef.once('value');
 			const userTEST = userSnapshot.val();
 		} else {
 			console.log("ERROR: User not found in database.")
+			res.status(404).send("User not found in database.")
 		}
 	} catch (error) {
 		console.log(error)
 		console.log("ERROR: User not found in database.")
+		res.status(404).send("User not found in database.")
 	}
 
-	res.json(userInfo);
+	res.json(updatedUser);
 })
 
 
