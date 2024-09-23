@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var path = require('path')
 const io = require("socket.io")();
-const { spawn } = require('child_process');
+const { spawn, exec } = require('child_process');
 const jwt = require('jsonwebtoken');
 const { use } = require('./users');
 const fetch = require('node-fetch');
@@ -11,6 +11,7 @@ const socketapi = {
 };
 const fs = require('fs');
 const { lobbyManager, checkIfConnectedToLobby, lobbies } = require('./lobbyapi');
+const { time } = require('console');
 let gameIndex = 0;
 let gameStringIndex = 2;
 let dataArrived;
@@ -104,7 +105,8 @@ io.on("connection", function (socket) {
 		// Check if the user is connected to a lobby, if so, start a timer to check if they reconnect
 		let lobbyIndex = checkIfConnectedToLobby(socket.decoded.username);
 		if (lobbyIndex != -1) {
-			let timeOut = 100;
+			let timeOut = process.env.DISCONNECT_TIMEOUT || 60;
+			timeOut = parseInt(timeOut);
 			console.log("User "+socket.decoded.username+" disconnected. Starting timer for "+timeOut+" seconds.")
 			if(userTimers[socket.decoded.username]) {
 				clearTimeout(userTimers[socket.decoded.username]);
@@ -113,6 +115,7 @@ io.on("connection", function (socket) {
 			}
 			userTimers[socket.decoded.username] = setTimeout(() => {
 				console.log("User "+socket.decoded.username+" disconnected.")
+				// If user disconnects and the game is not in progress, remove them from the lobby
 				if(lobbies[lobbyIndex].gameInProgress == false) {
 					lobbies[lobbyIndex].currentPlayers.splice(lobbies[lobbyIndex].currentPlayers.indexOf(socket.decoded.username), 1);
 					// Assign the new host if the host leaves:
@@ -123,15 +126,20 @@ io.on("connection", function (socket) {
 				} 
 				else {
 					// If user disconnects and the game is in progress, kill the game process:
-					let pythonProg = usersAndGames.get(lobbies[lobbyIndex].id);
-					if(pythonProg)
-					{
-						console.log("Killing game process for lobby "+lobbies[lobbyIndex].id)
+					let lobbyId = lobbies[lobbyIndex].id;
+					let pythonProg = usersAndGames.get(lobbyId);
+					if(pythonProg) {
+						console.log("Killing game process for lobby "+lobbyId)
 						pythonProg.kill();
 					}
 					io.to("room"+lobbies[lobbyIndex].id).emit('exit', {"gameOverMessage": "Player "+socket.decoded.username+" disconnected from the game."});
 					io.to("lobby").emit("updateLobbyForAll",{"lobbies":lobbies, "username":socket.decoded.username});
-					usersAndGames.delete(lobbies[lobbyIndex].id);
+					lobbies[lobbyIndex].currentPlayers = [];
+					io.in("room"+lobbyId).socketsLeave("room"+lobbyId);
+					lobbies[lobbyIndex].gameInProgress = false;
+					lobbies[lobbyIndex].host = undefined;
+					// Delete the game process:
+					usersAndGames.delete(lobbyId);
 				}
 				socket.leave("room"+lobbies[lobbyIndex].id);
 				delete userTimers[socket.decoded.username];
@@ -320,7 +328,8 @@ function startMultiplayerGame(socket, childProcessDataListener) {
 		pythonProg.kill();
 		usersAndGames.delete(lobbyId);
 	}
-
+	// The game is stored in folder named after the lobbyid, and time of creation
+	let run_folder = __dirname + "/../" + "Lobby" + lobbyId + "Game" + Date.now();
 	if (!usersAndGames.has(lobbyId)) {
 		// Get all the players in the lobby:
 		let lobby = lobbies.find(lobby => lobby.id == lobbyId);
@@ -338,8 +347,11 @@ function startMultiplayerGame(socket, childProcessDataListener) {
 			args.push(playersString);
 			args.push("--gameid");
 			args.push(gameIndex);
-			if (playersString == "Test") {
-				args.push("--test");
+			args.push("--folder");
+			args.push(run_folder);
+			// If any player is named 'test', then the game is a test game.
+			if (players.includes("Test")) {
+				args.push("--one_card_in_deck");
 			}
 		}
 
@@ -370,14 +382,6 @@ function startMultiplayerGame(socket, childProcessDataListener) {
 		try {
 		// Process the complete output from the Python program
 		console.log("END OF THE STREAM!");
-		io.to("room"+lobbies[lobbyIndex].id).emit('exit', {"gameOverMessage": "Game has been closed due to disconnection or other error."});
-		// Empty the lobby and the socket room when the game ends:
-		lobbies[lobbyIndex].currentPlayers = [];
-		io.in("room"+lobbyId).socketsLeave("room"+lobbyId);
-		lobbies[lobbyIndex].gameInProgress = false;
-		lobbies[lobbyIndex].host = undefined;
-		// Delete the game process:
-		usersAndGames.delete(lobbyId);
 		} catch {
 			console.log("Error in ending the game.")
 		}
@@ -402,90 +406,33 @@ function startMultiplayerGame(socket, childProcessDataListener) {
 			return
 		}
 
-		let playerIndex = 0;
-		/*for (let index = 0; index < lastState.players.length; index++) {
-			let player = lastState.players[index];
-			if (player.name == socket.decoded.username) {
-				playerIndex = index;
-				break;
-			}
-		}
+		if (data == 0) {
 
-		// Calculate average evaluation score:
-		let totalEvaluation = 0;
-		for (let index = 0; index < stateLength; index++) {
-			let state = stateAndProgress[0][index];
-			if (state.error) {
-				continue;
-			}
-			totalEvaluation = totalEvaluation + state.players[playerIndex].last_evaluation;
-		}*/
-
-		/*if (data != 0) { // Invalid exit code:
-			console.log("Invalid exit code. Game finished prematurely.")
-
-			// Storing in the database that game ended prematurely:
-			let res = fetch("http://localhost:3000/users/updateuser", {
-				method: "POST",
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ username: socket.decoded.username, stats: { "gameWon": 0, "gameLost": 0, "gameForfeited": 1, "totalEvaluation": totalEvaluation, "stateAmount": stateLength } })
-			})
-				.then(response => response.json())
-				.then(data => {
-					console.log('Database update response:', data);
-				})
-		}*/
-
-		if (data == 0) { // Valid exit code:
-
-			// Check if the player won or lost the game:
-			let gameWon = 0;
-			let gameLost = 0;
-
-			/*for (let index = 0; index < lastState.players.length; index++) {
-				let player = lastState.players[index];
-				if (player.name == socket.decoded.username && (player.finished == 1 || player.cards.length == 0)) {
-					console.log("User " + socket.decoded.username + " won the game.")
-					gameWon = 1;
-					gameLost = 0;
-					break;
-				} else if (player.name == socket.decoded.username && player.finished == 0 && player.cards.length != 0) {
-					console.log("User " + socket.decoded.username + " lost the game.")
-					gameWon = 0;
-					gameLost = 1;
-					break;
-				}
-			}*/
-
-			let folder_name = socket.decoded.username + "-Games";
-			let file_name = "HumanGame-" + gameIndex + ".png";
-
-			// Read the evaluation image file and send it to the client.
-			fs.readFile(__dirname + "/../" + folder_name + "/" + file_name, function (err, data) {
-				if (err) {
-					socket.emit('exit', true);
-				}
-				else {
-					// Send the image data to the connected client
-					socket.emit('exit', { image: true, buffer: Buffer.from(data, 'base64') });
-				}
-			});
-			/*let res = fetch("http://localhost:3000/users/updateuser", {
-				method: "POST",
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ username: socket.decoded.username, stats: { "gameWon": gameWon, "gameLost": gameLost, "gameForfeited": 0, "totalEvaluation": totalEvaluation, "stateAmount": stateLength } })
-			})
-				.then(response => response.json())
-				.then(data => {
-					console.log('Database update response:', data);
-				})*/
+			let evaluation_image = run_folder + "/Game.png";
+			// Emit the image
+			emitPNGFile(io.to("room"+lobbyId), evaluation_image);
 		}
 	});
+}
 
+/**
+ * Emits a PNG file to the given socket.
+ * @param {Object} socket - The socket object for the user.
+ * @param {string} path - The path to the PNG file.
+ * @returns {void}
+ * @emits {Object} - The PNG file to the socket.
+*/
+function emitPNGFile(socket, path) {
+	fs.readFile(path, function (err, data) {
+		if (err) {
+			socket.emit('exit', true);
+		}
+		else {
+			// Send the image data to the connected client
+			socket.emit('exit', { image: true, buffer: Buffer.from(data, 'base64') });
+		}
+	}
+	)
 }
 
 /**
@@ -516,6 +463,8 @@ function startGame(socket, childProcessDataListener) {
 		pythonProg.kill();
 		usersAndGames.delete(socket.decoded.username);
 	}
+	// Player name + time
+	let run_folder = __dirname + "/../" + socket.decoded.username + "Game" + Date.now();
 	// If the user already has a child process running,
 	// terminate it to reduce the risk of unreferenced child processes running and causing memory loss.
 	if (!usersAndGames.has(socket.decoded.username)) {
@@ -528,13 +477,14 @@ function startGame(socket, childProcessDataListener) {
 			args.push(username);
 			args.push("--gameid");
 			args.push(gameIndex);
+			args.push("--folder");
+			args.push(run_folder);
 			if (username == "Test") {
 				args.push("--test");
 			}
 		}
 
 		let pyexe = getPyexe();
-
 		pythonProg = spawn(pyexe, args, { timeout: 1000000 });
 	}
 	pythonProg.on('error', (err) => {
@@ -568,107 +518,124 @@ function startGame(socket, childProcessDataListener) {
 
 		// Get the states and progress array from the map corresponding to current user:
 		let stateAndProgress = usersAndStateAndProgress.get(socket.decoded.username);
-		// Length of the progress and state arrays:
-		let stateLength = stateAndProgress[0].length;
-		// Last state and progress:
-		let lastState = stateAndProgress[0][stateLength - 1];
-		// If there are no states, the game hadn't begun yet.
-		if (!lastState) {
-			return
-		}
-		// Check for errors
-		else if (lastState.error) {
-			return
-		}
-
-		let playerIndex = 0;
-		for (let index = 0; index < lastState.players.length; index++) {
-			let player = lastState.players[index];
-			if (player.name == socket.decoded.username) {
-				playerIndex = index;
-				break;
+		
+		if (data == 0) {
+			if (socket.decoded.username == "Test_4") { // Change back::
+				socket.decoded.username = "Test";
 			}
+			let evaluation_image = run_folder + "/Game.png";
+			// Emit the image
+			emitPNGFile(socket, evaluation_image);
+			// Update the user's stats in the database.
+			updateAllPlayersStats([socket.decoded.username], data, stateAndProgress);
 		}
+	});
+}
 
-		// Calculate average evaluation score:
+
+function getStatsFromStateAndProgress(stateAndProgress) {
+	// Given the state and progress array, calculate stats from the game.
+	// Average evaluations, finishing order [winner, second, third, fourth], etc.
+	let stats = {};
+	let stateLength = stateAndProgress[0].length;
+	let lastState = stateAndProgress[0][stateLength - 1];
+	let players = lastState.players;
+
+	// Player names to the state index where they finished the game.
+	let playerFinishNumber = {};
+
+	// For each player, calculate the average evaluation, total evaluation, and whether they lost the game.
+	for (let index = 0; index < players.length; index++) {
+		let player = players[index];
+		let playerName = player.name;
+		let playerIndex = index;
+		let playerStats = {};
+		let evaluations = [];
 		let totalEvaluation = 0;
+		let gameLost = 1;
+		// For each state, get the evaluation, and check if the player lost the game.
 		for (let index = 0; index < stateLength; index++) {
 			let state = stateAndProgress[0][index];
 			if (state.error) {
 				continue;
 			}
+			evaluations.push(state.players[playerIndex].last_evaluation);
 			totalEvaluation = totalEvaluation + state.players[playerIndex].last_evaluation;
-		}
 
-		if (data != 0) { // Invalid exit code:
-			console.log("Invalid exit code. Game finished prematurely.")
-
-			// Storing in the database that game ended prematurely:
-			let res = fetch("http://localhost:3000/users/updateuser", {
-				method: "POST",
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ username: socket.decoded.username, stats: { "gameWon": 0, "gameLost": 0, "gameForfeited": 1, "totalEvaluation": totalEvaluation, "stateAmount": stateLength } })
-			})
-				.then(response => response.json())
-				.then(data => {
-					console.log('Database update response:', data);
-				})
-		}
-
-		if (data == 0) { // Valid exit code:
-
-			// Check if the player won or lost the game:
-			let gameWon = 0;
-			let gameLost = 0;
-
-			for (let index = 0; index < lastState.players.length; index++) {
-				let player = lastState.players[index];
-				if (player.name == socket.decoded.username && (player.finished == 1 || player.cards.length == 0)) {
-					console.log("User " + socket.decoded.username + " won the game.")
-					gameWon = 1;
-					gameLost = 0;
-					break;
-				} else if (player.name == socket.decoded.username && player.finished == 0 && player.cards.length != 0) {
-					console.log("User " + socket.decoded.username + " lost the game.")
-					gameWon = 0;
-					gameLost = 1;
-					break;
-				}
+			// When the player gets out, we can stop iterating through the states.
+			if (state.players[playerIndex].finished == 1 || state.players[playerIndex].cards.length == 0) {
+				gameLost = 0;
+				playerFinishNumber[player.name] = index;
+				break;
 			}
-
-			if (socket.decoded.username == "Test_4") { // Change back::
-				socket.decoded.username = "Test";
-			}
-
-			let folder_name = socket.decoded.username + "-Games";
-			let file_name = "HumanGame-" + gameIndex + ".png";
-
-			// Read the evaluation image file and send it to the client.
-			fs.readFile(__dirname + "/../" + folder_name + "/" + file_name, function (err, data) {
-				if (err) {
-					socket.emit('exit', true);
-				}
-				else {
-					// Send the image data to the connected client
-					socket.emit('exit', { image: true, buffer: Buffer.from(data, 'base64') });
-				}
-			});
-			let res = fetch("http://localhost:3000/users/updateuser", {
-				method: "POST",
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ username: socket.decoded.username, stats: { "gameWon": gameWon, "gameLost": gameLost, "gameForfeited": 0, "totalEvaluation": totalEvaluation, "stateAmount": stateLength } })
-			})
-				.then(response => response.json())
-				.then(data => {
-					console.log('Database update response:', data);
-				})
 		}
+
+		if (gameLost == 1) {
+			playerFinishNumber[player.name] = stateLength;
+		}
+		
+		playerStats["evaluations"] = player.evaluations;
+		playerStats["totalEvaluation"] = totalEvaluation;
+		playerStats["lost"] = gameLost;
+
+		stats[playerName] = playerStats;
+	}
+
+	// Calculate the finishing order of the players.
+	// The first to finish is the player with the lowest state index where they finished the game.
+	let finishingOrder = Object.keys(playerFinishNumber).sort(function (a, b) {
+		return playerFinishNumber[a] - playerFinishNumber[b];
 	});
+	stats["stateAmount"] = stateLength;
+	stats["finishingOrder"] = finishingOrder;
+	return stats;
 }
+
+function updatePlayerStats(username, stats) {
+	let update = {
+		"username": username,
+		"stats": {
+			// The user won if they are not the last in stats["finishingOrder"].
+			"gameWon": 1 ? stats["finishingOrder"][stats["finishingOrder"].length - 1] != username : 0,
+			"gameLost": stats[username]["lost"],
+			"totalEvaluation": stats[username]["totalEvaluation"],
+			"stateAmount": stats["stateAmount"],
+		}
+	}
+	let res = fetch("http://localhost:3000/users/updateuser", {
+		method: "POST",
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify(update)
+	})
+		.then(response => response.json())
+		.then(data => {
+			console.log('Database update response:', data);
+		})
+	return res;
+}
+
+/**
+ * Update a players stats in the database.
+ * @param {Object} username - The username of the player.
+ * @param {Object} data - The data to update the player with.
+ * @returns {void}
+ */
+function updateAllPlayersStats(usernames, data, stateAndProgress) {
+	if (data != 0) {
+		// Game failed
+		console.log("Invalid exit code. Game finished prematurely.");
+	}
+	// Game successful
+	else {
+		let stats = getStatsFromStateAndProgress(stateAndProgress);
+		for (let index = 0; index < usernames.length; index++) {
+			updatePlayerStats(usernames[index], stats);
+		}
+	}
+}
+
 
 function receiveChatMessage(socket, data) {
 	var now = new Date();
@@ -762,7 +729,6 @@ function getPyexe() {
 	let pyexe = 'python3';
 	if (process.platform === "win32") {
 		pyexe = 'py';
-		const { execSync } = require('child_process');
 		try {
 			execSync('py --version');
 		} catch (error) {
