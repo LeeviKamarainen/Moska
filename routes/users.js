@@ -88,7 +88,13 @@ router.post('/updateuser', async function (req, res, next) {
 	const snapshot = await refdb.once('value');
 	const listOfUsers = snapshot.val();
 	const updatedAttribute = req.body.stats;
-	let userInfo = updateUser(listOfUsers, req.body.username, updatedAttribute)
+	let username = req.body.username;
+	console.log("Updating user " + username + " in database");
+	let user = getUserByName(listOfUsers, username);
+	console.log("User found: " + user.username);
+
+	let updatedUser = updateUser(user, updatedAttribute)
+	let userID = username;
 	// Get reference to the user in the database:
 	try {
 		const userRef = refdb.child(userInfo.userID);
@@ -200,67 +206,50 @@ function getUserByName(listOfUsers, userName) {
 	return userFound;
 }
 
-function updateUser(listOfUsers, username, updatedAttribute) {
-	let userFound = null;
-	let userID = null;
-	console.log("Updating user " + username + " in database")
-	for (var user in listOfUsers) {
-		if (listOfUsers[user].username.toLowerCase() == username.toLowerCase()) {
-			userFound = listOfUsers[user];
-			userID = user;
+function updateUser(user, result) {
+	if (!user.leaderboard) {
+		user.leaderboard = {};
+	}
 
-			if (userFound.leaderboard == null) { // Initialize users leaderboard if they don't have one
-				userFound.leaderboard = {
-				}
-			}
-			if (userFound.leaderboard.gamesWon == null) {
-				userFound.leaderboard.gamesWon = 0;
-			}
-			if (userFound.leaderboard.gamesLost == null) {
-				userFound.leaderboard.gamesLost = 0;
-			}
-			if (userFound.leaderboard.totalGames == null) {
-				userFound.leaderboard.totalGames = 0;
-			}
-			if (userFound.leaderboard.loseStreak == null) {
-				userFound.leaderboard.loseStreak = 0;
-			}
-			// Initialize totalEvaluation and the amount of states played accross all games. This is needed to calculate the average evaluation of the user:
-			if (userFound.leaderboard.totalEvaluation == null) {
-				userFound.leaderboard.totalEvaluation = 0;
-			}
-			if (userFound.leaderboard.stateAmount == null) {
-				userFound.leaderboard.stateAmount = 0;
-			}
-			if (userFound.leaderboard.averageEvaluation == null) {
-				userFound.leaderboard.averageEvaluation = 0;
-			}
-			if (userFound.leaderboard.gamesForfeited == null) {
-				userFound.leaderboard.gamesForfeited = 0;
-			}
+	const defaultLeaderboard = {
+		gamesWon: 0,
+		gamesLost: 0,
+		totalGames: 0,
+		loseStreak: 0,
+		totalEvaluation: 0,
+		stateAmount: 0,
+		averageEvaluation: 0,
+	};
 
-			// Update the leaderboard:
-			userFound.leaderboard.gamesWon = userFound.leaderboard.gamesWon + updatedAttribute.gameWon;
-			userFound.leaderboard.gamesLost = userFound.leaderboard.gamesLost + updatedAttribute.gameLost;
-			// Calculate total games played:
-			userFound.leaderboard.totalGames = userFound.leaderboard.gamesWon + userFound.leaderboard.gamesLost;
-
-			// Calculate forfeited games:
-			userFound.leaderboard.gamesForfeited = userFound.leaderboard.gamesForfeited + updatedAttribute.gameForfeited;
-
-			// Calculate average evaluation:
-			userFound.leaderboard.totalEvaluation = userFound.leaderboard.totalEvaluation + updatedAttribute.totalEvaluation;
-			userFound.leaderboard.stateAmount = userFound.leaderboard.stateAmount + updatedAttribute.stateAmount;
-			userFound.leaderboard.averageEvaluation = userFound.leaderboard.totalEvaluation / userFound.leaderboard.stateAmount;
-			// Handle lose streaks:
-			if (updatedAttribute.gameWon == 0) { // If the user lost the game
-				userFound.leaderboard.loseStreak = userFound.leaderboard.loseStreak + 1;
-			} else {
-				userFound.leaderboard.loseStreak = 0;
-			}
-			break;
+	// Initialize missing leaderboard attributes
+	for (let key in defaultLeaderboard) {
+		if (user.leaderboard[key] == null) {
+			user.leaderboard[key] = defaultLeaderboard[key];
 		}
 	}
-	return { "userFound": userFound, "userID": userID };
+
+	// Update the leaderboard
+	for (let key in result) {
+		console.log("Updating " + key + " to " + result[key]);
+		if (user.leaderboard[key] != null) {
+			user.leaderboard[key] += result[key];
+		} else {
+			user.leaderboard[key] = result[key];
+		}
+	}
+
+	// Calculate total games played
+	user.leaderboard.totalGames = user.leaderboard.gamesWon + user.leaderboard.gamesLost;
+
+	// Calculate average evaluation
+	user.leaderboard.averageEvaluation = user.leaderboard.totalEvaluation / user.leaderboard.stateAmount;
+
+	// Handle lose streaks
+	if (result.gameWon == 0) {
+		user.leaderboard.loseStreak += 1;
+	} else {
+		user.leaderboard.loseStreak = 0;
+	}
+	return user
 }
 module.exports = router;
