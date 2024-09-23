@@ -123,29 +123,18 @@ io.on("connection", function (socket) {
 						lobbies[lobbyIndex].host = lobbies[lobbyIndex].currentPlayers[0];
 					}
 					io.to("lobby").emit("updateLobbyForAll",{"lobbies":lobbies, "username":socket.decoded.username});
-				} 
-				else {
-					// If user disconnects and the game is in progress, kill the game process:
-					let lobbyId = lobbies[lobbyIndex].id;
-					let pythonProg = usersAndGames.get(lobbyId);
-					if(pythonProg) {
-						console.log("Killing game process for lobby "+lobbyId)
-						pythonProg.kill();
-					}
-					io.to("room"+lobbies[lobbyIndex].id).emit('exit', {"gameOverMessage": "Player "+socket.decoded.username+" disconnected from the game."});
-					io.to("lobby").emit("updateLobbyForAll",{"lobbies":lobbies, "username":socket.decoded.username});
-					lobbies[lobbyIndex].currentPlayers = [];
-					io.in("room"+lobbyId).socketsLeave("room"+lobbyId);
-					lobbies[lobbyIndex].gameInProgress = false;
-					lobbies[lobbyIndex].host = undefined;
-					// Delete the game process:
-					usersAndGames.delete(lobbyId);
+				} else {
+					// If user disconnects and the game is in progress, kill the game process if the timeout hits
+					terminateLobbyOnDisconnect(lobbyIndex, socket);
 				}
 				socket.leave("room"+lobbies[lobbyIndex].id);
 				delete userTimers[socket.decoded.username];
 			} , 1000*timeOut);
+		} else {
+			// If a single player game, we just kill the game process
+			console.log("User "+socket.decoded.username+" disconnected, killing game process.")
+			killUserGameProcess(socket);
 		}
-				
 		//killUserGameProcess(socket);
 	})
 
@@ -303,6 +292,49 @@ io.on("connection", function (socket) {
 
 });
 
+function terminateSinglePlayerGame(socket) {
+	let pythonProg = usersAndGames.get(socket.decoded.username);
+	if (pythonProg) {
+		console.log("Killing game process for user " + socket.decoded.username);
+		pythonProg.kill();
+	}
+	io.to(socket.id).emit('exit', { "gameOverMessage": "Player " + socket.decoded.username + " disconnected from the game." });
+	usersAndGames.delete(socket.decoded.username);
+}
+
+function killPythonProcess(socket) {
+	let pythonProg = usersAndGames.get(socket.decoded.username);
+	if (pythonProg) {
+		console.log("Killing game process for user " + socket.decoded.username);
+		pythonProg.kill();
+	}
+}
+
+function emitGameErrorMessageToLobby(lobbyIndex, socket) {
+	io.to("room"+lobbies[lobbyIndex].id).emit('exit', { "gameOverMessage": "Game process has been terminated." });
+	io.to("lobby").emit("updateLobbyForAll", { "lobbies": lobbies, "username": socket.decoded.username });
+}
+
+function setLobbyEmpty(lobbyIndex) {
+	lobbies[lobbyIndex].currentPlayers = [];
+	lobbies[lobbyIndex].gameInProgress = false;
+	lobbies[lobbyIndex].host = undefined;
+}
+
+
+function terminateLobbyOnDisconnect(lobbyIndex, socket, emit_error = true) {
+	let lobbyId = lobbies[lobbyIndex].id;
+	killPythonProcess(socket);
+	if(emit_error) {
+		emitGameErrorMessageToLobby(lobbyIndex, socket);
+	}
+	setLobbyEmpty(lobbyIndex);
+
+	io.in("room" + lobbyId).socketsLeave("room" + lobbyId);
+	// Delete the game process:
+	usersAndGames.delete(lobbyId);
+}
+
 // Start multiplayer game:
 function startMultiplayerGame(socket, childProcessDataListener) {
 	let lobbyIndex = checkIfConnectedToLobby(socket.decoded.username);
@@ -361,6 +393,7 @@ function startMultiplayerGame(socket, childProcessDataListener) {
 	}
 	pythonProg.on('error', (err) => {
 		console.error(`Failed to start Python process: ${err}`);
+		terminateLobby(lobbyIndex, socket);
 	});
 
 	// Store the python program in a map with the user's email as the key.
@@ -389,8 +422,6 @@ function startMultiplayerGame(socket, childProcessDataListener) {
 
 	pythonProg.on('exit', function (data) {
 
-		// Calculate average evaluation score:
-
 		// Get the states and progress array from the map corresponding to current user:
 		let stateAndProgress = usersAndStateAndProgress.get(lobbyId);
 		// Length of the progress and state arrays:
@@ -409,31 +440,24 @@ function startMultiplayerGame(socket, childProcessDataListener) {
 		if (data == 0) {
 
 			let evaluation_image = run_folder + "/Game.png";
-			// Emit the image
+
+			// Emit the image to all sockets in the room
 			emitPNGFile(io.to("room"+lobbyId), evaluation_image);
+
+			let playerNames = [];
+			for (let i=0; i<stateAndProgress[0][0].players.length; i++) {
+				playerNames.push(stateAndProgress[0][0].players[i].name);
+			}
+			updateAllPlayersStats(playerNames, data, stateAndProgress);
 		}
+		// wait for 5 seconds before terminating the lobby to allow for the image to be sent to the clients.
+		setTimeout(() => {
+			terminateLobbyOnDisconnect(lobbyIndex, socket, false);
+		}
+		, 5000);
 	});
 }
 
-/**
- * Emits a PNG file to the given socket.
- * @param {Object} socket - The socket object for the user.
- * @param {string} path - The path to the PNG file.
- * @returns {void}
- * @emits {Object} - The PNG file to the socket.
-*/
-function emitPNGFile(socket, path) {
-	fs.readFile(path, function (err, data) {
-		if (err) {
-			socket.emit('exit', true);
-		}
-		else {
-			// Send the image data to the connected client
-			socket.emit('exit', { image: true, buffer: Buffer.from(data, 'base64') });
-		}
-	}
-	)
-}
 
 /**
  * Starts a game for the given socket and child process data listener.
@@ -489,6 +513,7 @@ function startGame(socket, childProcessDataListener) {
 	}
 	pythonProg.on('error', (err) => {
 		console.error(`Failed to start Python process: ${err}`);
+		terminateSinglePlayerGame(socket);
 	});
 
 	// Store the python program in a map with the user's email as the key.
@@ -509,12 +534,9 @@ function startGame(socket, childProcessDataListener) {
 
 	pythonProg.on('exit', function (data) {
 
-
 		if (socket.decoded.username == "Test@email.com") { // For testing purposes change name to Test_4:
 			socket.decoded.username = "Test_4";
 		}
-
-		// Calculate average evaluation score:
 
 		// Get the states and progress array from the map corresponding to current user:
 		let stateAndProgress = usersAndStateAndProgress.get(socket.decoded.username);
@@ -526,17 +548,32 @@ function startGame(socket, childProcessDataListener) {
 			let evaluation_image = run_folder + "/Game.png";
 			// Emit the image
 			emitPNGFile(socket, evaluation_image);
-			// Update the user's stats in the database.
-			updateAllPlayersStats([socket.decoded.username], data, stateAndProgress);
+			// Pass all players to the function
+			let playerNames = [];
+			for (let i=0; i<stateAndProgress[0][0].players.length; i++) {
+				playerNames.push(stateAndProgress[0][0].players[i].name);
+			}
+			// Only update if 'Anonymous[0-9]*' is not in the playerNames array
+			if (!playerNames.some(name => name.match(/Anonymous[0-9]*/))) {
+				updateAllPlayersStats(playerNames, data, stateAndProgress);
+			}
 		}
+		// wait for 5 seconds before terminating the lobby to allow for the image to be sent to the clients.
+		setTimeout(() => {
+			terminateSinglePlayerGame(socket);
+		}
+		, 5000);
 	});
 }
 
 
-function getStatsFromStateAndProgress(stateAndProgress) {
+async function getSummaryFromStateAndProgress(stateAndProgress) {
 	// Given the state and progress array, calculate stats from the game.
 	// Average evaluations, finishing order [winner, second, third, fourth], etc.
-	let stats = {};
+	let gameSummary = {
+		players: [],
+		finishingOrder: []
+	};
 	let stateLength = stateAndProgress[0].length;
 	let lastState = stateAndProgress[0][stateLength - 1];
 	let players = lastState.players;
@@ -546,60 +583,76 @@ function getStatsFromStateAndProgress(stateAndProgress) {
 
 	// For each player, calculate the average evaluation, total evaluation, and whether they lost the game.
 	for (let index = 0; index < players.length; index++) {
-		let player = players[index];
-		let playerName = player.name;
+		let playerInState = players[index];
+		// If playerInState.is_bot is true, then fetch stats of 'MoskaBot'
+		let playerCurrentDBEntry = null;
+		if (playerInState.is_bot) {
+			playerCurrentDBEntry = await getCurrentUserStats("MoskaBot");
+		} else {
+			playerCurrentDBEntry = await getCurrentUserStats(playerInState.name);
+		}
+		// console.log(playerCurrentDBEntry);
+		let playerName = playerInState.name;
 		let playerIndex = index;
-		let playerStats = {};
-		let evaluations = [];
+		let playerStats = {
+			username: playerName,
+			rating: playerCurrentDBEntry.gameStats.rating,
+			evaluations: [],
+			finishingState: stateLength,
+			isBot: playerInState.is_bot
+		};
 		let totalEvaluation = 0;
 		let gameLost = 1;
+
 		// For each state, get the evaluation, and check if the player lost the game.
-		for (let index = 0; index < stateLength; index++) {
-			let state = stateAndProgress[0][index];
+		for (let stateIndex = 0; stateIndex < stateLength; stateIndex++) {
+			let state = stateAndProgress[0][stateIndex];
 			if (state.error) {
 				continue;
 			}
-			evaluations.push(state.players[playerIndex].last_evaluation);
-			totalEvaluation = totalEvaluation + state.players[playerIndex].last_evaluation;
+			playerStats.evaluations.push(state.players[playerIndex].last_evaluation);
+			totalEvaluation += state.players[playerIndex].last_evaluation;
 
 			// When the player gets out, we can stop iterating through the states.
 			if (state.players[playerIndex].finished == 1 || state.players[playerIndex].cards.length == 0) {
 				gameLost = 0;
-				playerFinishNumber[player.name] = index;
+				playerFinishNumber[playerName] = stateIndex;
+				playerStats.finishingState = stateIndex;
 				break;
 			}
 		}
 
 		if (gameLost == 1) {
-			playerFinishNumber[player.name] = stateLength;
+			playerFinishNumber[playerName] = stateLength;
 		}
-		
-		playerStats["evaluations"] = player.evaluations;
-		playerStats["totalEvaluation"] = totalEvaluation;
-		playerStats["lost"] = gameLost;
 
-		stats[playerName] = playerStats;
+		gameSummary.players.push(playerStats);
 	}
 
 	// Calculate the finishing order of the players.
 	// The first to finish is the player with the lowest state index where they finished the game.
-	let finishingOrder = Object.keys(playerFinishNumber).sort(function (a, b) {
+	gameSummary.finishingOrder = Object.keys(playerFinishNumber).sort(function (a, b) {
 		return playerFinishNumber[a] - playerFinishNumber[b];
 	});
-	stats["stateAmount"] = stateLength;
-	stats["finishingOrder"] = finishingOrder;
-	return stats;
+
+	return gameSummary;
 }
 
-function updatePlayerStats(username, stats) {
+
+/**
+ * Updates the player statistics in the database by sending a
+ * POST request to the server.
+ *
+ * @param {string} username - The username of the player.
+ * @param {Object} gameSummary - The summary of the game.
+ * @returns {Promise<Object>} The response from the database update.
+ */
+function updatePlayerStats(username, gameSummary) {
 	let update = {
 		"username": username,
-		"stats": {
-			// The user won if they are not the last in stats["finishingOrder"].
-			"gameWon": 1 ? stats["finishingOrder"][stats["finishingOrder"].length - 1] != username : 0,
-			"gameLost": stats[username]["lost"],
-			"totalEvaluation": stats[username]["totalEvaluation"],
-			"stateAmount": stats["stateAmount"],
+		"gameSummary": {
+			"players": gameSummary.players,
+			"finishingOrder": gameSummary.finishingOrder
 		}
 	}
 	let res = fetch("http://localhost:3000/users/updateuser", {
@@ -616,22 +669,39 @@ function updatePlayerStats(username, stats) {
 	return res;
 }
 
+async function getCurrentUserStats(username) {
+    try {
+        // Use query parameters instead of a request body
+        let response = await fetch(`http://localhost:3000/users/finduser?username=${encodeURIComponent(username)}`, {
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        let data = await response.json();
+        console.log('User stats:', data);
+        return data;
+    } catch (error) {
+        console.error('Error fetching user stats:', error);
+    }
+}
+
 /**
- * Update a players stats in the database.
- * @param {Object} username - The username of the player.
- * @param {Object} data - The data to update the player with.
- * @returns {void}
+ * Update all players' stats in the database.
+ * @param {Array} usernames - The usernames of the players.
+ * @param {number} data - The exit code of the game.
+ * @param {Array} stateAndProgress - The game states.
  */
-function updateAllPlayersStats(usernames, data, stateAndProgress) {
+async function updateAllPlayersStats(usernames, data, stateAndProgress) {
 	if (data != 0) {
 		// Game failed
 		console.log("Invalid exit code. Game finished prematurely.");
 	}
 	// Game successful
 	else {
-		let stats = getStatsFromStateAndProgress(stateAndProgress);
+		let gameSummary = await getSummaryFromStateAndProgress(stateAndProgress);
 		for (let index = 0; index < usernames.length; index++) {
-			updatePlayerStats(usernames[index], stats);
+			updatePlayerStats(usernames[index], gameSummary);
 		}
 	}
 }
@@ -755,6 +825,26 @@ function killUserGameProcess(socket) {
 	else {
 		console.log("Attempted disconnect. No game in progress.");
 	}
+}
+
+/**
+ * Emits a PNG file to the given socket.
+ * @param {Object} socket - The socket object for the user.
+ * @param {string} path - The path to the PNG file.
+ * @returns {void}
+ * @emits {Object} - The PNG file to the socket.
+*/
+function emitPNGFile(socket, path) {
+	fs.readFile(path, function (err, data) {
+		if (err) {
+			socket.emit('exit', true);
+		}
+		else {
+			// Send the image data to the connected client
+			socket.emit('exit', { image: true, buffer: Buffer.from(data, 'base64') });
+		}
+	}
+	)
 }
 
 function padNumber(number) {
