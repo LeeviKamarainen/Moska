@@ -4,6 +4,7 @@ var router = express.Router();
 const bcrypt = require('bcryptjs');
 const { body, validationResult } = require('express-validator');
 
+const fs = require('fs');
 const jwt = require("jsonwebtoken");
 const validateToken = require('../auth/validateToken.js');
 const multer = require('multer');
@@ -256,11 +257,49 @@ function updateUser(listOfUsers, username, updatedAttribute) {
 			if (updatedAttribute.gameWon == 0) { // If the user lost the game
 				userFound.leaderboard.loseStreak = userFound.leaderboard.loseStreak + 1;
 			} else {
+				if(userFound.leaderboard.loseStreak >= 3) {
+					let loserJson = {
+						"username": userFound.username,
+						"games_lost_in_row": userFound.leaderboard.loseStreak,
+						"date": new Date().toISOString()
+					}
+					addToLosersList(loserJson);
+				}
 				userFound.leaderboard.loseStreak = 0;
 			}
+
 			break;
 		}
 	}
 	return { "userFound": userFound, "userID": userID };
+}
+
+router.get('/getloserslist', async function (req, res, next) {
+	let losersArray;
+	try {
+		const data = fs.readFileSync(__dirname + '/../losers/losers.json', 'utf-8');
+		losersArray = JSON.parse(data);
+		console.log(data)
+	} catch (error) {
+		console.log(error)
+		losersArray = [];
+	}
+	res.json(losersArray);
+})
+
+function addToLosersList(loser) {
+	let losersArray;
+	try {
+		const data = fs.readFileSync(__dirname + '/../losers/losers.json', 'utf-8');
+		losersArray = JSON.parse(data);
+	} catch (error) {
+		losersArray = [];
+	}
+	losersArray.push(loser);
+	try {
+		fs.writeFileSync(__dirname + '/../losers/losers.json', JSON.stringify(losersArray));
+	} catch (error) {
+		console.log(error)
+	}
 }
 module.exports = router;

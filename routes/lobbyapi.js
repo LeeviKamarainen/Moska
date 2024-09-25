@@ -1,4 +1,5 @@
 
+const fs = require('fs');
 
 const lobbies = [
     { id: 1, name: 'Lobby 1', currentPlayers: [], host: undefined, gameInProgress: false },

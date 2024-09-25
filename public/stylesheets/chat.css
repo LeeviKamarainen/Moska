@@ -41,7 +41,8 @@ body {
     margin-bottom: 10px;
     width: 80%;
     word-wrap: break-word;
-    font-size: 1vw
+    font-size: 1vw;
+    text-align: left;
 }
 
 .message span.timestamp {
@@ -50,6 +51,8 @@ body {
     right: -20%;
     color: #888;
     font-size: 0.5vw;
+    text-align: right;
+    width: 20%;
 }
 
 

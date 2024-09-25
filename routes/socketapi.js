@@ -98,6 +98,13 @@ io.on("connection", function (socket) {
 	})
 
 	socket.on("disconnect", (data) => {
+		// When the client disconnects, kill their single player game process if it exists:
+		try {
+		killUserGameProcess(socket);
+		} catch {
+			console.log("Error in killing the single player game.")
+		}
+
 		// When the client disconnects, start a timer to check if they reconnect in 10 seconds.
 		// If they don't reconnect, remove them from the lobby and kill the game process.
 		// If they reconnect, add them back to the lobby.
@@ -137,8 +144,6 @@ io.on("connection", function (socket) {
 				delete userTimers[socket.decoded.username];
 			} , 1000*timeOut);
 		}
-				
-		//killUserGameProcess(socket);
 	})
 
 	// Send existing game progress to client:
@@ -495,6 +500,12 @@ function startMultiplayerGame(socket, childProcessDataListener) {
  * @param {number} gameTypeFlag - The flag indicating the type of game to start (singleplayer vs multiplayer).
  */
 function startGame(socket, childProcessDataListener) {
+	// If there are more than 9 games in process, return an error message:
+	if(usersAndGames.size > 2) {
+		socket.emit('exit', {"gameOverMessage": "Too many games in progress. Please try again later."});
+		return;
+	}
+
 	let stateAndProgress = [[], []];
 	usersAndStateAndProgress.set(socket.decoded.username, stateAndProgress);
 
@@ -555,6 +566,12 @@ function startGame(socket, childProcessDataListener) {
 	pythonProg.stdout.on('end', () => {
 		// Process the complete output from the Python program
 		console.log("END OF THE STREAM!");
+		try {
+		pythonProg.kill();
+		usersAndGames.delete(socket.decoded.username);
+		} catch {
+			console.log("Error in killing the game process.")
+		}
 	});
 
 	pythonProg.on('exit', function (data) {
@@ -602,7 +619,16 @@ function startGame(socket, childProcessDataListener) {
 
 		if (data != 0) { // Invalid exit code:
 			console.log("Invalid exit code. Game finished prematurely.")
-
+			// Check if the user is anonymous user:'
+			try {
+			let tempName = socket.decoded.username.match(/^[^\d]*/);
+			if (tempName[0] == "Anonymous") {
+				console.log("Anonymous user disconnected. Not storing in the database.")
+				return;
+			}
+			} catch {
+				console.log("Error in checking if user is anonymous.")
+			}
 			// Storing in the database that game ended prematurely:
 			let res = fetch("http://localhost:3000/users/updateuser", {
 				method: "POST",
@@ -655,6 +681,16 @@ function startGame(socket, childProcessDataListener) {
 					socket.emit('exit', { image: true, buffer: Buffer.from(data, 'base64') });
 				}
 			});
+			// Check if the user is anonymous user:'
+			try {
+				let tempName = socket.decoded.username.match(/^[^\d]*/);
+				if (tempName[0] == "Anonymous") {
+					console.log("Anonymous user disconnected. Not storing in the database.")
+					return;
+				}
+				} catch {
+					console.log("Error in checking if user is anonymous.")
+			}
 			let res = fetch("http://localhost:3000/users/updateuser", {
 				method: "POST",
 				headers: {

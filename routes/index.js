@@ -42,6 +42,10 @@ router.get('/lobby', function (req, res, next) {
 	res.sendFile(path.join(__dirname, "../views", "lobby.html"));
 });
 
+router.get('/poronmulkku', function (req, res, next) {
+	res.sendFile(path.join(__dirname, "../views", "losers_list.html"));
+});
+
 
 
 module.exports = router;
