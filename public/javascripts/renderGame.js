@@ -63,7 +63,6 @@ document.addEventListener("DOMContentLoaded", function () {
 	console.log("game started"+data.response)
   })
   socket.on('data', (data) => {
-	console.log("where is data")
     onDataFromPython(data, hourglass);
 
 	})
@@ -267,7 +266,6 @@ function checkError(gameArray) {
 
 async function initializeCode(gameArray) {
 	PLAYER_NAME = localStorage.getItem('username');
-	console.log("You are player "+PLAYER_NAME);
 	// Game array contains the gamestates and gameprogress
 	// Game array has:
 	// gamestates: array of gamestates
