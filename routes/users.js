@@ -59,12 +59,10 @@ router.get('/heartbeat', async function (req, res, next) {
 })
 
 router.get('/finduser', async function (req, res, next) {
-	console.log("Finding query " + JSON.stringify(req.query))
 	const refdb = req.refdb;
 	const snapshot = await refdb.once('value');
 	const listOfUsers = snapshot.val();
 	let user = getUserByName(listOfUsers, req.query.username)
-	console.log("User found: " + JSON.stringify(user))
 	let updatedUser = null;
 	// If user is not found, return 404
 	if (user == null) {
@@ -93,16 +91,17 @@ router.get('/getleaderboard', async function (req, res, next) {
 	let leaderboard = [];
 	for (var userID in listOfUsers) {
 		let user = listOfUsers[userID];
-		if (user.leaderboard != null) {
-			if (user.leaderboard.totalGames > 0) {
+		if (user.gameStats != null) {
+			if (user.gameStats.totalGames > 0) {
 				let statsJson = {
 					"username": user.username,
-					"gamesWon": user.leaderboard.gamesWon,
-					"gamesLost": user.leaderboard.gamesLost,
-					"totalGames": user.leaderboard.totalGames,
-					"percentWon": user.leaderboard.gamesWon / user.leaderboard.totalGames * 100,
-					"loseStreak": user.leaderboard.loseStreak,
-					"averageEvaluation": user.leaderboard.averageEvaluation,
+					"rating": user.gameStats.rating,
+					"gamesWon": user.gameStats.gamesWon,
+					"gamesLost": user.gameStats.gamesLost,
+					"totalGames": user.gameStats.totalGames,
+					"percentWon": user.gameStats.gamesWon / user.gameStats.totalGames,
+					"loseStreak": user.gameStats.loseStreak,
+					"averageEvaluation": user.gameStats.averageEvaluation,
 				}
 				leaderboard.push(statsJson);
 			}
@@ -134,20 +133,20 @@ router.post('/updateuser', async function (req, res, next) {
 		res.status(400).send("Invalid game summary.")
 	}
 
-	let username = req.body.username;
+	let playerName = req.body.username;
 	let userToUpdate = req.body.username;
 
 	// If the user is bot (indicated by gameSummary.players[idx].isBot), update MoskaBot instead
 	// Find idx of the user in the gameSummary
-	let idx = getIndexInGameSummary(gameSummary, username);
+	let idx = getIndexInGameSummary(gameSummary, playerName);
 	if (idx == -1) {
-		console.log("User '" + username + "' not found in game summary.")
+		console.log("User '" + playerName + "' not found in game summary.")
 		res.status(404).send("User not found in game summary.");
 		return;
 	}
 	// Check if the user is a bot
 	if (gameSummary.players[idx].isBot) {
-		console.log("User '" + username + "' is a bot.")
+		console.log("User '" + playerName + "' is a bot, updating MoskaBot instead.")
 		userToUpdate = "MoskaBot";
 	}
 
@@ -158,14 +157,17 @@ router.post('/updateuser', async function (req, res, next) {
 		return;
 	}
 
-	user.username = username;
-
+	// The createUpdatedUserStats function
+	// updates a player's stats based on the gameSummary
+	// That's why the user.username has to match the playerName
+	user.username = playerName;
 	let updatedUser = createUpdatedUserStats(user, gameSummary)
-	// Swap to 'MoskaBot' if the user is a bot
+	// After we have updated the users stats locally
+	// We need to tell who to update in the database
 	updatedUser.username = userToUpdate;
 
-	let userID = userToUpdate;
 
+	let userID = user._id;
 	// Get reference to the user in the database:
 	try {
 		const userRef = refdb.child(userID);
@@ -205,6 +207,8 @@ function getUserByName(listOfUsers, userName) {
 		// Check if a name in lowercase matches the username
 		if (listOfUsers[user].username.toLowerCase() == userName.toLowerCase()) {
 			userFound = listOfUsers[user];
+			// Add ID attribute
+			userFound._id = user;
 			break;
 		}
 	}
@@ -225,6 +229,9 @@ function setDefaultValues(user) {
 		}
 		// Initialize missing gameStats attributes
 		if (key == "gameStats") {
+			if (!currentUserJson.gameStats) {
+				currentUserJson.gameStats = {};
+			}
 			for (let gameStatsKey in defaultUserJson.gameStats) {
 				if (currentUserJson.gameStats[gameStatsKey] == null) {
 					currentUserJson.gameStats[gameStatsKey] = defaultUserJson.gameStats[gameStatsKey];
@@ -261,7 +268,7 @@ function createUpdatedUserStats(user, gameSummary) {
 
 	// Calculate the new stats
 	let updatedGameStats = currentUserJson.gameStats;
-	updatedGameStats.totalGames = updatedGameStats.gameSummaries.length;
+	updatedGameStats.totalGames = updatedGameStats.totalGames + 1;
 	
 	let lost = false;
 	if (gameSummary.finishingOrder[gameSummary.finishingOrder.length - 1] == user.username) {
@@ -274,8 +281,6 @@ function createUpdatedUserStats(user, gameSummary) {
 
 	let totalGameEvaluation = 0;
 	let stateAmount = 0;
-	console.log("Gamesummary: " + JSON.stringify(gameSummary))
-	console.log("User: " + JSON.stringify(user))
 
 	// Find the player idx with the username
 	let playerIdx = getIndexInGameSummary(gameSummary, user.username);
@@ -307,13 +312,22 @@ function createUpdatedUserStats(user, gameSummary) {
 
 	updatedGameStats.gameSummaries.push(gameSummary);
 
-	let rating = updatedGameStats.rating;
+	// If the player is a bot, we want to use the latest
+	// adjusted rating for the bot
+	let rating = null;
+	if (gameSummary.players[playerIdx].isBot) {
+		rating = updatedGameStats.rating;
+	} else {
+		rating = gameSummary.players[playerIdx].rating;
+	}
 	let opponentRatings = [];
 
 	// Get the ratings of all players except the user
 	for (let i = 0; i < gameSummary.players.length; i++) {
 		// Check that gameSummary.players[i] is not the user
 		if (gameSummary.players[i].username != user.username) {
+			// As the opponents ratings, we always use the ratings
+			// that are prior to the game
 			opponentRatings.push(gameSummary.players[i].rating);
 		}
 	}
@@ -328,9 +342,11 @@ function createUpdatedUserStats(user, gameSummary) {
 		rating = 0.5;
 	}
 
-
 	// Calculate the new rating
+	let lostWonString = lost ? "lost" : "won";
+	console.log("User " + user.username + " " + lostWonString + ". Current rating: " + rating + " Opponent ratings: " + opponentRatings)
 	let newRating = updateRating(lost, rating, opponentRatings);
+	console.log("New rating: " + newRating)
 	updatedGameStats.rating = newRating;
 
 	let updatedUser = currentUserJson;
@@ -340,7 +356,7 @@ function createUpdatedUserStats(user, gameSummary) {
 }
 
 
-function adjustRatingEstimateSoftmax(lost, rating, opponentRatings, learning_rate = 0.05) {
+function adjustRatingEstimateSoftmax(lost, rating, opponentRatings, learning_rate = 0.01) {
     // Combine the player's rating with the opponent's ratings
     const all_ratings = [rating].concat(opponentRatings);
     
@@ -359,7 +375,7 @@ function adjustRatingEstimateSoftmax(lost, rating, opponentRatings, learning_rat
     const gradient = true_proba - player_softmax_proba;
 
     // Adjust the player's rating using the gradient and learning rate
-    const new_rating = rating + learning_rate * gradient;
+    const new_rating = rating - learning_rate * gradient;
 
     return new_rating;
 }

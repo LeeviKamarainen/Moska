@@ -27,7 +27,6 @@ io.use(function (socket, next) {
 	if (socket.handshake.query && socket.handshake.query.token) {
 		jwt.verify(socket.handshake.query.token, process.env.SECRET, (err, user) => {
 			if (err) {
-				console.log(err)
 				console.log("Token verification failed. Using default credentials.")
 				// username is 'Anonymous' + <random number between 1 and 1000>
 				let username = 'Anonymous' + Math.floor(Math.random() * 100000);
@@ -484,7 +483,6 @@ function startGame(socket, childProcessDataListener) {
 
 	// Check if the user is connected to a lobby, if so, make sure that they leave the lobby:
 	let lobbyIndex = checkIfConnectedToLobby(socket.decoded.username);
-	console.log(lobbyIndex);
 	if(lobbyIndex != -1) {
 		console.log("User is connected to a lobby, but started a singleplayer game. Leaving the lobby.")
 		socket.leave("room"+lobbies[lobbyIndex].id);
@@ -610,7 +608,6 @@ async function getSummaryFromStateAndProgress(stateAndProgress) {
 		} else {
 			playerCurrentDBEntry = await getCurrentUserStats(playerInState.name);
 		}
-		// console.log(playerCurrentDBEntry);
 		let playerName = playerInState.name;
 		let playerIndex = index;
 		let playerStats = {
@@ -698,7 +695,6 @@ async function getCurrentUserStats(username) {
             }
         });
         let data = await response.json();
-        console.log('User stats:', data);
         return data;
     } catch (error) {
         console.error('Error fetching user stats:', error);
@@ -718,9 +714,9 @@ async function updateAllPlayersStats(usernames, data, stateAndProgress) {
 	}
 	// Game successful
 	else {
-		let gameSummary = await getSummaryFromStateAndProgress(stateAndProgress);
+		const gameSummary = await getSummaryFromStateAndProgress(stateAndProgress);
 		for (let index = 0; index < usernames.length; index++) {
-			updatePlayerStats(usernames[index], gameSummary);
+			await updatePlayerStats(usernames[index], gameSummary);
 		}
 	}
 }

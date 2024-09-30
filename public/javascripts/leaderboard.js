@@ -14,7 +14,8 @@ async function initializeLeaderboard() {
 	let response = fetch("/users/getleaderboard");
 	leaderboardData = await response.then(res => res.json());
 	populateLeaderboard();
-	sortTable(1); // Sort by average evaluation score by default
+	sortTable(1); // Sort by ELO rating by default
+	sortTable(1); // Sort by ELO rating by default
 
 }
 
@@ -27,6 +28,8 @@ function populateLeaderboard() {
 		// Create and populate table cells for each data field
 		const usernameCell = document.createElement('td');
 		usernameCell.textContent = entry.username;
+		const ratingCell = document.createElement('td');
+		ratingCell.textContent = Math.round(entry.rating * 1000);
 		const averageEvaluationCell = document.createElement('td');
 		averageEvaluationCell.textContent = isNaN(Math.round(entry.averageEvaluation * 100) / 100) ? 0 : Math.round(entry.averageEvaluation * 100) / 100;
 		const gamesWonCell = document.createElement('td');
@@ -42,6 +45,7 @@ function populateLeaderboard() {
 
 		// Append the cells to the table row
 		row.appendChild(usernameCell);
+		row.appendChild(ratingCell);
 		row.appendChild(averageEvaluationCell);
 		row.appendChild(gamesWonCell);
 		row.appendChild(gamesLostCell);
