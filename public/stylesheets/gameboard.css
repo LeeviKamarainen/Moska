@@ -45,10 +45,19 @@
     width: 50%;
     bottom: 0;
     z-index: 0;
-    overflow: hidden;
+    overflow: visible;
     left: 50%;
     transform: translateX(-50%);
     transition: height 0.2s, z-index 0.2s;
+}
+
+
+#bottom-overflow-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    bottom: 0%;
 }
 
 #bottom.active {
@@ -134,9 +143,10 @@
     height: 50%;
     width: 100%;
     z-index: 2;
-    overflow: hidden;
+    overflow: visible;
     transition: height 0.2s, bottom 0.2s, z-index 0.2s;
 }
+
 
 #killed-cards.active {
     height: 100%;
@@ -179,40 +189,30 @@
 
 .amount-left {
     position: absolute;
-    bottom: -100%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    bottom: 0;
+    left: 120%;
+    font-size: 1vw;
 }
 
 /* Mobile styles */
 @media only screen and (max-width: 900px) {
     .board-player {
-        width: 50px;
-        height: 50px;
+        border-radius: 5px 5px 5px 5px;
+        
+        border: 1px solid black;
+        height: 15%;
     }
 
     .board-player[name] {
         top: 5%;
     }
 
-    #deck {
-        height: 3vw;
-        width: 4vw;
+    
+    .board-player[turn] {
+        border-width: 4px;
+        border-color: inherit;
+        border-style: double;
+        background-color: yellow;
     }
 
-    #errormessage {
-        width: 50%;
-        height: 10%;
-        bottom: 15%;
-        left: 25%;
-    }
-
-    #gameaction {
-        width: 100%;
-        bottom: 10%;
-    }
-
-    .amount-left {
-        bottom: -50%;
-    }
 }

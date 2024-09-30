@@ -10,7 +10,9 @@ let DEFAULT_BOARD_DIV = `<div id="board">
 <div id="errormessage" hidden="true">Incorrect action:</div>
 <div id="right" class="board-player"></div>
 <p id="gameaction">test</p>
-<div id="bottom" class="board-player" onclick="activateBoard(this,event)">
+<div id="bottom-overflow-container">
+    <div id="bottom" onclick="activateBoard(this,event)"class="board-player">
+	</div>
 </div>
 <div id="deck" class="board-player"></div>
 <div id="card-from-deck" class="board-player"></div>
