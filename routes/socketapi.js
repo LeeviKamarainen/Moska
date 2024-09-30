@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var path = require('path')
 const io = require("socket.io")();
-const { spawn } = require('child_process');
+const { spawn, exec } = require('child_process');
 const jwt = require('jsonwebtoken');
 const { use } = require('./users');
 const fetch = require('node-fetch');
@@ -11,6 +11,7 @@ const socketapi = {
 };
 const fs = require('fs');
 const { lobbyManager, checkIfConnectedToLobby, lobbies } = require('./lobbyapi');
+const { time } = require('console');
 let gameIndex = 0;
 let gameStringIndex = 2;
 let dataArrived;
@@ -111,7 +112,8 @@ io.on("connection", function (socket) {
 		// Check if the user is connected to a lobby, if so, start a timer to check if they reconnect
 		let lobbyIndex = checkIfConnectedToLobby(socket.decoded.username);
 		if (lobbyIndex != -1) {
-			let timeOut = 100;
+			let timeOut = process.env.DISCONNECT_TIMEOUT || 60;
+			timeOut = parseInt(timeOut);
 			console.log("User "+socket.decoded.username+" disconnected. Starting timer for "+timeOut+" seconds.")
 			if(userTimers[socket.decoded.username]) {
 				clearTimeout(userTimers[socket.decoded.username]);
@@ -120,6 +122,7 @@ io.on("connection", function (socket) {
 			}
 			userTimers[socket.decoded.username] = setTimeout(() => {
 				console.log("User "+socket.decoded.username+" disconnected.")
+				// If user disconnects and the game is not in progress, remove them from the lobby
 				if(lobbies[lobbyIndex].gameInProgress == false) {
 					lobbies[lobbyIndex].currentPlayers.splice(lobbies[lobbyIndex].currentPlayers.indexOf(socket.decoded.username), 1);
 					// Assign the new host if the host leaves:
@@ -127,23 +130,19 @@ io.on("connection", function (socket) {
 						lobbies[lobbyIndex].host = lobbies[lobbyIndex].currentPlayers[0];
 					}
 					io.to("lobby").emit("updateLobbyForAll",{"lobbies":lobbies, "username":socket.decoded.username});
-				} 
-				else {
-					// If user disconnects and the game is in progress, kill the game process:
-					let pythonProg = usersAndGames.get(lobbies[lobbyIndex].id);
-					if(pythonProg)
-					{
-						console.log("Killing game process for lobby "+lobbies[lobbyIndex].id)
-						pythonProg.kill();
-					}
-					io.to("room"+lobbies[lobbyIndex].id).emit('exit', {"gameOverMessage": "Player "+socket.decoded.username+" disconnected from the game."});
-					io.to("lobby").emit("updateLobbyForAll",{"lobbies":lobbies, "username":socket.decoded.username});
-					usersAndGames.delete(lobbies[lobbyIndex].id);
+				} else {
+					// If user disconnects and the game is in progress, kill the game process if the timeout hits
+					terminateLobbyOnDisconnect(lobbyIndex, socket);
 				}
 				socket.leave("room"+lobbies[lobbyIndex].id);
 				delete userTimers[socket.decoded.username];
 			} , 1000*timeOut);
+		} else {
+			// If a single player game, we just kill the game process
+			console.log("User "+socket.decoded.username+" disconnected, killing game process.")
+			killUserGameProcess(socket);
 		}
+		//killUserGameProcess(socket);
 	})
 
 	// Send existing game progress to client:
@@ -300,6 +299,49 @@ io.on("connection", function (socket) {
 
 });
 
+function terminateSinglePlayerGame(socket) {
+	let pythonProg = usersAndGames.get(socket.decoded.username);
+	if (pythonProg) {
+		console.log("Killing game process for user " + socket.decoded.username);
+		pythonProg.kill();
+	}
+	io.to(socket.id).emit('exit', { "gameOverMessage": "Player " + socket.decoded.username + " disconnected from the game." });
+	usersAndGames.delete(socket.decoded.username);
+}
+
+function killPythonProcess(socket) {
+	let pythonProg = usersAndGames.get(socket.decoded.username);
+	if (pythonProg) {
+		console.log("Killing game process for user " + socket.decoded.username);
+		pythonProg.kill();
+	}
+}
+
+function emitGameErrorMessageToLobby(lobbyIndex, socket) {
+	io.to("room"+lobbies[lobbyIndex].id).emit('exit', { "gameOverMessage": "Game process has been terminated." });
+	io.to("lobby").emit("updateLobbyForAll", { "lobbies": lobbies, "username": socket.decoded.username });
+}
+
+function setLobbyEmpty(lobbyIndex) {
+	lobbies[lobbyIndex].currentPlayers = [];
+	lobbies[lobbyIndex].gameInProgress = false;
+	lobbies[lobbyIndex].host = undefined;
+}
+
+
+function terminateLobbyOnDisconnect(lobbyIndex, socket, emit_error = true) {
+	let lobbyId = lobbies[lobbyIndex].id;
+	killPythonProcess(socket);
+	if(emit_error) {
+		emitGameErrorMessageToLobby(lobbyIndex, socket);
+	}
+	setLobbyEmpty(lobbyIndex);
+
+	io.in("room" + lobbyId).socketsLeave("room" + lobbyId);
+	// Delete the game process:
+	usersAndGames.delete(lobbyId);
+}
+
 // Start multiplayer game:
 function startMultiplayerGame(socket, childProcessDataListener) {
 	let lobbyIndex = checkIfConnectedToLobby(socket.decoded.username);
@@ -325,7 +367,8 @@ function startMultiplayerGame(socket, childProcessDataListener) {
 		pythonProg.kill();
 		usersAndGames.delete(lobbyId);
 	}
-
+	// The game is stored in folder named after the lobbyid, and time of creation
+	let run_folder = __dirname + "/../" + "Lobby" + lobbyId + "Game" + Date.now();
 	if (!usersAndGames.has(lobbyId)) {
 		// Get all the players in the lobby:
 		let lobby = lobbies.find(lobby => lobby.id == lobbyId);
@@ -343,8 +386,11 @@ function startMultiplayerGame(socket, childProcessDataListener) {
 			args.push(playersString);
 			args.push("--gameid");
 			args.push(gameIndex);
-			if (playersString == "Test") {
-				args.push("--test");
+			args.push("--folder");
+			args.push(run_folder);
+			// If any player is named 'test', then the game is a test game.
+			if (players.includes("Test")) {
+				args.push("--one_card_in_deck");
 			}
 		}
 
@@ -354,6 +400,7 @@ function startMultiplayerGame(socket, childProcessDataListener) {
 	}
 	pythonProg.on('error', (err) => {
 		console.error(`Failed to start Python process: ${err}`);
+		terminateLobby(lobbyIndex, socket);
 	});
 
 	// Store the python program in a map with the user's email as the key.
@@ -375,22 +422,12 @@ function startMultiplayerGame(socket, childProcessDataListener) {
 		try {
 		// Process the complete output from the Python program
 		console.log("END OF THE STREAM!");
-		//io.to("room"+lobbies[lobbyIndex].id).emit('exit', {"gameOverMessage": "Game has been closed due to disconnection or other error."});
-		// Empty the lobby and the socket room when the game ends:
-		lobbies[lobbyIndex].currentPlayers = [];
-		io.in("room"+lobbyId).socketsLeave("room"+lobbyId);
-		lobbies[lobbyIndex].gameInProgress = false;
-		lobbies[lobbyIndex].host = undefined;
-		// Delete the game process:
-		usersAndGames.delete(lobbyId);
 		} catch {
 			console.log("Error in ending the game.")
 		}
 	});
 
 	pythonProg.on('exit', function (data) {
-
-		// Calculate average evaluation score:
 
 		// Get the states and progress array from the map corresponding to current user:
 		let stateAndProgress = usersAndStateAndProgress.get(lobbyId);
@@ -407,91 +444,27 @@ function startMultiplayerGame(socket, childProcessDataListener) {
 			return
 		}
 
-		let playerIndex = 0;
-		/*for (let index = 0; index < lastState.players.length; index++) {
-			let player = lastState.players[index];
-			if (player.name == socket.decoded.username) {
-				playerIndex = index;
-				break;
+		if (data == 0) {
+
+			let evaluation_image = run_folder + "/Game.png";
+
+			// Emit the image to all sockets in the room
+			emitPNGFile(io.to("room"+lobbyId), evaluation_image);
+
+			let playerNames = [];
+			for (let i=0; i<stateAndProgress[0][0].players.length; i++) {
+				playerNames.push(stateAndProgress[0][0].players[i].name);
 			}
+			updateAllPlayersStats(playerNames, data, stateAndProgress);
 		}
-
-		// Calculate average evaluation score:
-		let totalEvaluation = 0;
-		for (let index = 0; index < stateLength; index++) {
-			let state = stateAndProgress[0][index];
-			if (state.error) {
-				continue;
-			}
-			totalEvaluation = totalEvaluation + state.players[playerIndex].last_evaluation;
-		}*/
-
-		/*if (data != 0) { // Invalid exit code:
-			console.log("Invalid exit code. Game finished prematurely.")
-
-			// Storing in the database that game ended prematurely:
-			let res = fetch("http://localhost:3000/users/updateuser", {
-				method: "POST",
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ username: socket.decoded.username, stats: { "gameWon": 0, "gameLost": 0, "gameForfeited": 1, "totalEvaluation": totalEvaluation, "stateAmount": stateLength } })
-			})
-				.then(response => response.json())
-				.then(data => {
-					console.log('Database update response:', data);
-				})
-		}*/
-
-		if (data == 0) { // Valid exit code:
-
-			// Check if the player won or lost the game:
-			let gameWon = 0;
-			let gameLost = 0;
-
-			/*for (let index = 0; index < lastState.players.length; index++) {
-				let player = lastState.players[index];
-				if (player.name == socket.decoded.username && (player.finished == 1 || player.cards.length == 0)) {
-					console.log("User " + socket.decoded.username + " won the game.")
-					gameWon = 1;
-					gameLost = 0;
-					break;
-				} else if (player.name == socket.decoded.username && player.finished == 0 && player.cards.length != 0) {
-					console.log("User " + socket.decoded.username + " lost the game.")
-					gameWon = 0;
-					gameLost = 1;
-					break;
-				}
-			}*/
-
-			let folder_name = socket.decoded.username + "-Games";
-			let file_name = "HumanGame-" + gameIndex + ".png";
-
-			// Read the evaluation image file and send it to the client.
-			fs.readFile(__dirname + "/../" + folder_name + "/" + file_name, function (err, data) {
-				if (err) {
-					io.to("room"+lobbies[lobbyIndex].id).emit('exit', true);
-				}
-				else {
-					// Send the image data to the connected client
-					socket.to("room"+lobbies[lobbyIndex].id).emit('exit', { image: true, buffer: Buffer.from(data, 'base64') });
-				}
-			});
-			/*let res = fetch("http://localhost:3000/users/updateuser", {
-				method: "POST",
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ username: socket.decoded.username, stats: { "gameWon": gameWon, "gameLost": gameLost, "gameForfeited": 0, "totalEvaluation": totalEvaluation, "stateAmount": stateLength } })
-			})
-				.then(response => response.json())
-				.then(data => {
-					console.log('Database update response:', data);
-				})*/
+		// wait for 5 seconds before terminating the lobby to allow for the image to be sent to the clients.
+		setTimeout(() => {
+			terminateLobbyOnDisconnect(lobbyIndex, socket, false);
 		}
+		, 5000);
 	});
-
 }
+
 
 /**
  * Starts a game for the given socket and child process data listener.
@@ -527,6 +500,8 @@ function startGame(socket, childProcessDataListener) {
 		pythonProg.kill();
 		usersAndGames.delete(socket.decoded.username);
 	}
+	// Player name + time
+	let run_folder = __dirname + "/../" + socket.decoded.username + "Game" + Date.now();
 	// If the user already has a child process running,
 	// terminate it to reduce the risk of unreferenced child processes running and causing memory loss.
 	if (!usersAndGames.has(socket.decoded.username)) {
@@ -539,17 +514,19 @@ function startGame(socket, childProcessDataListener) {
 			args.push(username);
 			args.push("--gameid");
 			args.push(gameIndex);
+			args.push("--folder");
+			args.push(run_folder);
 			if (username == "Test") {
 				args.push("--test");
 			}
 		}
 
 		let pyexe = getPyexe();
-
 		pythonProg = spawn(pyexe, args, { timeout: 1000000 });
 	}
 	pythonProg.on('error', (err) => {
 		console.error(`Failed to start Python process: ${err}`);
+		terminateSinglePlayerGame(socket);
 	});
 
 	// Store the python program in a map with the user's email as the key.
@@ -576,135 +553,178 @@ function startGame(socket, childProcessDataListener) {
 
 	pythonProg.on('exit', function (data) {
 
-
 		if (socket.decoded.username == "Test@email.com") { // For testing purposes change name to Test_4:
 			socket.decoded.username = "Test_4";
 		}
 
-		// Calculate average evaluation score:
-
 		// Get the states and progress array from the map corresponding to current user:
 		let stateAndProgress = usersAndStateAndProgress.get(socket.decoded.username);
-		// Length of the progress and state arrays:
-		let stateLength = stateAndProgress[0].length;
-		// Last state and progress:
-		let lastState = stateAndProgress[0][stateLength - 1];
-		// If there are no states, the game hadn't begun yet.
-		if (!lastState) {
-			return
+		
+		if (data == 0) {
+			if (socket.decoded.username == "Test_4") { // Change back::
+				socket.decoded.username = "Test";
+			}
+			let evaluation_image = run_folder + "/Game.png";
+			// Emit the image
+			emitPNGFile(socket, evaluation_image);
+			// Pass all players to the function
+			let playerNames = [];
+			for (let i=0; i<stateAndProgress[0][0].players.length; i++) {
+				playerNames.push(stateAndProgress[0][0].players[i].name);
+			}
+			// Only update if 'Anonymous[0-9]*' is not in the playerNames array
+			if (!playerNames.some(name => name.match(/Anonymous[0-9]*/))) {
+				updateAllPlayersStats(playerNames, data, stateAndProgress);
+			}
 		}
-		// Check for errors
-		else if (lastState.error) {
-			return
+		// wait for 5 seconds before terminating the lobby to allow for the image to be sent to the clients.
+		setTimeout(() => {
+			terminateSinglePlayerGame(socket);
 		}
+		, 5000);
+	});
+}
 
-		let playerIndex = 0;
-		for (let index = 0; index < lastState.players.length; index++) {
-			let player = lastState.players[index];
-			if (player.name == socket.decoded.username) {
-				playerIndex = index;
+
+async function getSummaryFromStateAndProgress(stateAndProgress) {
+	// Given the state and progress array, calculate stats from the game.
+	// Average evaluations, finishing order [winner, second, third, fourth], etc.
+	let gameSummary = {
+		players: [],
+		finishingOrder: []
+	};
+	let stateLength = stateAndProgress[0].length;
+	let lastState = stateAndProgress[0][stateLength - 1];
+	let players = lastState.players;
+
+	// Player names to the state index where they finished the game.
+	let playerFinishNumber = {};
+
+	// For each player, calculate the average evaluation, total evaluation, and whether they lost the game.
+	for (let index = 0; index < players.length; index++) {
+		let playerInState = players[index];
+		// If playerInState.is_bot is true, then fetch stats of 'MoskaBot'
+		let playerCurrentDBEntry = null;
+		if (playerInState.is_bot) {
+			playerCurrentDBEntry = await getCurrentUserStats("MoskaBot");
+		} else {
+			playerCurrentDBEntry = await getCurrentUserStats(playerInState.name);
+		}
+		// console.log(playerCurrentDBEntry);
+		let playerName = playerInState.name;
+		let playerIndex = index;
+		let playerStats = {
+			username: playerName,
+			rating: playerCurrentDBEntry.gameStats.rating,
+			evaluations: [],
+			finishingState: stateLength,
+			isBot: playerInState.is_bot
+		};
+		let totalEvaluation = 0;
+		let gameLost = 1;
+
+		// For each state, get the evaluation, and check if the player lost the game.
+		for (let stateIndex = 0; stateIndex < stateLength; stateIndex++) {
+			let state = stateAndProgress[0][stateIndex];
+			if (state.error) {
+				continue;
+			}
+			playerStats.evaluations.push(state.players[playerIndex].last_evaluation);
+			totalEvaluation += state.players[playerIndex].last_evaluation;
+
+			// When the player gets out, we can stop iterating through the states.
+			if (state.players[playerIndex].finished == 1 || state.players[playerIndex].cards.length == 0) {
+				gameLost = 0;
+				playerFinishNumber[playerName] = stateIndex;
+				playerStats.finishingState = stateIndex;
 				break;
 			}
 		}
 
-		// Calculate average evaluation score:
-		let totalEvaluation = 0;
-		for (let index = 0; index < stateLength; index++) {
-			let state = stateAndProgress[0][index];
-			if (state.error) {
-				continue;
-			}
-			totalEvaluation = totalEvaluation + state.players[playerIndex].last_evaluation;
+		if (gameLost == 1) {
+			playerFinishNumber[playerName] = stateLength;
 		}
 
-		if (data != 0) { // Invalid exit code:
-			console.log("Invalid exit code. Game finished prematurely.")
-			// Check if the user is anonymous user:'
-			try {
-			let tempName = socket.decoded.username.match(/^[^\d]*/);
-			if (tempName[0] == "Anonymous") {
-				console.log("Anonymous user disconnected. Not storing in the database.")
-				return;
-			}
-			} catch {
-				console.log("Error in checking if user is anonymous.")
-			}
-			// Storing in the database that game ended prematurely:
-			let res = fetch("http://localhost:3000/users/updateuser", {
-				method: "POST",
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ username: socket.decoded.username, stats: { "gameWon": 0, "gameLost": 0, "gameForfeited": 1, "totalEvaluation": totalEvaluation, "stateAmount": stateLength } })
-			})
-				.then(response => response.json())
-				.then(data => {
-					console.log('Database update response:', data);
-				})
-		}
+		gameSummary.players.push(playerStats);
+	}
 
-		if (data == 0) { // Valid exit code:
-
-			// Check if the player won or lost the game:
-			let gameWon = 0;
-			let gameLost = 0;
-
-			for (let index = 0; index < lastState.players.length; index++) {
-				let player = lastState.players[index];
-				if (player.name == socket.decoded.username && (player.finished == 1 || player.cards.length == 0)) {
-					console.log("User " + socket.decoded.username + " won the game.")
-					gameWon = 1;
-					gameLost = 0;
-					break;
-				} else if (player.name == socket.decoded.username && player.finished == 0 && player.cards.length != 0) {
-					console.log("User " + socket.decoded.username + " lost the game.")
-					gameWon = 0;
-					gameLost = 1;
-					break;
-				}
-			}
-
-			if (socket.decoded.username == "Test_4") { // Change back::
-				socket.decoded.username = "Test";
-			}
-
-			let folder_name = socket.decoded.username + "-Games";
-			let file_name = "HumanGame-" + gameIndex + ".png";
-
-			// Read the evaluation image file and send it to the client.
-			fs.readFile(__dirname + "/../" + folder_name + "/" + file_name, function (err, data) {
-				if (err) {
-					socket.emit('exit', true);
-				}
-				else {
-					// Send the image data to the connected client
-					socket.emit('exit', { image: true, buffer: Buffer.from(data, 'base64') });
-				}
-			});
-			// Check if the user is anonymous user:'
-			try {
-				let tempName = socket.decoded.username.match(/^[^\d]*/);
-				if (tempName[0] == "Anonymous") {
-					console.log("Anonymous user disconnected. Not storing in the database.")
-					return;
-				}
-				} catch {
-					console.log("Error in checking if user is anonymous.")
-			}
-			let res = fetch("http://localhost:3000/users/updateuser", {
-				method: "POST",
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ username: socket.decoded.username, stats: { "gameWon": gameWon, "gameLost": gameLost, "gameForfeited": 0, "totalEvaluation": totalEvaluation, "stateAmount": stateLength } })
-			})
-				.then(response => response.json())
-				.then(data => {
-					console.log('Database update response:', data);
-				})
-		}
+	// Calculate the finishing order of the players.
+	// The first to finish is the player with the lowest state index where they finished the game.
+	gameSummary.finishingOrder = Object.keys(playerFinishNumber).sort(function (a, b) {
+		return playerFinishNumber[a] - playerFinishNumber[b];
 	});
+
+	return gameSummary;
 }
+
+
+/**
+ * Updates the player statistics in the database by sending a
+ * POST request to the server.
+ *
+ * @param {string} username - The username of the player.
+ * @param {Object} gameSummary - The summary of the game.
+ * @returns {Promise<Object>} The response from the database update.
+ */
+function updatePlayerStats(username, gameSummary) {
+	let update = {
+		"username": username,
+		"gameSummary": {
+			"players": gameSummary.players,
+			"finishingOrder": gameSummary.finishingOrder
+		}
+	}
+	let res = fetch("http://localhost:3000/users/updateuser", {
+		method: "POST",
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify(update)
+	})
+		.then(response => response.json())
+		.then(data => {
+			console.log('Database update response:', data);
+		})
+	return res;
+}
+
+async function getCurrentUserStats(username) {
+    try {
+        // Use query parameters instead of a request body
+        let response = await fetch(`http://localhost:3000/users/finduser?username=${encodeURIComponent(username)}`, {
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        let data = await response.json();
+        console.log('User stats:', data);
+        return data;
+    } catch (error) {
+        console.error('Error fetching user stats:', error);
+    }
+}
+
+/**
+ * Update all players' stats in the database.
+ * @param {Array} usernames - The usernames of the players.
+ * @param {number} data - The exit code of the game.
+ * @param {Array} stateAndProgress - The game states.
+ */
+async function updateAllPlayersStats(usernames, data, stateAndProgress) {
+	if (data != 0) {
+		// Game failed
+		console.log("Invalid exit code. Game finished prematurely.");
+	}
+	// Game successful
+	else {
+		let gameSummary = await getSummaryFromStateAndProgress(stateAndProgress);
+		for (let index = 0; index < usernames.length; index++) {
+			updatePlayerStats(usernames[index], gameSummary);
+		}
+	}
+}
+
 
 function receiveChatMessage(socket, data) {
 	var now = new Date();
@@ -798,7 +818,6 @@ function getPyexe() {
 	let pyexe = 'python3';
 	if (process.platform === "win32") {
 		pyexe = 'py';
-		const { execSync } = require('child_process');
 		try {
 			execSync('py --version');
 		} catch (error) {
@@ -825,6 +844,26 @@ function killUserGameProcess(socket) {
 	else {
 		console.log("Attempted disconnect. No game in progress.");
 	}
+}
+
+/**
+ * Emits a PNG file to the given socket.
+ * @param {Object} socket - The socket object for the user.
+ * @param {string} path - The path to the PNG file.
+ * @returns {void}
+ * @emits {Object} - The PNG file to the socket.
+*/
+function emitPNGFile(socket, path) {
+	fs.readFile(path, function (err, data) {
+		if (err) {
+			socket.emit('exit', true);
+		}
+		else {
+			// Send the image data to the connected client
+			socket.emit('exit', { image: true, buffer: Buffer.from(data, 'base64') });
+		}
+	}
+	)
 }
 
 function padNumber(number) {

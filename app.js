@@ -1,5 +1,5 @@
 
-require('dotenv').config();
+require('dotenv').config({ override: true });
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -45,8 +45,8 @@ const firebaseConfig = {
   measurementId
 
 };
-
-var serviceAccount = JSON.parse(process.env.firebase_admin_json)
+let firebase_admin_json = process.env.firebase_admin_json;
+var serviceAccount = JSON.parse(firebase_admin_json)
 // Initialize the app with a service account, granting admin privileges
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
