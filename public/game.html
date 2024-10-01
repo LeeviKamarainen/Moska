@@ -1,6 +1,7 @@
 <html>
 
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-RYH4QXEN2S"></script>
   <script>
@@ -10,20 +11,23 @@
 
     gtag('config', 'G-RYH4QXEN2S');
   </script>
+  <link rel="icon" href="../images/favicon.ico">
   <link rel="stylesheet" href="/stylesheets/style.css">
+  <link rel="stylesheet" href="/stylesheets/card.css">
+  <link rel="stylesheet" href="/stylesheets/gamemenu.css">
+  <link rel="stylesheet" href="/stylesheets/endgame.css">
+  <link rel="stylesheet" href="/stylesheets/gameboard.css">
   <link rel="stylesheet" href="/stylesheets/hourglass.css">
+  <link rel="stylesheet" href="../stylesheets/navbar.css">
+
 </head>
 
   <body>
     <script type="text/javascript" src="javascripts/renderGame.js"></script>
     <script type="text/javascript" src="javascripts/navigationbar.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
     
-    <script>
-    var socket = io({query: {"token": localStorage.getItem('auth_token')},
-  reconnection: true});
-    console.log(socket)
-    </script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="../javascripts/socketManager.js"></script>
   
   <!--  <form id="add-card-form">
       <label for="card-type">Enter Card type:</label>
@@ -39,7 +43,6 @@
     <a href="tutorial">Tutorial</a>
     <!--  <a href="gamelogs">Game Logs</a>  -->
     <a href="leaderboard">Leaderboard</a>
-    
     <input type="range" min="2" max ="40" step="1" value="20" id ="timeslider">
     <p id="timeslidervalue">Seconds per turn:</p>
 
@@ -48,9 +51,11 @@
     <p id="show-evaluation-tickbox-text">Show matching cards</p>
     <input type="checkbox" id="show-matching-cards-checkbox" class="show-tickbox">
 
+    
     <a href="login" class="login" id="login">Login</a>
     <a href="/" class="login" id="logout">Logout</a>
     <a href="register" class="register">Register</a>
+    <p id="mute-sound-button" onclick="muteSound(this)">🔊</p>
   </div>
 
   
@@ -65,7 +70,9 @@
   <div id="right" class="board-player"></div>
   <div id="errormessage"  hidden="true">Incorrect action:</div>
   <p id="gameaction"></p>
-  <div id="bottom" onclick="activateBoard(this,event)"class="board-player">
+  <div id="bottom-overflow-container">
+    <div id="bottom" onclick="activateBoard(this,event)"class="board-player">
+    </div>
   </div>
   <div id="deck" class="board-player"></div>
   <div id="card-from-deck" class="board-player"></div>
@@ -78,6 +85,7 @@
     <button id="Skip" class = "play-cards" disabled="true">Skip turn</button>
     <div style="height:100%;width:5%;"></div> <!-- For empty space in the action menu-->
     <button id="EndTurn" class = "play-cards" disabled="true">End bout</button>
+    <div style="height:100%;width:5%;"></div> <!-- For empty space in the action menu-->
     <button id="DrawAll" class = "play-cards" disabled="true">End bout (draw all)</button>
     <div style="height:100%;width:5%;"></div> <!-- For empty space in the action menu-->
     <button id="Refresh" class = "play-cards">Refresh</button>
@@ -87,6 +95,21 @@
   </div>
 </div>
 
+<div id="chat-box">
+  <div id="chat-header" onmousedown="resizeChat(event)">
+    <div id="chat-switch-div">
+      <div id="chat-switch">
+      <label for="global-chat" id="global-chat-label">Global</label>
+      <input type="radio" id="global-chat" name="chat-type" checked onclick="switchChatType('global')">
+      <label for="lobby-chat" id="lobby-chat-label">Lobby</label>
+      <input type="radio" id="lobby-chat" name="chat-type" onclick="switchChatType('lobby')"></div>
+</div></div>
+  <div id="chat-body"></div>
+  <input type="text" id="chat-input" placeholder="Type your message...">
+  <button id="chat-send" onclick="sendMessage()">Send</button>
+</div>
+<link rel="stylesheet" href="../stylesheets/chat.css">
+<script type="text/javascript" src="../javascripts/chat.js"></script>
 </body>
 
 

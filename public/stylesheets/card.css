@@ -1,0 +1,59 @@
+.card {
+    height: 5vw;
+    width: 3vw;
+    flex: 0 0 0%;
+    transition: transform 0.2s ease-in-out;
+}
+
+#card-from-deck {
+    top: 50%;
+    left: 30%;
+    height: 5vw;
+    width: 3vw;
+    position: absolute;
+    transform: translate(-50%, -70%);
+    text-align: center;
+    display: flex;
+    flex-wrap: wrap;
+    visibility: hidden;
+}
+
+.card:hover {
+    transform: scale(1.5);
+    z-index: 100;
+}
+
+.card[kopled] {
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5), 0 0 5px rgba(255, 255, 255, 0.5), 0 0 5px rgba(255, 255, 255, 0.5), 0 0 5px rgba(255, 0, 0, 0.5), 0 0 5px rgba(255, 0, 0, 0.5), 0 0 5px rgba(255, 0, 0, 0.5), 0 0 5px rgba(255, 0, 0, 0.5), 0 0 5px rgba(255, 0, 0, 0.5);
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+    filter: hue-rotate(20deg); /* Changed to blueish hue */
+}
+
+.card[selected] {
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5), 0 0 5px rgba(255, 255, 255, 0.5), 0 0 5px rgba(255, 255, 255, 0.5), 0 0 5px rgba(0, 47, 255, 0.5), 0 0 5px rgba(0, 47, 255, 0.5), 0 0 5px rgba(0, 47, 255, 0.5), 0 0 5px rgba(0, 47, 255, 0.5), 0 0 5px rgba(0, 47, 255, 0.5);
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+    filter: hue-rotate(20deg);
+}
+
+.card[used] {
+    opacity: 0.5;
+    cursor: auto;
+    pointer-events: auto;
+}
+
+.card[card-type="card-back"] {
+    border-radius: 5px 5px 5px 5px;
+}
+
+
+.card[not-matching-cards-style] {
+    opacity: 70%;
+}
+
+.card[can-not-kill-style] {
+    opacity: 70%;
+}

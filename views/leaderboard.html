@@ -11,7 +11,10 @@
       gtag('config', 'G-RYH4QXEN2S');
     </script>
     <title>Tutorial Page</title>
+    <link rel="icon" href="../images/favicon.ico">
     <link rel="stylesheet" href="../stylesheets/leaderboard.css">
+    <link rel="stylesheet" href="../stylesheets/style.css">
+    <link rel="stylesheet" href="../stylesheets/navbar.css">
   </head>
   <body>
     <script type="text/javascript" src="../javascripts/navigationbar.js"></script>
@@ -27,21 +30,23 @@
       <a href="tutorial">Tutorial</a>
       <!--  <a href="gamelogs">Game Logs</a>  -->
       <a href="leaderboard">Leaderboard</a>
+      <a href="lobby" class="Lobby">Multiplayer</a>
       <a href="login" class="login" id="login">Login</a>
       <a href="/" class="login" id="logout">Logout</a>
       <a href="register" class="register">Register</a>
     </div>
     <table>
       <thead>
-          <tr>
-              <th onclick="sortTable(0)">Player Name</th>
-              <th onclick="sortTable(1)">Average evaluation</th>
-              <th onclick="sortTable(2)">Games Won</th>
-              <th onclick="sortTable(3)">Games Lost</th>
-              <th onclick="sortTable(4)">Percentage Won</th>
-              <th onclick="sortTable(5)">Total Games</th>
-              <th onclick="sortTable(6)">Lose Streak</th>
-          </tr>
+        <tr>
+          <th onclick="sortTable(0)">Player Name<p id="sort-icon0"></p></th>
+          <th onclick="sortTable(1)">'ELO' Rating<p id="sort-icon1">&#x25B2;</p></th>
+          <th onclick="sortTable(2)">Average evaluation<p id="sort-icon2"></p></th>
+          <th onclick="sortTable(3)">Games Won<p id="sort-icon3"></p></th>
+          <th onclick="sortTable(4)">Games Lost<p id="sort-icon4"></p></th>
+          <th onclick="sortTable(5)">Percentage Won<p id="sort-icon5"></p></th>
+          <th onclick="sortTable(6)">Total Games<p id="sort-icon6"></p></th>
+          <th onclick="sortTable(7)">Lose Streak<p id="sort-icon7"></p></th>
+        </tr>
       </thead>
       <tbody id="leaderboard-body">
           <!-- Table rows will be populated here programmatically -->

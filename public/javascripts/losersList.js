@@ -1,57 +1,41 @@
 
 if (document.readyState !== "loading") {
-	initializeLeaderboard();
+	initializeTable();
 } else {
 	document.addEventListener("DOMContentLoaded", function () {
-		initializeLeaderboard();
+		initializeTable();
 	});
 }
-let leaderboardData = null;
+let tableData = null;
 let sortDirection = {}; // To store the sorting direction for each column
-async function initializeLeaderboard() {
-
+async function initializeTable() {
 	// Get leaderboard from server:
-	let response = fetch("/users/getleaderboard");
-	leaderboardData = await response.then(res => res.json());
-	populateLeaderboard();
-	sortTable(1); // Sort by ELO rating by default
-	sortTable(1); // Sort by ELO rating by default
+	let response = fetch("/users/getloserslist");
+	tableData = await response.then(res => res.json());
+	console.log(tableData)
+	populateTable();
+	sortTable(1); // Sort by average evaluation score by default
 
 }
 
-function populateLeaderboard() {
+function populateTable() {
 	const tableBody = document.getElementById('leaderboard-body');
 	tableBody.innerHTML = ''; // Clear the table body
-	leaderboardData.forEach(entry => {
+	tableData.forEach(entry => {
 		const row = document.createElement('tr');
 
 		// Create and populate table cells for each data field
 		const usernameCell = document.createElement('td');
 		usernameCell.textContent = entry.username;
-		const ratingCell = document.createElement('td');
-		ratingCell.textContent = Math.round(entry.rating * 1000);
-		const averageEvaluationCell = document.createElement('td');
-		averageEvaluationCell.textContent = isNaN(Math.round(entry.averageEvaluation * 100) / 100) ? 0 : Math.round(entry.averageEvaluation * 100) / 100;
-		const gamesWonCell = document.createElement('td');
-		gamesWonCell.textContent = entry.gamesWon;
-		const gamesLostCell = document.createElement('td');
-		gamesLostCell.textContent = entry.gamesLost;
-		const percentWonCell = document.createElement('td');
-		percentWonCell.textContent = Math.round(entry.percentWon * 100) / 100;
-		const totalGamesCell = document.createElement('td');
-		totalGamesCell.textContent = entry.totalGames;
-		const loseStreakCell = document.createElement('td');
-		loseStreakCell.textContent = entry.loseStreak;
+		const gamesLostInRowCell = document.createElement('td');
+		gamesLostInRowCell.textContent = entry.games_lost_in_row;
+		const dateCell = document.createElement('td');
+		dateCell.textContent = entry.date;
 
 		// Append the cells to the table row
 		row.appendChild(usernameCell);
-		row.appendChild(ratingCell);
-		row.appendChild(averageEvaluationCell);
-		row.appendChild(gamesWonCell);
-		row.appendChild(gamesLostCell);
-		row.appendChild(percentWonCell);
-		row.appendChild(totalGamesCell);
-		row.appendChild(loseStreakCell);
+		row.appendChild(gamesLostInRowCell);
+		row.appendChild(dateCell);
 
 		// Append the row to the table body
 		tableBody.appendChild(row);

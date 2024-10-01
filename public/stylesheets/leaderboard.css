@@ -97,7 +97,7 @@ body {
 
   table {
     width: 80%;
-    bottom: 50%;
+    top: 25%;
     left: 10%;
     border-collapse: collapse;
     position: absolute;

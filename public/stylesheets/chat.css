@@ -1,0 +1,116 @@
+body {
+    height: 100%;
+}
+
+#chat-box {
+    position: fixed;
+    bottom: 0%;
+    right: 0%;
+    width: 15%;
+    height: 30%;
+    border: 1px solid #000000;
+    border-radius: 10px;
+    resize: both;
+    overflow: auto;
+    background-color: #1a1919;
+}
+
+#chat-header {
+    background-color: #32CD32;
+    color: black;
+    padding: 2%;
+    height: 10%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    font-size: 1vw;
+    cursor: nw-resize;
+}
+
+#chat-body {
+    padding: 2%;
+    max-height: 60%;
+    overflow-y: auto;
+    background-color: #1a1919;
+    color: lightgreen;
+}
+
+.message {
+    position: relative;
+    margin-bottom: 10px;
+    width: 80%;
+    word-wrap: break-word;
+    font-size: 1vw;
+    text-align: left;
+}
+
+.message span.timestamp {
+    position: absolute;
+    top: 0;
+    right: -20%;
+    color: #888;
+    font-size: 0.5vw;
+    text-align: right;
+    width: 20%;
+}
+
+
+.message span.timestamp:hover {
+    transform: scale(1.5);
+}
+
+#chat-input {
+    width: calc(100% - 4%);
+    margin: 2%;
+    padding: 1%;
+    border: 1px solid #ccc;
+    bottom:20%;
+    border-radius: 5px;
+    font-size: 1vw;
+}
+
+#chat-send {
+    width: calc(100% - 4%);
+    margin: 2%;
+    padding: 2%;
+    background-color: #32CD32;;
+    color: black;
+    font-size: 1vw;
+    border: none;
+    border-radius: 5px;
+    bottom: 10%;
+    cursor: pointer;
+}
+
+#chat-switch-div {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    z-index: 5;
+}
+#chat-switch {
+    width: 50%;
+    height: 10%;
+    left:25%;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center; /* Vertically align the label and input */
+}
+
+#chat-switch input {
+    height: 1vw;
+    width: 1vw;
+}
+
+::-webkit-scrollbar {
+    width: 0.0em;
+    height: 0.5em;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, .1);
+    border-radius: 3px;
+}

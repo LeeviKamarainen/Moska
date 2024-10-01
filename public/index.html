@@ -1,6 +1,7 @@
 <html>
 
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-RYH4QXEN2S"></script>
   <script>
@@ -10,18 +11,25 @@
 
     gtag('config', 'G-RYH4QXEN2S');
   </script>
+  <link rel="icon" href="../images/favicon.ico">
   <title>Login Page</title>
   <link rel="stylesheet" href="../stylesheets/menu.css">
+  <link rel="stylesheet" href="../stylesheets/style.css">
+  <link rel="stylesheet" href="../stylesheets/navbar.css">
 </head>
+
 <body>
-  
   <script type="text/javascript" src="javascripts/mainmenu.js"></script>
   <script type="text/javascript" src="javascripts/navigationbar.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="../javascripts/socketManager.js"></script>
+
   <div class="navbar">
     <a href="/">Home</a>
     <a href="tutorial">Tutorial</a>
     <!--  <a href="gamelogs">Game Logs</a>  -->
     <a href="leaderboard">Leaderboard</a>
+    <a href="lobby" class="Lobby">Multiplayer</a>
     <a href="login" class="login" id="login">Login</a>
     <a href="/" class="login" id="logout">Logout</a>
     <a href="register" class="register">Register</a>
@@ -29,20 +37,27 @@
   <div class="container">
     <div class="login-form">
       <h1>MOSKA GAME:</h1>
-      <button id="start-game" >Start game</button>
-      <p></p>
-      <button id="reconnect">Reconnect to game</button>
+      <button id="start-game">Start a single player game</button>
+      <button id="open-lobby">Join a multiplayer lobby</button>
     </div>
   </div>
-<!--
-<script src="/socket.io/socket.io.js"></script>
-<script>
-  var socket = io();
-  console.log(socket)
-</script>
--->
+
+  <!--<object type="text/html" data="htmlComponents/chat.html" id="chatcontainer"></object> -->
+  <div id="chat-box">
+      <div id="chat-header" onmousedown="resizeChat(event)">
+        <div id="chat-switch-div">
+          <div id="chat-switch">
+          <label for="global-chat" id="global-chat-label">Global</label>
+          <input type="radio" id="global-chat" name="chat-type" checked onclick="switchChatType('global')">
+          <label for="lobby-chat" id="lobby-chat-label">Lobby</label>
+          <input type="radio" id="lobby-chat" name="chat-type" onclick="switchChatType('lobby')"></div>
+    </div></div>
+      <div id="chat-body"></div>
+      <input type="text" id="chat-input" placeholder="Type your message...">
+      <button id="chat-send" onclick="sendMessage()">Send</button>
+  </div>
+<link rel="stylesheet" href="../stylesheets/chat.css">
+<script type="text/javascript" src="../javascripts/chat.js"></script>
 </body>
-
-
 
 </html>

@@ -1,0 +1,86 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #000000;
+  }
+.container {
+    display: flex;
+    position: absolute;
+    top: 30%;
+    left: 30%;
+    width: 40%;
+}
+
+.lobby-list, .current-lobby {
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px;
+    background-color: #f2f2f2;
+    width: 45%;
+}
+
+.lobby-list {
+    background-color: #f2f2f2;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    cursor: pointer;
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+}
+
+li:hover {
+    background-color: #ddd;
+}
+
+li:last-child {
+    border-bottom: none;
+}
+
+input, button {
+    margin-top: 10px;
+    padding: 8px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #ddd;
+}
+
+#chatcontainer {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 30%;
+    height: 40%;
+  }
+
+.lobby-online-users {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    margin: 10px;
+    background-color: #1a1919;
+    width: 20%;
+    left: 0%;
+    color: white;
+    height: 25%;
+    overflow-y: scroll;
+    bottom: 0%;
+    position: absolute;
+}
+.lobby-online-users p {
+    margin-block-start: 0;
+    background-color: #32CD32;
+    color: black;
+    height: 10%;
+    width: 100%;
+    font-size: 1vw;
+    text-align: center;
+}
